@@ -11,15 +11,6 @@ export class Viewer {
     private currentLinks: AbstractMesh[] = [];
     private viewScene: ViewScene;
 
-    private reposition(mesh: AbstractMesh, f: number, o: number) {
-        const angl1 = (f - 90) * Math.PI / 180;
-        const angl2 = o * Math.PI / 180;
-        const RR = Math.cos(angl2);
-        mesh.position.y = 5 * Math.sin(angl2);
-        mesh.position.x = RR * 5 * Math.cos(angl1);
-        mesh.position.z = -RR * 5 * Math.sin(angl1);
-    }
-
     public createScene() {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
         const engine = new BABYLON.Engine(canvas, true);
@@ -41,6 +32,7 @@ export class Viewer {
         this.boxMaterial.diffuseColor = new BABYLON.Color3(0.5, 1, 0);
         this.boxMaterial.alpha = 1;
     }
+
     public async load(sceneUrl: string) {
         const response = await axios.get<ViewScene>(sceneUrl);
         if (response.status != 200) {
@@ -50,6 +42,7 @@ export class Viewer {
         this.viewScene = response.data;
         this.goToImage(this.viewScene.mainId);
     }
+
     private goToImage(id: string) {
 
         const targetPicture = this.viewScene.pictures.find(p => p.id === id);
@@ -66,6 +59,15 @@ export class Viewer {
             }));
             this.reposition(box, link.f, link.o);
         }
+    }
+
+    private reposition(mesh: AbstractMesh, f: number, o: number) {
+        const angl1 = (f - 90) * Math.PI / 180;
+        const angl2 = o * Math.PI / 180;
+        const RR = Math.cos(angl2);
+        mesh.position.y = 5 * Math.sin(angl2);
+        mesh.position.x = RR * 5 * Math.cos(angl1);
+        mesh.position.z = -RR * 5 * Math.sin(angl1);
     }
 
     private drawImage(url: string) {
