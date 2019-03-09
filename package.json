@@ -1,0 +1,26 @@
+{
+  "name": "360viewer",
+  "version": "1.0.0",
+  "description": "Viewer for 360 excursion",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "babylonjs": "^3.3.0",
+    "babylonjs-inspector": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "ts-loader": "^5.3.3",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.3",
+    "webpack": "^4.28.3",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14",
+    "dotenv-webpack": "^1.7.0"
+  }
+}
