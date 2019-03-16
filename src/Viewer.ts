@@ -2,6 +2,8 @@ import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDo
 
 import axios from 'axios';
 import { ViewScene } from "./Models/ViewScene";
+import * as GUI from 'babylonjs-gui'
+
 
 export class Viewer {
 
@@ -43,11 +45,14 @@ export class Viewer {
         this.goToImage(this.viewScene.mainId);
     }
 
+    
     private goToImage(id: string) {
 
         const targetPicture = this.viewScene.pictures.find(p => p.id === id);
         this.drawImage(targetPicture.image);
         this.cleanLinks();
+
+        var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
         for (let link of targetPicture.links) {
             var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
@@ -57,7 +62,24 @@ export class Viewer {
             box.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, e => {
                 this.goToImage(link.id);
             }));
-            this.reposition(box, link.f, link.o);
+            this.reposition(box, link.f, link.o);           
+
+            var rect1 = new BABYLON.GUI.Rectangle();
+            rect1.width = 0.2;
+            rect1.height = "40px";
+            rect1.cornerRadius = 20;
+            rect1.color = "Orange";
+            rect1.thickness = 4;
+            rect1.background = "green";
+            advancedTexture.addControl(rect1);
+
+            var label = new BABYLON.GUI.TextBlock();
+            label.text = "test";
+            rect1.addControl(label);
+
+            rect1.linkWithMesh(box);   
+            rect1.linkOffsetY = -50;
+            
         }
     }
 
