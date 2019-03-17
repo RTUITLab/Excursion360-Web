@@ -2,7 +2,7 @@ import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDo
 
 import axios from 'axios';
 import { ViewScene } from "./Models/ViewScene";
-import * as GUI from 'babylonjs-gui'
+//import * as GUI from 'babylonjs-gui'
 
 
 export class Viewer {
@@ -18,7 +18,10 @@ export class Viewer {
         const engine = new BABYLON.Engine(canvas, true);
         const scene = new Scene(engine);
         const camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, BABYLON.Vector3.Zero(), scene);
-        const light1 = new HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
+        const light1 = new HemisphericLight("light1", new BABYLON.Vector3(0, -1, 0), scene);
+        const light2 = new HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        light1.intensity = 0.5;
+        light2.intensity = 0.5;
         camera.attachControl(canvas, true);
         camera.inputs.attached.mousewheel.detachControl(canvas);
 
@@ -52,7 +55,7 @@ export class Viewer {
         this.drawImage(targetPicture.image);
         this.cleanLinks();
 
-        var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        //var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
         for (let link of targetPicture.links) {
             var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
@@ -64,21 +67,21 @@ export class Viewer {
             }));
             this.reposition(box, link.f, link.o);           
 
-            var rect1 = new BABYLON.GUI.Rectangle();
-            rect1.width = 0.2;
-            rect1.height = "40px";
-            rect1.cornerRadius = 20;
-            rect1.color = "Orange";
-            rect1.thickness = 4;
-            rect1.background = "green";
-            advancedTexture.addControl(rect1);
+            // var rect1 = new BABYLON.GUI.Rectangle();
+            // rect1.width = 0.2;
+            // rect1.height = "40px";
+            // rect1.cornerRadius = 20;
+            // rect1.color = "Orange";
+            // rect1.thickness = 4;
+            // rect1.background = "green";
+            // advancedTexture.addControl(rect1);
 
-            var label = new BABYLON.GUI.TextBlock();
-            label.text = "test";
-            rect1.addControl(label);
+            // var label = new BABYLON.GUI.TextBlock();
+            // label.text = "test";
+            // rect1.addControl(label);
 
-            rect1.linkWithMesh(box);   
-            rect1.linkOffsetY = -50;
+            // rect1.linkWithMesh(box);   
+            // rect1.linkOffsetY = -50;
             
         }
     }
