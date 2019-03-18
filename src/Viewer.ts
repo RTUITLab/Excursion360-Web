@@ -3,6 +3,8 @@ import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDo
 import axios from 'axios';
 import { ViewScene } from "./Models/ViewScene";
 
+
+
 export class Viewer {
 
     private currentImage: PhotoDome = null;
@@ -16,7 +18,10 @@ export class Viewer {
         const engine = new BABYLON.Engine(canvas, true);
         const scene = new Scene(engine);
         const camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, BABYLON.Vector3.Zero(), scene);
-        const light1 = new HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
+        const light1 = new HemisphericLight("light1", new BABYLON.Vector3(0, -1, 0), scene);
+        const light2 = new HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        light1.intensity = 0.5;
+        light2.intensity = 0.5;
         camera.attachControl(canvas, true);
         camera.inputs.attached.mousewheel.detachControl(canvas);
 
@@ -43,12 +48,14 @@ export class Viewer {
         this.goToImage(this.viewScene.mainId);
     }
 
+    
     private goToImage(id: string) {
 
         const targetPicture = this.viewScene.pictures.find(p => p.id === id);
         this.drawImage(targetPicture.image);
         this.cleanLinks();
 
+       
         for (let link of targetPicture.links) {
             var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
             this.currentLinks.push(box);
@@ -57,7 +64,7 @@ export class Viewer {
             box.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, e => {
                 this.goToImage(link.id);
             }));
-            this.reposition(box, link.f, link.o);
+            this.reposition(box, link.f, link.o);            
         }
     }
 
