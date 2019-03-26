@@ -1,8 +1,9 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDome, BoxParticleEmitter, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDome, BoxParticleEmitter, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Plane } from "babylonjs";
 
 import axios from 'axios';
 import { ViewScene } from "./Models/ViewScene";
-
+import * as GUI from "babylonjs-gui";
+import { Rectangle } from "babylonjs-gui";
 
 
 export class Viewer {
@@ -12,6 +13,7 @@ export class Viewer {
     private boxMaterial: StandardMaterial;
     private currentLinks: AbstractMesh[] = [];
     private viewScene: ViewScene;
+    private lables: GUI.Rectangle[] = [];
 
     public createScene() {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
@@ -36,6 +38,7 @@ export class Viewer {
         this.boxMaterial = new BABYLON.StandardMaterial("mat1", scene);
         this.boxMaterial.diffuseColor = new BABYLON.Color3(0.5, 1, 0);
         this.boxMaterial.alpha = 1;
+    
     }
 
     public async load(sceneUrl: string) {
@@ -54,17 +57,34 @@ export class Viewer {
         const targetPicture = this.viewScene.pictures.find(p => p.id === id);
         this.drawImage(targetPicture.image);
         this.cleanLinks();
-
+        this.cleanGUI();
+        var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
        
         for (let link of targetPicture.links) {
             var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
             this.currentLinks.push(box);
             box.material = this.boxMaterial;
+
+            var rect = new GUI.Rectangle();
+            advancedTexture.addControl(rect);
+            rect.width = 0.15;
+            rect.height = "40px";
+            rect.cornerRadius = 15;
+            rect.color = "black";
+            rect.thickness = 1;
+            rect.background = "white";
+            var label = new GUI.TextBlock();
+            this.getname(link.id,label);
+            rect.addControl(label);
+            rect.linkWithMesh(box);   
+            rect.linkOffsetY = -100;
+            this.lables.push(rect);
+
             box.actionManager = new BABYLON.ActionManager(this.scene);
             box.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, e => {
-                this.goToImage(link.id);
+                this.goToImage(link.id);                
             }));
-            this.reposition(box, link.f, link.o);            
+            this.reposition(box, link.f, link.o);           
         }
     }
 
@@ -92,6 +112,17 @@ export class Viewer {
             link.dispose();
         }
         this.currentLinks = [];
+    }
+
+    private cleanGUI() {
+        for (let rect of this.lables) {
+            rect.dispose();
+        }
+        this.lables = [];
+    }
+    private getname(id: string, label: GUI.TextBlock){
+        const name = this.viewScene.pictures.find(p => p.id === id);
+        label.text = name.title;
     }
 }
 
