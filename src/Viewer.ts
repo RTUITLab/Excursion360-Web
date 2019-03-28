@@ -58,6 +58,7 @@ export class Viewer {
         this.drawImage(targetPicture.image);
         this.cleanLinks();
         this.cleanGUI();
+        document.title=targetPicture.title;
         var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
        
         for (let link of targetPicture.links) {
