@@ -60,6 +60,51 @@ export class Viewer {
         this.cleanGUI();
         document.title=targetPicture.title;
         var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        var button = GUI.Button.CreateSimpleButton("but", "Menu");
+        button.width = 0.09;
+        button.height = "40px";
+        button.color = "black";
+        button.background = "white";
+        button.top = "-45%";
+        button.left = "-45%";
+        var manager = new BABYLON.GUI.GUI3DManager(this.scene);
+        var check = 0;
+        var buttons: BABYLON.GUI.HolographicButton[] = [];
+        const pics = this.viewScene.pictures;
+        var camera = this.scene.activeCamera;
+        button.onPointerClickObservable.add(function(this:Viewer){  //указал в параметрах this: void, думал, что поможет.
+            if(check==1){                                           //так он вроде видит сам класс и его методы, но все равно не работает, как надо.
+                for(let but of buttons){
+                    but.isVisible = false;
+                }
+                buttons = [];
+                check--;
+            }
+            else{           
+                var panel = new BABYLON.GUI.CylinderPanel();
+                panel.margin = 0.2;
+                panel.columns = 4;                
+                manager.addControl(panel);
+
+                var addButton = function(name:string, id:string) {
+                    var button = new BABYLON.GUI.HolographicButton("orientation");
+                    panel.addControl(button);          
+                    button.text = name;
+                    buttons.push(button);
+                    button.onPointerClickObservable.add(function(this:Viewer){  //здесь тоже
+                        this.goToImage(id);                                     //тут собственно и должно быть обращение
+                    });
+                }
+
+                panel.blockLayout = true;
+                check++;
+                for (let pic of pics) {
+                    addButton(pic.title,pic.id);                    
+                }
+                    panel.blockLayout = false;
+            }
+        });
+        advancedTexture.addControl(button);
        
         for (let link of targetPicture.links) {
             var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
