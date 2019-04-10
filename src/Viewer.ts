@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ViewScene } from "./Models/ViewScene";
 import * as GUI from "babylonjs-gui";
 import { Rectangle } from "babylonjs-gui";
+import { SceneNavigator } from "./SceneNavigator";
 
 
 export class Viewer {
@@ -14,6 +15,7 @@ export class Viewer {
     private currentLinks: AbstractMesh[] = [];
     private viewScene: ViewScene;
     private lables: GUI.Rectangle[] = [];
+    private sceneNavigator?: SceneNavigator;
 
     public createScene() {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
@@ -38,17 +40,39 @@ export class Viewer {
         this.boxMaterial = new BABYLON.StandardMaterial("mat1", scene);
         this.boxMaterial.diffuseColor = new BABYLON.Color3(0.5, 1, 0);
         this.boxMaterial.alpha = 1;
-    
+        this.createNavigatorButton();
     }
 
-    public async load(sceneUrl: string) {
-        const response = await axios.get<ViewScene>(sceneUrl);
-        if (response.status != 200) {
-            console.warn("Can't get scene description");
-            return;
-        }
-        this.viewScene = response.data;
+    public async show(scene: ViewScene) {
+        this.viewScene = scene;
         this.goToImage(this.viewScene.mainId);
+    }
+
+    private createNavigatorButton() {
+        const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        const button = GUI.Button.CreateSimpleButton("but", "Menu");
+        button.width = 0.09;
+        button.height = "40px";
+        button.color = "black";
+        button.background = "white";
+        button.top = "-45%";
+        button.left = "-45%";
+        button.onPointerClickObservable.add(() => {
+            if (this.sceneNavigator){
+                return;
+            } else {
+                this.sceneNavigator = new SceneNavigator(
+                    this.scene, 
+                    this.viewScene,
+                    (id) => {
+                        this.goToImage(id);
+                        this.sceneNavigator = null;
+                    });
+            }
+
+        });
+        advancedTexture.addControl(button);
+        console.warn("reuse advanced texture");
     }
 
     
@@ -60,7 +84,7 @@ export class Viewer {
         this.cleanGUI();
         document.title=targetPicture.title;
         var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
-       
+        console.warn("reuse advanced texture");//TODO reuse advanced texture
         for (let link of targetPicture.links) {
             var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
             this.currentLinks.push(box);
