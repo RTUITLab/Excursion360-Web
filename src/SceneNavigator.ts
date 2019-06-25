@@ -1,5 +1,5 @@
 import { Scene, Vector3 } from "babylonjs";
-import { ViewScene } from "./Models/ViewScene";
+import { Excursion } from "./Models/Excursion";
 import { GUI3DManager, HolographicButton, CylinderPanel } from "babylonjs-gui";
 
 export class SceneNavigator {
@@ -8,12 +8,12 @@ export class SceneNavigator {
 
     constructor(
         private scene: Scene,
-        private viewScene: ViewScene,
+        private viewScene: Excursion,
         private goToPicture: (id: string) => void) {
         const manager = new GUI3DManager(this.scene);
         const panel = new CylinderPanel();
         panel.margin = 0.2;
-        panel.columns = 4;                
+        panel.columns = 4;
         manager.addControl(panel);
         this.manager = manager;
         this.panel = panel;
@@ -21,7 +21,7 @@ export class SceneNavigator {
     }
 
     private construct() {
-        for (const picture of this.viewScene.pictures) {
+        for (const picture of this.viewScene.states) {
             this.addButton(picture.title, picture.id);
         }
     }

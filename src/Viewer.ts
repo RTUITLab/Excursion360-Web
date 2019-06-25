@@ -1,7 +1,7 @@
 import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDome, BoxParticleEmitter, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Plane } from "babylonjs";
 
 import axios from 'axios';
-import { ViewScene } from "./Models/ViewScene";
+import { Excursion } from "./Models/Excursion";
 import * as GUI from "babylonjs-gui";
 import { Rectangle } from "babylonjs-gui";
 import { SceneNavigator } from "./SceneNavigator";
@@ -13,8 +13,8 @@ export class Viewer {
     private scene: Scene;
     private boxMaterial: StandardMaterial;
     private currentLinks: AbstractMesh[] = [];
-    private viewScene: ViewScene;
-    private lables: GUI.Rectangle[] = [];
+    private viewScene: Excursion;
+    private labels: GUI.Rectangle[] = [];
     private sceneNavigator?: SceneNavigator;
 
     public createScene() {
@@ -43,9 +43,9 @@ export class Viewer {
         this.createNavigatorButton();
     }
 
-    public async show(scene: ViewScene) {
+    public async show(scene: Excursion) {
         this.viewScene = scene;
-        this.goToImage(this.viewScene.mainId);
+        this.goToImage(this.viewScene.firstStateId);
     }
 
     private createNavigatorButton() {
@@ -58,11 +58,11 @@ export class Viewer {
         button.top = "-45%";
         button.left = "-45%";
         button.onPointerClickObservable.add(() => {
-            if (this.sceneNavigator){
+            if (this.sceneNavigator) {
                 return;
             } else {
                 this.sceneNavigator = new SceneNavigator(
-                    this.scene, 
+                    this.scene,
                     this.viewScene,
                     (id) => {
                         this.goToImage(id);
@@ -75,14 +75,14 @@ export class Viewer {
         console.warn("reuse advanced texture");
     }
 
-    
+
     private goToImage(id: string) {
 
-        const targetPicture = this.viewScene.pictures.find(p => p.id === id);
-        this.drawImage(targetPicture.image);
+        const targetPicture = this.viewScene.states.find(p => p.id === id);
+        this.drawImage(targetPicture.url);
         this.cleanLinks();
         this.cleanGUI();
-        document.title=targetPicture.title;
+        document.title = targetPicture.title;
         var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
         console.warn("reuse advanced texture");//TODO reuse advanced texture
         for (let link of targetPicture.links) {
@@ -99,27 +99,32 @@ export class Viewer {
             rect.thickness = 1;
             rect.background = "white";
             var label = new GUI.TextBlock();
-            this.getname(link.id,label);
+            this.getName(link.id, label);
             rect.addControl(label);
-            rect.linkWithMesh(box);   
+            rect.linkWithMesh(box);
             rect.linkOffsetY = -100;
-            this.lables.push(rect);
+            this.labels.push(rect);
 
             box.actionManager = new BABYLON.ActionManager(this.scene);
             box.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, e => {
-                this.goToImage(link.id);                
+                this.goToImage(link.id);
             }));
-            this.reposition(box, link.f, link.o);           
+            this.reposition(box, link.o, link.f);
         }
     }
 
-    private reposition(mesh: AbstractMesh, f: number, o: number) {
-        const angl1 = (f - 90) * Math.PI / 180;
-        const angl2 = o * Math.PI / 180;
-        const RR = Math.cos(angl2);
-        mesh.position.y = 5 * Math.sin(angl2);
-        mesh.position.x = RR * 5 * Math.cos(angl1);
-        mesh.position.z = -RR * 5 * Math.sin(angl1);
+    /**
+     * Move mesh to new position
+     * @param mesh Mesh to move
+     * @param o Azimuthal angle in radians
+     * @param f Polar angle in radians
+     */
+    private reposition(mesh: AbstractMesh, o: number, f: number) {
+        o -= Math.PI / 2;
+        const RR = Math.cos(f);
+        mesh.position.y = 5 * Math.sin(f);
+        mesh.position.x = RR * 5 * Math.cos(o);
+        mesh.position.z = -RR * 5 * Math.sin(o);
     }
 
     private drawImage(url: string) {
@@ -140,13 +145,13 @@ export class Viewer {
     }
 
     private cleanGUI() {
-        for (let rect of this.lables) {
+        for (let rect of this.labels) {
             rect.dispose();
         }
-        this.lables = [];
+        this.labels = [];
     }
-    private getname(id: string, label: GUI.TextBlock){
-        const name = this.viewScene.pictures.find(p => p.id === id);
+    private getName(id: string, label: GUI.TextBlock) {
+        const name = this.viewScene.states.find(p => p.id === id);
         label.text = name.title;
     }
 }
