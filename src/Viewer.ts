@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDome, BoxParticleEmitter, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Plane } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDome, BoxParticleEmitter, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Plane, FreeCamera, Vector3, Camera, UniversalCamera, Color3, MeshBuilder } from "babylonjs";
 
 import axios from 'axios';
 import { Excursion } from "./Models/Excursion";
@@ -19,15 +19,17 @@ export class Viewer {
 
     public createScene() {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
-        const engine = new BABYLON.Engine(canvas, true);
+        const engine = new Engine(canvas, true);
         const scene = new Scene(engine);
-        const camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, BABYLON.Vector3.Zero(), scene);
-        const light1 = new HemisphericLight("light1", new BABYLON.Vector3(0, -1, 0), scene);
-        const light2 = new HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        scene.debugLayer.show();
+        //let camera: Camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, BABYLON.Vector3.Zero(), scene);
+        const camera = new UniversalCamera("free cam", Vector3.Zero(), scene);
+        const light1 = new HemisphericLight("light1", new Vector3(0, -1, 0), scene);
+        const light2 = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
         light1.intensity = 0.5;
         light2.intensity = 0.5;
         camera.attachControl(canvas, true);
-        camera.inputs.attached.mousewheel.detachControl(canvas);
+       // camera.inputs.attached.mousewheel.detachControl(canvas);
 
         engine.runRenderLoop(function () {
             scene.render();
@@ -37,8 +39,8 @@ export class Viewer {
         });
         this.scene = scene;
 
-        this.boxMaterial = new BABYLON.StandardMaterial("mat1", scene);
-        this.boxMaterial.diffuseColor = new BABYLON.Color3(0.5, 1, 0);
+        this.boxMaterial = new StandardMaterial("mat1", scene);
+        this.boxMaterial.diffuseColor = new Color3(0.5, 1, 0);
         this.boxMaterial.alpha = 1;
         this.createNavigatorButton();
     }
@@ -86,7 +88,7 @@ export class Viewer {
         var advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
         console.warn("reuse advanced texture");//TODO reuse advanced texture
         for (let link of targetPicture.links) {
-            var box = BABYLON.MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
+            var box = MeshBuilder.CreateBox("box", { height: 1, width: 1, depth: 1 }, this.scene);
             this.currentLinks.push(box);
             box.material = this.boxMaterial;
 
@@ -105,7 +107,7 @@ export class Viewer {
             rect.linkOffsetY = -100;
             this.labels.push(rect);
 
-            box.actionManager = new BABYLON.ActionManager(this.scene);
+            box.actionManager = new ActionManager(this.scene);
             box.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, e => {
                 this.goToImage(link.id);
             }));
@@ -120,7 +122,7 @@ export class Viewer {
      * @param f Polar angle in radians
      */
     private reposition(mesh: AbstractMesh, o: number, f: number) {
-        o -= Math.PI / 2;
+        f = 0;
         const RR = Math.cos(f);
         mesh.position.y = 5 * Math.sin(f);
         mesh.position.x = RR * 5 * Math.cos(o);
