@@ -19,6 +19,8 @@ export interface State {
     viewDirection: SphericalPoint;
     /** Resource rotation for crooked resources */
     rotation: CartesianPoint;
+    /** Picture Quaternion rotation */
+    pictureRotation: any;
     /** Array of links from current state */
     links: Link[];
 }

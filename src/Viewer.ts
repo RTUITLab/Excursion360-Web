@@ -120,7 +120,7 @@ export class Viewer {
     private goToImage(id: string) {
 
         const targetPicture = this.viewScene.states.find(p => p.id === id);
-        this.drawImage(targetPicture.url);
+        this.drawImage(targetPicture.url, targetPicture.pictureRotation);
         this.cleanLinks();
         document.title = targetPicture.title;
         for (let link of targetPicture.links) {
@@ -142,7 +142,7 @@ export class Viewer {
     }
 
 
-    private drawImage(url: string) {
+    private drawImage(url: string, pictureRotation: any) {
         if (this.currentImage === null) {
             this.currentImage = new PhotoDome("background", url, { resolution: 32, size: 1000 }, this.scene);
         } else {
@@ -150,6 +150,7 @@ export class Viewer {
             this.currentImage.photoTexture.url = null;
             this.currentImage.photoTexture.updateURL(url);
         }
+        this.currentImage.rotationQuaternion = pictureRotation;
     }
 
     private cleanLinks() {
