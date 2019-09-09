@@ -1,10 +1,13 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDome, BoxParticleEmitter, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Plane, FreeCamera, Vector3, Camera, UniversalCamera, Color3, MeshBuilder, Material, PointLight } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, AbstractMesh, PhotoDome, BoxParticleEmitter, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Plane, FreeCamera, Vector3, Camera, UniversalCamera, Color3, MeshBuilder, Material, PointLight, Texture, AssetsManager, DefaultLoadingScreen } from "babylonjs";
 
 import axios from 'axios';
 import { Excursion } from "./Models/Excursion";
 import * as GUI from "babylonjs-gui";
 import { Rectangle, GUI3DManager, HolographicButton, SpherePanel, TextBlock, AdvancedDynamicTexture } from "babylonjs-gui";
 import { SceneNavigator } from "./SceneNavigator";
+import { timingSafeEqual } from "crypto";
+import { StateChangeLoadingScreen } from "./StateChangeLoadingScreen";
+import { Configuration } from "./Configuration";
 
 
 export class Viewer {
@@ -17,6 +20,8 @@ export class Viewer {
     private linkSphereMaterial?: Material;
     private guiTexture: GUI.AdvancedDynamicTexture;
     private linkTextBlock?: GUI.TextBlock;
+    private assetsManager: AssetsManager;
+
     private SnubCuboctahedron = {
         name:"Snub Cuboctahedron",
         category:["Archimedean Solid"],
@@ -37,11 +42,15 @@ export class Viewer {
         this.guiTexture.addControl(textBlock);
         this.linkTextBlock = textBlock;
         scene.registerAfterRender(() => this.pickLink());
-
-
+        
+        // engine.loadingScreen = new StateChangeLoadingScreen(this.guiTexture);
+        DefaultLoadingScreen.DefaultLogoUrl = Configuration.LogoURL;
+        // engine.loadingScreen.loadingUIText = "Загрузка...";
+        this.assetsManager = new AssetsManager(scene);
+        engine.loadingUIBackgroundColor = "transperent";
         // scene.debugLayer.show();
-        //let camera: Camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, BABYLON.Vector3.Zero(), scene);
-        const camera = new UniversalCamera("free cam", Vector3.Zero(), scene);
+        const camera: Camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, Vector3.Zero(), scene);
+        //const camera = new UniversalCamera("free cam", Vector3.Zero(), scene);
         const light1 = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
         var light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
         light2.intensity = 0.5;
@@ -84,7 +93,7 @@ export class Viewer {
 
     public async show(scene: Excursion) {
         this.viewScene = scene;
-        this.goToImage(this.viewScene.firstStateId);
+        await this.goToImage(this.viewScene.firstStateId);
     }
 
     private createNavigatorButton() {
@@ -117,11 +126,10 @@ export class Viewer {
     }
 
 
-    private goToImage(id: string) {
-
+    private async goToImage(id: string) {
         const targetPicture = this.viewScene.states.find(p => p.id === id);
-        this.drawImage(targetPicture.url, targetPicture.pictureRotation);
         this.cleanLinks();
+        await this.drawImage(targetPicture.url, targetPicture.pictureRotation);
         document.title = targetPicture.title;
         for (let link of targetPicture.links) {
             const name = this.getName(link.id);
@@ -134,23 +142,26 @@ export class Viewer {
             sphere.material = this.linkSphereMaterial;
             sphere.position = Viewer.GetPositionForMarker(link.rotation, 20);
             sphere.actionManager = new ActionManager(this.scene);
-            sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, ev => {
-                this.goToImage(link.id);
+            sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async ev => {
+                await this.goToImage(link.id);
             }));
             this.linkSpheres.push(sphere);
         }
     }
 
 
-    private drawImage(url: string, pictureRotation: any) {
+    private async drawImage(url: string, pictureRotation: any) {
+        
         if (this.currentImage === null) {
-            this.currentImage = new PhotoDome("background", url, { resolution: 32, size: 1000 }, this.scene);
-        } else {
-            this.currentImage.photoTexture.releaseInternalTexture();
-            this.currentImage.photoTexture.url = null;
-            this.currentImage.photoTexture.updateURL(url);
+            this.currentImage = new PhotoDome("background", null, { resolution: 32, size: 1000 }, this.scene);
         }
-        this.currentImage.rotationQuaternion = pictureRotation;
+        const task = this.assetsManager.addTextureTask("image task", url, null, false);
+        task.onSuccess = t => {
+            this.currentImage.photoTexture = t.texture;
+            this.currentImage.rotationQuaternion = pictureRotation;
+        };
+        this.assetsManager.load();// Hack for start loading
+        await this.assetsManager.loadAsync();
     }
 
     private cleanLinks() {
