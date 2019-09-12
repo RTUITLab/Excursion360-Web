@@ -5,13 +5,24 @@ export class LinkToStatePool {
 
     private links: LinkToState[] = [];
 
-    constructor(private scene: Scene) {}
+    private timer: NodeJS.Timeout;
+
+    constructor(private scene: Scene) {
+        this.timer = setInterval(() => {
+            for (const link of this.links) {
+                link.rotate(Vector3.Up(), Math.PI / 180);
+            }
+        }, 10);
+    }
 
     public getLink(
         name: string,
         position: Vector3,
-        material: Material): LinkToState {
-        return new LinkToState(name, position, material, this.scene);
+        material: Material,
+        triggered: () => Promise<void>): LinkToState {
+        const link = new LinkToState(name, position, material, triggered, this.scene);
+        this.links.push(link);
+        return link;
     }
 
     public clean(): void {

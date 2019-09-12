@@ -9,6 +9,7 @@ import { AdvancedDynamicTexture } from "babylonjs-gui";
 import { SceneNavigator } from "./SceneNavigator";
 import { Configuration } from "./Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
+import { LinkToStatePool } from "./Models/LinkToStatePool";
 
 
 export class Viewer {
@@ -17,8 +18,12 @@ export class Viewer {
     private scene: Scene;
     private viewScene: Excursion;
     private sceneNavigator?: SceneNavigator;
-    private linkSpheres: Array<AbstractMesh> = [];
-    private linkTexts: Array<AbstractMesh> = [];
+
+    private linkSpheres: AbstractMesh[] = [];
+    private linkTexts: AbstractMesh[] = [];
+
+    private links: LinkToStatePool;
+
     private baseLinkSphereMaterial?: StandardMaterial;
     private linkSphereMaterials: StandardMaterial[] = [];
 
@@ -44,6 +49,7 @@ export class Viewer {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
         const engine = new Engine(canvas, true);
         const scene = new Scene(engine);
+        this.links = new LinkToStatePool(scene);
         ViveController.MODEL_BASE_URL = this.configuration.viveControllerModelBaseUrl;
         scene.registerAfterRender(() => this.pickLink());
         const vrHelper = scene.createDefaultVRExperience({
@@ -65,9 +71,9 @@ export class Viewer {
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoURL;
         this.assetsManager = new AssetsManager(scene);
         engine.loadingUIBackgroundColor = "transparent";
-        // scene.debugLayer.show();
+        scene.debugLayer.show();
         const camera: Camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, Vector3.Zero(), scene);
-        var light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
+        const light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
         light2.intensity = 1;
         camera.attachControl(canvas, true);
         // camera.inputs.attached.mousewheel.detachControl(canvas);
@@ -92,11 +98,16 @@ export class Viewer {
         this.baseLinkSphereMaterial = material;
 
         this.createNavigatorButton();
-        setInterval(() => {
-            for (const linkMesh of this.linkSpheres) {
-                linkMesh.rotate(Vector3.Up(), Math.PI / 180);
-            }
-        }, 10);
+    }
+
+    public async show(scene: Excursion) {
+        this.viewScene = scene;
+        for (const color of scene.colorSchemes) {
+            const newMaterial = this.baseLinkSphereMaterial.clone("link material");
+            newMaterial.diffuseColor = new Color3(color.r, color.g, color.b);
+            this.linkSphereMaterials.push(newMaterial);
+        }
+        await this.goToImage(this.viewScene.firstStateId);
     }
 
 
@@ -163,16 +174,7 @@ export class Viewer {
         }
     }
 
-    public async show(scene: Excursion) {
-        this.viewScene = scene;
-        for (let index = 0; index < scene.colorSchemes.length; index++) {
-            const color = scene.colorSchemes[index];
-            const newMaterial = this.baseLinkSphereMaterial.clone("link material");
-            newMaterial.diffuseColor = new Color3(color.r, color.g, color.b);
-            this.linkSphereMaterials.push(newMaterial);
-        }
-        await this.goToImage(this.viewScene.firstStateId);
-    }
+
 
     private createNavigatorButton() {
         console.warn("don't render menu");
@@ -211,43 +213,10 @@ export class Viewer {
         document.title = targetPicture.title;
         for (const link of targetPicture.links) {
             const name = this.getName(link.id);
-            // TODO: dont recreate object, clone it
-            console.warn("recreating link mesh");
-            const polygon = MeshBuilder.CreatePolyhedron(name, {
-                custom: this.snubCuboctahedron,
-                size: 0.5
-            }, this.scene);
-
-            const guiPlane = MeshBuilder.CreatePlane(name, { size: 20 }, this.scene);
-            // guiPlane.parent = polygon;
-            const texture = AdvancedDynamicTexture.CreateForMesh(guiPlane);
-
-            const textBlock = new GUI.TextBlock();
-            // textBlock.height = "150px";
-            textBlock.fontSize = 30;
-            textBlock.color = "white";
-            textBlock.text = name;
-            textBlock.shadowOffsetX = 1;
-            textBlock.shadowOffsetY = 1;
-            texture.addControl(textBlock);
-
-
-            polygon.convertToFlatShadedMesh();
-            const sphere =polygon;
-            sphere.material = this.linkSphereMaterials[link.colorScheme];
-
             const position = MathStuff.GetPositionForMarker(link.rotation, 20);
-            sphere.position = position;
-            guiPlane.position = position.clone();
-            guiPlane.position.y += 1;
-            guiPlane.lookAt(guiPlane.position.scale(1.1));
-            guiPlane.isVisible = false;
-            sphere.actionManager = new ActionManager(this.scene);
-            sphere.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
-                await this.goToImage(link.id);
-            }));
-            this.linkSpheres.push(sphere);
-            this.linkTexts.push(guiPlane);
+            const material = this.linkSphereMaterials[link.colorScheme];
+
+            const linkToState = this.links.getLink(name, position, material, () => this.goToImage(link.id));
         }
     }
 
@@ -267,14 +236,7 @@ export class Viewer {
     }
 
     private cleanLinks() {
-        for (const link of this.linkSpheres) {
-            link.dispose();
-        }
-        for (const link of this.linkTexts) {
-            link.dispose();
-        }
-        this.linkSpheres = [];
-        this.linkTexts = [];
+        this.links.clean();
     }
 
     private getName(id: string): string {

@@ -1,4 +1,4 @@
-import { TransformNode, Vector3, Scene, Mesh, MeshBuilder, Material, AbstractMesh } from "babylonjs";
+import { TransformNode, Vector3, Scene, MeshBuilder, Material, AbstractMesh, ActionManager, ExecuteCodeAction } from "babylonjs";
 import { AdvancedDynamicTexture, TextBlock } from "babylonjs-gui";
 
 export class LinkToState {
@@ -22,6 +22,7 @@ export class LinkToState {
         public name: string,
         position: Vector3,
         material: Material,
+        triggered: () => Promise<void>,
         private scene: Scene) {
         this.center = new TransformNode(name, scene);
         this.center.position = position;
@@ -36,7 +37,12 @@ export class LinkToState {
         }
 
         this.linkObject = LinkToState.linkmodel.clone(`l${name}_polyhedron`, this.center);
+        this.linkObject.position = Vector3.Zero();
         this.linkObject.material = material;
+        this.linkObject.actionManager = new ActionManager(this.scene);
+        this.linkObject.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
+            await triggered();
+        }));
 
         this.guiMesh = MeshBuilder.CreatePlane(name, { size: 20 }, scene);
         this.guiMesh.parent = this.center;
@@ -52,6 +58,10 @@ export class LinkToState {
         this.textBlock.shadowOffsetX = 1;
         this.textBlock.shadowOffsetY = 1;
         this.guiTexture.addControl(this.textBlock);
+    }
+
+    public rotate(axis: Vector3, angle: number): void {
+        this.linkObject.rotate(axis, angle);
     }
 
     public dispose(): void {
