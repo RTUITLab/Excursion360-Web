@@ -2,7 +2,7 @@
  * Point in spherical coordinate system
  */
 export interface SphericalPoint {
-    /** Radial distance*/
+    /** Radial distance */
     r: number;
     /** Azimuthal angle in radians */
     o: number;

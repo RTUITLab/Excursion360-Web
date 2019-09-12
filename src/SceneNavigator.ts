@@ -1,10 +1,13 @@
 import { Scene, Vector3 } from "babylonjs";
-import { Excursion } from "./Models/Excursion";
+import { Excursion } from "./Models/ExcursionModels/Excursion";
 import { GUI3DManager, HolographicButton, CylinderPanel } from "babylonjs-gui";
 
+/**
+ * All excusrion all menu
+ */
 export class SceneNavigator {
-    manager: GUI3DManager;
-    panel: CylinderPanel;
+    private manager: GUI3DManager;
+    private panel: CylinderPanel;
 
     constructor(
         private scene: Scene,
@@ -20,6 +23,10 @@ export class SceneNavigator {
         this.construct();
     }
 
+    public dispose(): void {
+        this.manager.dispose();
+    }
+
     private construct() {
         for (const picture of this.viewScene.states) {
             this.addButton(picture.title, picture.id);
@@ -27,16 +34,12 @@ export class SceneNavigator {
     }
 
     private addButton(name: string, id: string) {
-        var button = new HolographicButton(`navigation-button-${id}`);
+        const button = new HolographicButton(`navigation-button-${id}`);
         button.text = name;
         this.panel.addControl(button);
         button.onPointerClickObservable.add(() => {
             this.dispose();
             this.goToPicture(id);
         });
-    }
-
-    public dispose(): void {
-        this.manager.dispose();
     }
 }
