@@ -7,4 +7,5 @@ export interface Link {
     /** State id */
     id: string;
     rotation: any;
+    colorScheme: number;
 }

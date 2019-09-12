@@ -18,7 +18,9 @@ export class Viewer {
     private sceneNavigator?: SceneNavigator;
     private linkSpheres: Array<AbstractMesh> = [];
     private linkTexts: Array<AbstractMesh> = [];
-    private linkSphereMaterial?: Material;
+    private baseLinkSphereMaterial?: StandardMaterial;
+    private linkSphereMaterials: StandardMaterial[] = [];
+
     private assetsManager: AssetsManager;
 
     private controllers: Array<WebVRController>;
@@ -66,10 +68,11 @@ export class Viewer {
         engine.loadingUIBackgroundColor = "transparent";
         //scene.debugLayer.show();
         const camera: Camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, Vector3.Zero(), scene);
-        const light1 = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
+        //const light1 = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
         var light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
-        light2.intensity = 0.5;
-        light1.intensity = 0.5;
+        light2.intensity = 1;
+        // light2.range = 30;
+        //light1.intensity = 0.5;
         camera.attachControl(canvas, true);
         // camera.inputs.attached.mousewheel.detachControl(canvas);
 
@@ -90,7 +93,7 @@ export class Viewer {
         const material = new StandardMaterial("link material", scene);
         material.diffuseColor = Color3.Red();
         material.specularPower = 200;
-        this.linkSphereMaterial = material;
+        this.baseLinkSphereMaterial = material;
 
         this.createNavigatorButton();
         setInterval(() => {
@@ -164,6 +167,12 @@ export class Viewer {
 
     public async show(scene: Excursion) {
         this.viewScene = scene;
+        for (let index = 0; index < scene.colorSchemes.length; index++) {
+            const color = scene.colorSchemes[index];
+            const newMaterial = this.baseLinkSphereMaterial.clone("link material");
+            newMaterial.diffuseColor = new Color3(color.r, color.g, color.b);
+            this.linkSphereMaterials.push(newMaterial);
+        }
         await this.goToImage(this.viewScene.firstStateId);
     }
 
@@ -223,9 +232,9 @@ export class Viewer {
 
 
             polygon.convertToFlatShadedMesh();
-            const sphere =
-                polygon;
-            sphere.material = this.linkSphereMaterial;
+            const sphere =polygon;
+            sphere.material = this.linkSphereMaterials[link.colorScheme];
+
             const position = Viewer.GetPositionForMarker(link.rotation, 20);
             sphere.position = position;
             guiPlane.position = position.clone();
