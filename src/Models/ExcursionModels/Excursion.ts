@@ -12,4 +12,5 @@ export interface Excursion {
      * All states in excursion
      */
     states: State[];
+    colorSchemes: any[];
 }
