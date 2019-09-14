@@ -29,10 +29,10 @@ export class LinkToState {
 
         if (!LinkToState.linkmodel) {
             LinkToState.linkmodel = MeshBuilder.CreatePolyhedron(`link_to_state_polyhedron`,
-            {
-                custom: LinkToState.snubCuboctahedron,
-                size: 0.5
-            }, scene).convertToFlatShadedMesh();
+                {
+                    custom: LinkToState.snubCuboctahedron,
+                    size: 0.5
+                }, scene).convertToFlatShadedMesh();
             LinkToState.linkmodel.position.y = -100;
         }
 
@@ -43,11 +43,19 @@ export class LinkToState {
         this.linkObject.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
             await triggered();
         }));
+        this.linkObject.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, (ev) => {
+                this.guiMesh.isVisible = true;
+            }));
+        this.linkObject.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, (ev) => {
+                this.guiMesh.isVisible = false;
+            }));
 
         this.guiMesh = MeshBuilder.CreatePlane(name, { size: 20 }, scene);
         this.guiMesh.parent = this.center;
-        this.guiMesh.position.y += 1;
-        this.guiMesh.lookAt(this.guiMesh.position.scale(1.1));
+        this.guiMesh.position.y += 1.5;
+        this.guiMesh.lookAt(this.center.position.scale(1.1));
         this.guiMesh.isVisible = false;
 
         this.guiTexture = AdvancedDynamicTexture.CreateForMesh(this.guiMesh);

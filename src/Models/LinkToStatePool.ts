@@ -5,10 +5,10 @@ export class LinkToStatePool {
 
     private links: LinkToState[] = [];
 
-    private timer: NodeJS.Timeout;
+    // private timer: NodeJS.Timeout;
 
     constructor(private scene: Scene) {
-        this.timer = setInterval(() => {
+        setInterval(() => {
             for (const link of this.links) {
                 link.rotate(Vector3.Up(), Math.PI / 180);
             }

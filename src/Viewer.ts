@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action } from "babylonjs";
 import { AbstractMesh, PhotoDome, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
 import { Camera, Color3, MeshBuilder, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
 import { WebVRController, PickingInfo } from "babylonjs";
@@ -10,6 +10,7 @@ import { SceneNavigator } from "./SceneNavigator";
 import { Configuration } from "./Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
 import { LinkToStatePool } from "./Models/LinkToStatePool";
+import { BuildConfiguration } from "./BuildConfiguration";
 
 
 export class Viewer {
@@ -51,7 +52,6 @@ export class Viewer {
         const scene = new Scene(engine);
         this.links = new LinkToStatePool(scene);
         ViveController.MODEL_BASE_URL = this.configuration.viveControllerModelBaseUrl;
-        scene.registerAfterRender(() => this.pickLink());
         const vrHelper = scene.createDefaultVRExperience({
             controllerMeshes: true,
         });
@@ -71,7 +71,26 @@ export class Viewer {
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoURL;
         this.assetsManager = new AssetsManager(scene);
         engine.loadingUIBackgroundColor = "transparent";
-        scene.debugLayer.show();
+
+        scene.actionManager = new ActionManager(scene);
+
+        if (BuildConfiguration.NeedDebugLayer) {
+            console.log("deeb debug");
+            scene.actionManager.registerAction(
+                new ExecuteCodeAction(
+                    {
+                        trigger: ActionManager.OnKeyUpTrigger,
+                        parameter: 'r'
+                    },
+                    function () { console.log('r button was pressed'); }
+                )
+            );
+            scene.actionManager.registerAction(
+                new SwitchBooleanAction({
+                    trigger: BABYLON.ActionManager.OnKeyUpTrigger,
+                    parameter: "r"
+                }, scene.debugLayer, "isVisible"));
+        }
         const camera: Camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, Vector3.Zero(), scene);
         const light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
         light2.intensity = 1;
@@ -158,11 +177,6 @@ export class Viewer {
                 });
             }
         }
-    }
-    private pickLink(): void {
-        const pick = this.scene.pick(this.scene.pointerX, this.scene.pointerY,
-            (m) => this.linkSpheres.some((m2) => m2 === m));
-        this.pickLinkFromInfo(pick);
     }
 
     private pickLinkFromInfo(pickInfo: PickingInfo) {
