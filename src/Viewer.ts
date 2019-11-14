@@ -73,31 +73,28 @@ export class Viewer {
         engine.loadingUIBackgroundColor = "transparent";
 
         scene.actionManager = new ActionManager(scene);
-
         if (BuildConfiguration.NeedDebugLayer) {
-            console.log("deeb debug");
+            console.log("deep debug");
             scene.actionManager.registerAction(
                 new ExecuteCodeAction(
                     {
                         trigger: ActionManager.OnKeyUpTrigger,
                         parameter: 'r'
                     },
-                    function () { console.log('r button was pressed'); }
+                    () => {
+                        if (scene.debugLayer.isVisible()){
+                            scene.debugLayer.hide();
+                        } else {
+                            scene.debugLayer.show();
+                        }
+                    }
                 )
             );
-            scene.actionManager.registerAction(
-                new SwitchBooleanAction({
-                    trigger: BABYLON.ActionManager.OnKeyUpTrigger,
-                    parameter: "r"
-                }, scene.debugLayer, "isVisible"));
         }
-        const camera: Camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 1, Vector3.Zero(), scene);
+
         const light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
-        light2.intensity = 1;
-        camera.attachControl(canvas, true);
-        // camera.inputs.attached.mousewheel.detachControl(canvas);
 
-
+        scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
 
         engine.runRenderLoop(() => {
             scene.render();
