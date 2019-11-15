@@ -51,7 +51,7 @@ export class Viewer {
         const engine = new Engine(canvas, true);
         const scene = new Scene(engine);
         this.links = new LinkToStatePool(scene);
-        ViveController.MODEL_BASE_URL = this.configuration.viveControllerModelBaseUrl;
+        ViveController.MODEL_BASE_URL = "models/vive";
         const vrHelper = scene.createDefaultVRExperience({
             controllerMeshes: true,
         });
@@ -68,7 +68,7 @@ export class Viewer {
                 });
             }
         });
-        DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoURL;
+        DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
         this.assetsManager = new AssetsManager(scene);
         engine.loadingUIBackgroundColor = "transparent";
 
@@ -220,7 +220,7 @@ export class Viewer {
     private async goToImage(id: string) {
         const targetPicture = this.viewScene.states.find((p) => p.id === id);
         this.cleanLinks();
-        await this.drawImage(this.configuration.sceneURL + targetPicture.url, targetPicture.pictureRotation);
+        await this.drawImage(this.configuration.sceneUrl + targetPicture.url, targetPicture.pictureRotation);
         document.title = targetPicture.title;
         for (const link of targetPicture.links) {
             const name = this.getName(link.id);

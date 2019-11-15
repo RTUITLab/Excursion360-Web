@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const response = await axios.get<Excursion>(configuration.data.sceneURL + "tour.json");
+    const response = await axios.get<Excursion>(configuration.data.sceneUrl + "tour.json");
     if (response.status !== 200) {
         console.warn("Can't get scene description");
         return;

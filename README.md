@@ -15,9 +15,8 @@ NEED_DEBUG_LAYER=[false|true]
 * Create file ```build/config.json```
 ```json
 {
-    "sceneURL": "URL of excursion folder",
-    "logoUrl": "LOGO for state change",
-    "viveControllerModelBaseUrl": "URL to vive controllers"
+    "sceneUrl": "URL of excursion folder",
+    "logoUrl": "LOGO for state change"
 }
 ```
 * Run command ```npm install``` in project folder
