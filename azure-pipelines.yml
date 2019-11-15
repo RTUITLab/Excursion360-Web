@@ -17,7 +17,7 @@ steps:
   displayName: npm run build
   inputs:
     command: 'custom'
-    customCommand: 'build'
+    customCommand: 'run build'
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: 'build'
