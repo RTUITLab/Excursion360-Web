@@ -8,7 +8,7 @@ export class StateChangeLoadingScreen implements ILoadingScreen {
     public hideLoadingUI: () => void;
     public loadingUIBackgroundColor: string;
     public loadingUIText: string;
-    
+
     private textBlock: GUI.TextBlock;
 
     constructor(private gui: GUI.AdvancedDynamicTexture) {
@@ -20,8 +20,8 @@ export class StateChangeLoadingScreen implements ILoadingScreen {
         gui.addControl(this.textBlock);
     }
 
-    
-    private displayUIInternal(): void {        
+
+    private displayUIInternal(): void {
         this.textBlock.isVisible = true;
     }
 

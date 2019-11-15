@@ -7,11 +7,18 @@
 
 * Install Node.JS, npm
 
-* Create file ```.env.local``` 
+* Create file ```.env.local```
+```env
+CONFIG_FILE_PATH=path to configuration file, config.json by default
+NEED_DEBUG_LAYER=[false|true]
 ```
-SCENE_URL=url to your scene description
-LOGO_URL=url to logo for show on loading
-VIVE_CONTROLLER_MODEL_BASE_URL=url to path with htc vive controller model and textures
+* Create file ```build/config.json```
+```json
+{
+    "sceneURL": "URL of excursion folder",
+    "logoUrl": "LOGO for state change",
+    "viveControllerModelBaseUrl": "URL to vive controllers"
+}
 ```
 * Run command ```npm install``` in project folder
 * Run command ```npm start``` in project folder
