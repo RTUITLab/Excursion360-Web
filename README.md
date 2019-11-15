@@ -7,9 +7,17 @@
 
 * Install Node.JS, npm
 
-* Create file ```.env.local``` 
+* Create file ```.env.local```
+```env
+CONFIG_FILE_PATH=path to configuration file, config.json by default
+NEED_DEBUG_LAYER=[false|true]
 ```
-SCENE_URL=url to your scene description
+* Create file ```build/config.json```
+```json
+{
+    "sceneUrl": "URL of excursion folder",
+    "logoUrl": "LOGO for state change"
+}
 ```
 * Run command ```npm install``` in project folder
 * Run command ```npm start``` in project folder

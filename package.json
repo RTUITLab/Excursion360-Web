@@ -3,21 +3,22 @@
   "version": "1.0.0",
   "description": "Viewer for 360 excursion",
   "scripts": {
-    "start": "webpack-dev-server",
-    "build": "webpack"
+    "start": "webpack-dev-server --mode=development",
+    "build": "webpack --mode=production"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.18.0",
-    "babylonjs": "^3.3.0",
-    "babylonjs-gui": "^3.3.0",
-    "babylonjs-inspector": "^3.3.0"
+    "axios": "^0.18.1",
+    "babylonjs": "^4.0.3",
+    "babylonjs-gui": "^4.0.3",
+    "babylonjs-inspector": "^4.0.3"
   },
   "devDependencies": {
     "@types/node": "^10.12.18",
     "ts-loader": "^5.3.3",
     "ts-node": "^7.0.1",
+    "tslint": "^5.2.0",
     "typescript": "^3.0.3",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.1",
