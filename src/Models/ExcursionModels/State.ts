@@ -1,6 +1,4 @@
 import { StateType } from "./StateType";
-import { SphericalPoint } from "./Points/SphericalPoint";
-import { CartesianPoint } from "./Points/CartesianPoint";
 import { Link } from "./Link";
 
 /**
@@ -15,12 +13,8 @@ export interface State {
     url: string;
     /** Type of state */
     type: StateType;
-    /** Default gaze direction */
-    viewDirection: SphericalPoint;
-    /** Resource rotation for crooked resources */
-    rotation: CartesianPoint;
     /** Picture Quaternion rotation */
     pictureRotation: any;
-    /** Array of links from current state */
+    /** Links from current state */
     links: Link[];
 }

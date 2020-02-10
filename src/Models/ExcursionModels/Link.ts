@@ -1,4 +1,4 @@
-import { SphericalPoint } from "./Points/SphericalPoint";
+import { StateItem } from "./StateItem";
 
 /**
  * Link to another state

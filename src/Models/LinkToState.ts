@@ -1,5 +1,6 @@
 import { TransformNode, Vector3, Scene, MeshBuilder, Material, AbstractMesh, ActionManager, ExecuteCodeAction } from "babylonjs";
 import { AdvancedDynamicTexture, TextBlock } from "babylonjs-gui";
+import { LinkMeshes } from "../Meshes/LinkMeshes";
 
 export class LinkToState {
     private static linkmodel: AbstractMesh;
@@ -30,7 +31,7 @@ export class LinkToState {
         if (!LinkToState.linkmodel) {
             LinkToState.linkmodel = MeshBuilder.CreatePolyhedron(`link_to_state_polyhedron`,
                 {
-                    custom: LinkToState.snubCuboctahedron,
+                    custom: LinkMeshes.snubCuboctahedron,
                     size: 0.5
                 }, scene).convertToFlatShadedMesh();
             LinkToState.linkmodel.position.y = -100;
