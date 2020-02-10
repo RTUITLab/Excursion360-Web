@@ -3,9 +3,9 @@ import { StateItem } from "./StateItem";
 /**
  * Link to another state
  */
-export interface Link {
+export interface Link extends StateItem {
     /** State id */
     id: string;
-    rotation: any;
+    /** Id of color scheme */
     colorScheme: number;
 }

@@ -1,5 +1,6 @@
 import { StateType } from "./StateType";
 import { Link } from "./Link";
+import { GroupLink } from "./GroupLink";
 
 /**
  * State of excursion, present person environment
@@ -17,4 +18,6 @@ export interface State {
     pictureRotation: any;
     /** Links from current state */
     links: Link[];
+    /** Group links from current state */
+    groupLinks : GroupLink[];
 }
