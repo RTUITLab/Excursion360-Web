@@ -33,6 +33,7 @@ export class Viewer {
     private controllers: WebVRController[];
     private controllersRays: Mesh[];
 
+    private groupLinkMaterial: Material;
 
 
     private snubCuboctahedron = {
@@ -51,6 +52,12 @@ export class Viewer {
         const engine = new Engine(canvas, true);
         const scene = new Scene(engine);
         this.links = new LinkToStatePool(scene);
+
+        var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
+        glMaterial.diffuseColor = Color3.Blue();
+        glMaterial.specularPower = 200;
+        this.groupLinkMaterial = glMaterial;
+
         ViveController.MODEL_BASE_URL = "models/vive";
         const vrHelper = scene.createDefaultVRExperience({
             controllerMeshes: true,
@@ -82,7 +89,7 @@ export class Viewer {
                         parameter: 'r'
                     },
                     () => {
-                        if (scene.debugLayer.isVisible()){
+                        if (scene.debugLayer.isVisible()) {
                             scene.debugLayer.hide();
                         } else {
                             scene.debugLayer.show();
@@ -129,7 +136,7 @@ export class Viewer {
 
     private getVRMesh(controller: WebVRController) {
         const ray = controller.getForwardRay(30);
-        const pick = this.scene.pickWithRay(ray, (m) => this.linkSpheres.some((m2) => m2 === m));
+        const pick = this.scene.pickWithRay(ray, (m) => this.links.isLinkMesh(m));
         return pick.pickedMesh;
     }
     private renderControllersRays() {
@@ -228,6 +235,15 @@ export class Viewer {
             const material = this.linkSphereMaterials[link.colorScheme];
 
             const linkToState = this.links.getLink(name, position, material, () => this.goToImage(link.id));
+        }
+        for (const groupLink of targetPicture.groupLinks) {
+            const name = groupLink.title;
+            const position = MathStuff.GetPositionForMarker(groupLink.rotation, 20);
+            const material = this.groupLinkMaterial
+
+            const linkToState = this.links.getGroupLink(name, position, material, async () => {
+                console.log("linked");
+            });
         }
     }
 

@@ -1,5 +1,5 @@
 import { LinkToState } from "./LinkToState";
-import { Scene, Vector3, Material } from "babylonjs";
+import { Scene, Vector3, Material, AbstractMesh, Animation } from "babylonjs";
 import { GroupLink } from "./GroupLink";
 
 export class LinkToStatePool {
@@ -40,5 +40,9 @@ export class LinkToStatePool {
             link.dispose();
         }
         this.links = [];
+    }
+
+    public isLinkMesh(mesh: AbstractMesh): boolean {
+        return this.links.some(l => l.isLinkMesh(mesh));
     }
 }

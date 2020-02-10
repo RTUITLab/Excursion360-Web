@@ -72,4 +72,7 @@ export class LinkToState {
         this.linkObject.dispose();
         this.center.dispose();
     }
+    public isLinkMesh(mesh: AbstractMesh): boolean {
+        return this.linkObject == mesh;
+    }
 }
