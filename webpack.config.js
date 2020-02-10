@@ -6,7 +6,8 @@ const Dotenv = require("dotenv-webpack");
 module.exports = function (env, argv) {
   return {
     target: "web",
-    devtool: "inline-source-map",
+    devtool: "source-map",
+    context: path.resolve(__dirname, "src"),
     entry: path.join(__dirname, "src/index.ts"),
     output: {
       filename: "client.js",
