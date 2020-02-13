@@ -62,6 +62,9 @@ export class Viewer {
                 });
             }
         });
+        vrHelper.deviceOrientationCamera.position = Vector3.Zero();
+        vrHelper.webVRCamera.position = Vector3.Zero();
+        vrHelper.vrDeviceOrientationCamera.position = Vector3.Zero();
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
         this.assetsManager = new AssetsManager(scene);
         engine.loadingUIBackgroundColor = "transparent";
@@ -88,7 +91,7 @@ export class Viewer {
 
         const light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
 
-        scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
+        // scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
 
         engine.runRenderLoop(() => {
             scene.render();
@@ -203,21 +206,25 @@ export class Viewer {
         this.cleanLinks();
         await this.drawImage(this.configuration.sceneUrl + targetPicture.url, targetPicture.pictureRotation);
         document.title = targetPicture.title;
+        const distanceToLinks = 10;
         for (const link of targetPicture.links) {
             const name = this.getName(link.id);
-            const position = MathStuff.GetPositionForMarker(link.rotation, 20);
+            const position = MathStuff.GetPositionForMarker(link.rotation, distanceToLinks);
             const material = this.linkSphereMaterials[link.colorScheme];
 
             const linkToState = this.links.getLink(name, position, material, () => this.goToImage(link.id));
         }
         for (const groupLink of targetPicture.groupLinks) {
             const name = groupLink.title;
-            const position = MathStuff.GetPositionForMarker(groupLink.rotation, 20);
+            const position = MathStuff.GetPositionForMarker(groupLink.rotation, distanceToLinks);
             const material = this.groupLinkMaterial
 
-            const linkToState = this.links.getGroupLink(name, position, material, async () => {
-                console.log("linked");
-            });
+            const linkToState = this.links.getGroupLink(name,
+                groupLink.stateIds.map(stateId => { return { id: stateId, title: this.getName(stateId) } }),
+                position, material,
+                async (selectedId) => {
+                    this.goToImage(selectedId)
+                });
         }
     }
 

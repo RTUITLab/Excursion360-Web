@@ -1,19 +1,41 @@
 import { LinkToState } from "./LinkToState";
 import { Scene, Vector3, Material, AbstractMesh, Animation } from "babylonjs";
 import { GroupLink } from "./GroupLink";
+import { GUI3DManager } from "babylonjs-gui";
 
+// TODO reuse link objects
 export class LinkToStatePool {
-
+    private linkAnimation: Animation;
     private links: LinkToState[] = [];
-
+    private guiManager: GUI3DManager;
     // private timer: NodeJS.Timeout;
 
     constructor(private scene: Scene) {
-        setInterval(() => {
-            for (const link of this.links) {
-                link.rotate(Vector3.Up(), Math.PI / 180);
+        var animationBox = new Animation(
+            "linkToStateAnimation",
+            "rotation.y",
+            15,
+            Animation.ANIMATIONTYPE_FLOAT,
+            Animation.ANIMATIONLOOPMODE_CYCLE);
+
+        var keys = [
+            {
+                frame: 0,
+                value: 0
+            },
+            {
+                frame: 30,
+                value: Math.PI
+            },
+            {
+                frame: 60,
+                value: Math.PI * 2
             }
-        }, 10);
+        ];
+        animationBox.setKeys(keys);
+        this.linkAnimation = animationBox;
+
+        this.guiManager = new GUI3DManager(scene);
     }
 
     public getLink(
@@ -21,16 +43,18 @@ export class LinkToStatePool {
         position: Vector3,
         material: Material,
         triggered: () => Promise<void>): LinkToState {
-        const link = new LinkToState(name, position, material, triggered, this.scene);
+        const link = new LinkToState(name, position, material, triggered, this.linkAnimation, this.scene);
         this.links.push(link);
         return link;
     }
+
     public getGroupLink(
         name: string,
+        states: { title: string, id: string }[],
         position: Vector3,
         material: Material,
-        triggered: () => Promise<void>): LinkToState {
-        const link = new GroupLink(name, position, material, triggered, this.scene);
+        triggered: (id: string) => Promise<void>): LinkToState {
+        const link = new GroupLink(name, states, position, material, triggered, this.linkAnimation, this.guiManager, this.scene);
         this.links.push(link);
         return link;
     }

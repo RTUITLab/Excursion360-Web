@@ -1,13 +1,13 @@
-import { TransformNode, Vector3, Scene, MeshBuilder, Material, AbstractMesh, ActionManager, ExecuteCodeAction } from "babylonjs";
-import { AdvancedDynamicTexture, TextBlock } from "babylonjs-gui";
+import { TransformNode, Vector3, Scene, MeshBuilder, Material, AbstractMesh, ActionManager, ExecuteCodeAction, StandardMaterial, Color3, Animation } from "babylonjs";
+import { AdvancedDynamicTexture, TextBlock, Control, Rectangle, ScrollViewer } from "babylonjs-gui";
 import { LinkMeshes } from "../Meshes/LinkMeshes";
 
 export class LinkToState {
     private static linkModel: AbstractMesh;
 
-    private center: TransformNode;
+    protected center: TransformNode;
     private linkObject: AbstractMesh;
-    private guiMesh: AbstractMesh;
+    protected guiMesh: AbstractMesh;
     private guiTexture: AdvancedDynamicTexture;
     private textBlock: TextBlock;
 
@@ -16,6 +16,7 @@ export class LinkToState {
         position: Vector3,
         material: Material,
         triggered: () => Promise<void>,
+        animation: Animation,
         private scene: Scene) {
         this.center = new TransformNode(name, scene);
         this.center.position = position;
@@ -24,7 +25,7 @@ export class LinkToState {
             LinkToState.linkModel = MeshBuilder.CreatePolyhedron(`link_to_state_polyhedron`,
                 {
                     custom: LinkMeshes.snubCuboctahedron,
-                    size: 0.5
+                    size: 0.25
                 }, scene).convertToFlatShadedMesh();
             LinkToState.linkModel.position.y = -100;
         }
@@ -44,21 +45,42 @@ export class LinkToState {
             new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, (ev) => {
                 this.guiMesh.isVisible = false;
             }));
-
-        this.guiMesh = MeshBuilder.CreatePlane(name, { size: 20 }, scene);
+        this.guiMesh = MeshBuilder.CreatePlane(name, { width: 7, height: 2 }, scene);
         this.guiMesh.parent = this.center;
-        this.guiMesh.position.y += 1.5;
         this.guiMesh.lookAt(this.center.position.scale(1.1));
-        this.guiMesh.isVisible = false;
+        this.guiMesh.position.y += 2;
+        this.guiMesh.isVisible = true;
 
-        this.guiTexture = AdvancedDynamicTexture.CreateForMesh(this.guiMesh);
-        this.textBlock = new TextBlock(`${name}_text_block`, name);
-        this.textBlock.fontSize = 50;
-        this.textBlock.color = "white";
-        this.textBlock.text = name;
-        this.textBlock.shadowOffsetX = 1;
-        this.textBlock.shadowOffsetY = 1;
-        this.guiTexture.addControl(this.textBlock);
+        const pixelsToOne = 512 / 2;
+
+        this.guiTexture = AdvancedDynamicTexture.CreateForMesh(this.guiMesh, 7 * pixelsToOne, 2 * pixelsToOne);
+
+        const background = new Rectangle("link text rectangle");
+        background.background = "silver";
+        background.alpha = 0.7;
+        
+        const tb = new TextBlock();
+        tb.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        tb.resizeToFit = true;
+        tb.color = "white";
+        // tb.paddingTop = "5%";
+        // tb.paddingLeft = "30px";
+        // tb.paddingRight = "20px"
+        // tb.paddingBottom = "5%";
+        tb.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        tb.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        tb.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        tb.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        tb.text = name;
+        tb.fontSize = "80px";
+        
+        this.guiTexture.addControl(background);
+        
+        background.addControl(tb);
+        // this.guiTexture.addControl(sv);
+        // sv.addControl(tb);
+        this.linkObject.animations.push(animation);
+        scene.beginAnimation(this.linkObject, 0, 60, true);
     }
 
     public rotate(axis: Vector3, angle: number): void {
@@ -66,11 +88,8 @@ export class LinkToState {
     }
 
     public dispose(): void {
-        this.textBlock.dispose();
-        this.guiTexture.dispose();
-        this.guiMesh.dispose();
-        this.linkObject.dispose();
         this.center.dispose();
+        this.guiTexture.dispose();
     }
     public isLinkMesh(mesh: AbstractMesh): boolean {
         return this.linkObject == mesh;
