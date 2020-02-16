@@ -1,12 +1,14 @@
 import { LinkToState } from "./LinkToState";
-import { Material, Vector3, Scene, Animation, TransformNode } from "babylonjs";
-import { GUI3DManager, CylinderPanel, HolographicButton, StackPanel3D, TextBlock, Button3D, Rectangle } from "babylonjs-gui";
+import { Material, Vector3, Scene, Animation, TransformNode, ActionEvent } from "babylonjs";
+import { GUI3DManager, CylinderPanel, HolographicButton, StackPanel3D, TextBlock, Rectangle, AbstractButton3D } from "babylonjs-gui";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton"
 
 export class GroupLink extends LinkToState {
 
     private isOpened = false;
     private buttonsPoint: TransformNode;
+
+    private buttons: AbstractButton3D[] = [];
     buttonsCount = 1;
     constructor(
         public name: string,
@@ -31,8 +33,7 @@ export class GroupLink extends LinkToState {
     private createButton(title: string, triggered: () => Promise<void>): void {
 
         const button = new CustomHolographicButton(`navigation-button`, 4);
-
-
+        this.buttons.push(button);
         this.manager.addControl(button);
         button.linkToTransformNode(this.buttonsPoint);
         button.position.y -= this.buttonsCount * 1.1;
@@ -45,15 +46,23 @@ export class GroupLink extends LinkToState {
         text1.fontSize = 90;
         button.content = text1;
         button.contentScaleRatio = 1;
-
+        
+        button.isVisible = false;
         button.onPointerClickObservable.add(d => triggered());
     }
 
     private async triggerAction() {
         this.isOpened = !this.isOpened;
+        this.buttons.forEach(b => b.isVisible = this.isOpened);
     }
 
     public dispose(){
         super.dispose();
+    }
+
+    protected onPointerOutTrigger(event: ActionEvent) {
+        if (!this.isOpened) {
+            super.onPointerOutTrigger(event);
+        }
     }
 }

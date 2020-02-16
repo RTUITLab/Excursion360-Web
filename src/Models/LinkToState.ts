@@ -1,4 +1,4 @@
-import { TransformNode, Vector3, Scene, MeshBuilder, Material, AbstractMesh, ActionManager, ExecuteCodeAction, StandardMaterial, Color3, Animation } from "babylonjs";
+import { TransformNode, Vector3, Scene, MeshBuilder, Material, AbstractMesh, ActionManager, ExecuteCodeAction, StandardMaterial, Color3, Animation, ActionEvent } from "babylonjs";
 import { AdvancedDynamicTexture, TextBlock, Control, Rectangle, ScrollViewer } from "babylonjs-gui";
 import { LinkMeshes } from "../Meshes/LinkMeshes";
 
@@ -39,17 +39,17 @@ export class LinkToState {
         }));
         this.linkObject.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, (ev) => {
-                this.guiMesh.isVisible = true;
+                this.onPointerOverTrigger(ev);
             }));
         this.linkObject.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, (ev) => {
-                this.guiMesh.isVisible = false;
+                this.onPointerOutTrigger(ev);
             }));
         this.guiMesh = MeshBuilder.CreatePlane(name, { width: 7, height: 2 }, scene);
         this.guiMesh.parent = this.center;
         this.guiMesh.lookAt(this.center.position.scale(1.1));
         this.guiMesh.position.y += 2;
-        this.guiMesh.isVisible = true;
+        this.guiMesh.isVisible = false;
 
         const pixelsToOne = 512 / 2;
 
@@ -58,7 +58,7 @@ export class LinkToState {
         const background = new Rectangle("link text rectangle");
         background.background = "silver";
         background.alpha = 0.7;
-        
+
         const tb = new TextBlock();
         tb.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
         tb.resizeToFit = true;
@@ -73,9 +73,9 @@ export class LinkToState {
         tb.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         tb.text = name;
         tb.fontSize = "80px";
-        
+
         this.guiTexture.addControl(background);
-        
+
         background.addControl(tb);
         // this.guiTexture.addControl(sv);
         // sv.addControl(tb);
@@ -93,5 +93,12 @@ export class LinkToState {
     }
     public isLinkMesh(mesh: AbstractMesh): boolean {
         return this.linkObject == mesh;
+    }
+
+    protected onPointerOverTrigger(event: ActionEvent) {
+        this.guiMesh.isVisible = true;
+    }
+    protected onPointerOutTrigger(event: ActionEvent) {
+        this.guiMesh.isVisible = false;
     }
 }
