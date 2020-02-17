@@ -1,7 +1,8 @@
 import { LinkToState } from "./LinkToState";
-import { Scene, Vector3, Material, AbstractMesh, Animation } from "babylonjs";
+import { Scene, Vector3, Material, AbstractMesh, Animation, StandardMaterial, AssetsManager } from "babylonjs";
 import { GroupLink } from "./GroupLink";
 import { GUI3DManager } from "babylonjs-gui";
+import { FieldItem } from "./FieldItem";
 
 // TODO reuse link objects
 export class LinkToStatePool {
@@ -10,7 +11,9 @@ export class LinkToStatePool {
     private guiManager: GUI3DManager;
     // private timer: NodeJS.Timeout;
 
-    constructor(private scene: Scene) {
+    constructor(
+        private assetsManager: AssetsManager,
+        private scene: Scene) {
         var animationBox = new Animation(
             "linkToStateAnimation",
             "rotation.y",
@@ -55,6 +58,20 @@ export class LinkToStatePool {
         material: Material,
         triggered: (id: string) => Promise<void>): LinkToState {
         const link = new GroupLink(name, states, position, material, triggered, this.linkAnimation, this.guiManager, this.scene);
+        this.links.push(link);
+        return link;
+    }
+
+    public getFieldItem(
+        name: string,
+        fieldItemData: { vertex: Vector3[], imageUrl: string },
+        material: StandardMaterial): LinkToState {
+        const link = new FieldItem(
+            name,
+            fieldItemData,
+            material.clone(name),
+            this.assetsManager,
+            this.scene);
         this.links.push(link);
         return link;
     }

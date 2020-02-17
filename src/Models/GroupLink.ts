@@ -1,5 +1,5 @@
 import { LinkToState } from "./LinkToState";
-import { Material, Vector3, Scene, Animation, TransformNode, ActionEvent } from "babylonjs";
+import { Material, Vector3, Scene, Animation, TransformNode, ActionEvent, MeshBuilder } from "babylonjs";
 import { GUI3DManager, CylinderPanel, HolographicButton, StackPanel3D, TextBlock, Rectangle, AbstractButton3D } from "babylonjs-gui";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton"
 
@@ -20,7 +20,13 @@ export class GroupLink extends LinkToState {
         private manager: GUI3DManager,
         scene: Scene
     ) {
-        super(name, position, material, () => this.triggerAction(), animation, scene);
+        super(
+            name,
+            position,
+            material,
+            () => this.triggerAction(),
+            animation,
+            scene);
         this.buttonsPoint = new TransformNode("buttons point", scene);
         this.buttonsPoint.parent = this.center;
         this.buttonsPoint.lookAt(this.center.position.scale(1.1));
@@ -46,7 +52,6 @@ export class GroupLink extends LinkToState {
         text1.fontSize = 90;
         button.content = text1;
         button.contentScaleRatio = 1;
-        
         button.isVisible = false;
         button.onPointerClickObservable.add(d => triggered());
     }
