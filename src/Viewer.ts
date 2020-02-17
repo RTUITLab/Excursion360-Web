@@ -84,9 +84,9 @@ export class Viewer {
         engine.loadingUIBackgroundColor = "transparent";
 
         scene.actionManager = new ActionManager(scene);
+
         if (BuildConfiguration.NeedDebugLayer) {
             console.log("deep debug");
-            scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
             
             scene.actionManager.registerAction(
                 new ExecuteCodeAction(
@@ -103,11 +103,11 @@ export class Viewer {
                     }
                 )
             );
+        } else {
+            scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
         }
 
         const light2 = new PointLight("light2", new Vector3(0, 2, 0), scene);
-
-        console.log(light2.radius);
 
         engine.runRenderLoop(() => {
             scene.render();
