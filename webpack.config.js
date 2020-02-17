@@ -34,6 +34,7 @@ module.exports = function (env, argv) {
     })],
     devServer: {
       contentBase: path.join(__dirname, "build"),
+      host: "0.0.0.0",
       port: 8088
     }
   };

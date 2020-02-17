@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera } from "babylonjs";
 import { AbstractMesh, PhotoDome, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
 import { Camera, Color3, MeshBuilder, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
 import { WebVRController, PickingInfo } from "babylonjs";
@@ -31,6 +31,7 @@ export class Viewer {
     private controllersRays: Mesh[];
 
     private groupLinkMaterial: Material;
+    private fieldItemMaterial: StandardMaterial;
 
     constructor(private configuration: Configuration) { }
 
@@ -38,40 +39,55 @@ export class Viewer {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
         const engine = new Engine(canvas, true);
         const scene = new Scene(engine);
-        this.links = new LinkToStatePool(scene);
+        this.scene = scene;
+        this.assetsManager = new AssetsManager(scene);
+        this.links = new LinkToStatePool(this.assetsManager, scene);
 
         var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
         glMaterial.diffuseColor = Color3.Blue();
         glMaterial.specularPower = 200;
         this.groupLinkMaterial = glMaterial;
 
+        const fiMaterial = new StandardMaterial("field_item_material", scene);
+        fiMaterial.diffuseColor = Color3.Gray();
+        fiMaterial.alpha = 0.3;
+        fiMaterial.emissiveColor = Color3.White();
+        this.fieldItemMaterial = fiMaterial;
+
         ViveController.MODEL_BASE_URL = "models/vive";
-        const vrHelper = scene.createDefaultVRExperience({
-            controllerMeshes: true,
-        });
-        vrHelper.webVRCamera.onControllersAttachedObservable.add((controllers, es2) => {
-            this.controllers = controllers;
-            for (const controller of controllers) {
-                controller.onTriggerStateChangedObservable.add((d, s) => {
-                    if (d.value === 1) {
-                        const pickedMesh = this.getVRMesh(controller);
-                        if (pickedMesh) {
-                            pickedMesh.actionManager.processTrigger(ActionManager.OnPickTrigger);
-                        }
-                    }
-                });
-            }
-        });
-        vrHelper.deviceOrientationCamera.position = Vector3.Zero();
-        vrHelper.webVRCamera.position = Vector3.Zero();
-        vrHelper.vrDeviceOrientationCamera.position = Vector3.Zero();
+        var camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
+        camera.attachControl(canvas, true);
+
+
+
+        // const vrHelper = scene.createDefaultVRExperience({
+        //     controllerMeshes: true,
+        // });
+        // vrHelper.webVRCamera.onControllersAttachedObservable.add((controllers, es2) => {
+        //     this.controllers = controllers;
+        //     for (const controller of controllers) {
+        //         controller.onTriggerStateChangedObservable.add((d, s) => {
+        //             if (d.value === 1) {
+        //                 const pickedMesh = this.getVRMesh(controller);
+        //                 if (pickedMesh) {
+        //                     pickedMesh.actionManager.processTrigger(ActionManager.OnPickTrigger);
+        //                 }
+        //             }
+        //         });
+        //     }
+        // });
+        // vrHelper.deviceOrientationCamera.position = Vector3.Zero();
+        // vrHelper.webVRCamera.position = Vector3.Zero();
+        // vrHelper.vrDeviceOrientationCamera.position = Vector3.Zero();
+
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
-        this.assetsManager = new AssetsManager(scene);
         engine.loadingUIBackgroundColor = "transparent";
 
         scene.actionManager = new ActionManager(scene);
         if (BuildConfiguration.NeedDebugLayer) {
             console.log("deep debug");
+            scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
+            
             scene.actionManager.registerAction(
                 new ExecuteCodeAction(
                     {
@@ -89,9 +105,9 @@ export class Viewer {
             );
         }
 
-        const light2 = new PointLight("light2", new Vector3(0, 0, 0), scene);
+        const light2 = new PointLight("light2", new Vector3(0, 2, 0), scene);
 
-        // scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
+        console.log(light2.radius);
 
         engine.runRenderLoop(() => {
             scene.render();
@@ -99,13 +115,14 @@ export class Viewer {
         window.addEventListener("resize", () => {
             engine.resize();
         });
-        this.scene = scene;
 
         scene.registerBeforeRender(() => {
             this.renderControllersRays();
+            light2.position = scene.activeCamera.position;
         });
 
         const material = new StandardMaterial("link material", scene);
+        
         material.diffuseColor = Color3.Red();
         material.specularPower = 200;
         this.baseLinkSphereMaterial = material;
@@ -215,7 +232,10 @@ export class Viewer {
             const linkToState = this.links.getLink(name, position, material, () => this.goToImage(link.id));
         }
         for (const groupLink of targetPicture.groupLinks) {
-            const name = groupLink.title;
+            let name = groupLink.title;
+            if (!name) {
+                name = "NO TITLE";
+            }
             const position = MathStuff.GetPositionForMarker(groupLink.rotation, distanceToLinks);
             const material = this.groupLinkMaterial
 
@@ -226,16 +246,31 @@ export class Viewer {
                     this.goToImage(selectedId)
                 });
         }
+
+        for (const fieldItem of targetPicture.fieldItems) {
+            const fieldItemInfo = {
+                vertex: fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, distanceToLinks)),
+                imageUrl: this.configuration.sceneUrl + fieldItem.imageUrl
+            }
+            const material = this.fieldItemMaterial
+
+            const linkToState = this.links.getFieldItem(
+                fieldItem.title,
+                fieldItemInfo,
+                material);
+        }
     }
 
 
     private async drawImage(url: string, pictureRotation: any) {
-
+        
         if (this.currentImage === null) {
             this.currentImage = new PhotoDome("background", null, { resolution: 32, size: 1000 }, this.scene);
+        } else {
         }
         const task = this.assetsManager.addTextureTask("image task", url, null, false);
         task.onSuccess = (t) => {
+            this.currentImage.photoTexture.dispose();
             this.currentImage.photoTexture = t.texture;
             this.currentImage.rotationQuaternion = pictureRotation;
         };

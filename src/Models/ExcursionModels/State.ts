@@ -1,6 +1,7 @@
 import { StateType } from "./StateType";
 import { Link } from "./Link";
 import { GroupLink } from "./GroupLink";
+import { FieldItem } from "./FieldItem";
 
 /**
  * State of excursion, present person environment
@@ -20,4 +21,5 @@ export interface State {
     links: Link[];
     /** Group links from current state */
     groupLinks : GroupLink[];
+    fieldItems : FieldItem[];
 }

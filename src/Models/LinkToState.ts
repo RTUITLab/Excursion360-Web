@@ -6,7 +6,7 @@ export class LinkToState {
     private static linkModel: AbstractMesh;
 
     protected center: TransformNode;
-    private linkObject: AbstractMesh;
+    protected linkObject: AbstractMesh;
     protected guiMesh: AbstractMesh;
     private guiTexture: AdvancedDynamicTexture;
     private textBlock: TextBlock;
@@ -17,20 +17,17 @@ export class LinkToState {
         material: Material,
         triggered: () => Promise<void>,
         animation: Animation,
-        private scene: Scene) {
+        protected scene: Scene,
+        linkMeshCreating?: (parent: TransformNode) => AbstractMesh) {
         this.center = new TransformNode(name, scene);
         this.center.position = position;
 
-        if (!LinkToState.linkModel) {
-            LinkToState.linkModel = MeshBuilder.CreatePolyhedron(`link_to_state_polyhedron`,
-                {
-                    custom: LinkMeshes.snubCuboctahedron,
-                    size: 0.25
-                }, scene).convertToFlatShadedMesh();
-            LinkToState.linkModel.position.y = -100;
+        if (linkMeshCreating) {
+            this.linkObject = linkMeshCreating(this.center);
         }
-
-        this.linkObject = LinkToState.linkModel.clone(`l${name}_polyhedron`, this.center);
+        else {
+            this.linkObject = this.createLinkObject(`l${name}_polyhedron`, this.center, scene);
+        }
         this.linkObject.position = Vector3.Zero();
         this.linkObject.material = material;
         this.linkObject.actionManager = new ActionManager(this.scene);
@@ -50,6 +47,7 @@ export class LinkToState {
         this.guiMesh.lookAt(this.center.position.scale(1.1));
         this.guiMesh.position.y += 2;
         this.guiMesh.isVisible = false;
+        this.guiMesh.isPickable = false;
 
         const pixelsToOne = 512 / 2;
 
@@ -63,10 +61,6 @@ export class LinkToState {
         tb.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
         tb.resizeToFit = true;
         tb.color = "white";
-        // tb.paddingTop = "5%";
-        // tb.paddingLeft = "30px";
-        // tb.paddingRight = "20px"
-        // tb.paddingBottom = "5%";
         tb.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         tb.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         tb.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
@@ -77,10 +71,10 @@ export class LinkToState {
         this.guiTexture.addControl(background);
 
         background.addControl(tb);
-        // this.guiTexture.addControl(sv);
-        // sv.addControl(tb);
-        this.linkObject.animations.push(animation);
-        scene.beginAnimation(this.linkObject, 0, 60, true);
+        if (animation) {
+            this.linkObject.animations.push(animation);
+            scene.beginAnimation(this.linkObject, 0, 60, true);
+        }
     }
 
     public rotate(axis: Vector3, angle: number): void {
@@ -88,11 +82,25 @@ export class LinkToState {
     }
 
     public dispose(): void {
+        this.guiMesh.material.dispose();
         this.center.dispose();
         this.guiTexture.dispose();
     }
     public isLinkMesh(mesh: AbstractMesh): boolean {
         return this.linkObject == mesh;
+    }
+
+    protected createLinkObject(name: string, parent: TransformNode, scene: Scene): AbstractMesh {
+        if (!LinkToState.linkModel) {
+            LinkToState.linkModel = MeshBuilder.CreatePolyhedron(`link_to_state_polyhedron`,
+                {
+                    custom: LinkMeshes.snubCuboctahedron,
+                    size: 0.25
+                }, scene).convertToFlatShadedMesh();
+            LinkToState.linkModel.position.y = -100;
+        }
+
+        return LinkToState.linkModel.clone(`l${name}_polyhedron`, this.center);
     }
 
     protected onPointerOverTrigger(event: ActionEvent) {
