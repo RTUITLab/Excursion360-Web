@@ -27,13 +27,12 @@ export class Viewer {
 
     private assetsManager: AssetsManager;
 
-    private controllers: WebVRController[];
-    private controllersRays: Mesh[];
-
     private groupLinkMaterial: Material;
     private fieldItemMaterial: StandardMaterial;
 
     constructor(private configuration: Configuration) { }
+
+    private backgroundRadius = 500;
 
     public createScene() {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
@@ -54,31 +53,32 @@ export class Viewer {
         fiMaterial.emissiveColor = Color3.White();
         this.fieldItemMaterial = fiMaterial;
 
-        ViveController.MODEL_BASE_URL = "models/vive";
+        // ViveController.MODEL_BASE_URL = "https://files.rtuitlab.ru/altair360/vive";
+
+
+        const supportsVR = 'getVRDisplays' in navigator;
         var camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
         camera.attachControl(canvas, true);
+        if (supportsVR) {
+            navigator.getVRDisplays().then(function (displays) {
+                const vrHelper = scene.createDefaultVRExperience({
+                    controllerMeshes: true,
+                    rayLength: 500
+                });
+                
+                vrHelper.enableInteractions();
+                vrHelper.displayGaze = true;
+                vrHelper.deviceOrientationCamera.position = Vector3.Zero();
+                vrHelper.webVRCamera.position = Vector3.Zero();
+                vrHelper.vrDeviceOrientationCamera.position = Vector3.Zero();
+                camera.dispose();
+            });
+        }
 
+        scene.registerBeforeRender(() => {
+            scene.activeCamera.position = Vector3.Zero();
+        });
 
-
-        // const vrHelper = scene.createDefaultVRExperience({
-        //     controllerMeshes: true,
-        // });
-        // vrHelper.webVRCamera.onControllersAttachedObservable.add((controllers, es2) => {
-        //     this.controllers = controllers;
-        //     for (const controller of controllers) {
-        //         controller.onTriggerStateChangedObservable.add((d, s) => {
-        //             if (d.value === 1) {
-        //                 const pickedMesh = this.getVRMesh(controller);
-        //                 if (pickedMesh) {
-        //                     pickedMesh.actionManager.processTrigger(ActionManager.OnPickTrigger);
-        //                 }
-        //             }
-        //         });
-        //     }
-        // });
-        // vrHelper.deviceOrientationCamera.position = Vector3.Zero();
-        // vrHelper.webVRCamera.position = Vector3.Zero();
-        // vrHelper.vrDeviceOrientationCamera.position = Vector3.Zero();
 
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
         engine.loadingUIBackgroundColor = "transparent";
@@ -87,7 +87,7 @@ export class Viewer {
 
         if (BuildConfiguration.NeedDebugLayer) {
             console.log("deep debug");
-            
+
             scene.actionManager.registerAction(
                 new ExecuteCodeAction(
                     {
@@ -104,7 +104,7 @@ export class Viewer {
                 )
             );
         } else {
-            scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
+            // scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
         }
 
         const light2 = new PointLight("light2", new Vector3(0, 2, 0), scene);
@@ -116,13 +116,8 @@ export class Viewer {
             engine.resize();
         });
 
-        scene.registerBeforeRender(() => {
-            this.renderControllersRays();
-            light2.position = scene.activeCamera.position;
-        });
-
         const material = new StandardMaterial("link material", scene);
-        
+
         material.diffuseColor = Color3.Red();
         material.specularPower = 200;
         this.baseLinkSphereMaterial = material;
@@ -138,54 +133,6 @@ export class Viewer {
             this.linkSphereMaterials.push(newMaterial);
         }
         await this.goToImage(this.viewScene.firstStateId);
-    }
-
-
-    private getVRMesh(controller: WebVRController) {
-        const ray = controller.getForwardRay(30);
-        const pick = this.scene.pickWithRay(ray, (m) => this.links.isLinkMesh(m));
-        return pick.pickedMesh;
-    }
-    private renderControllersRays() {
-        if (!this.controllers) {
-            return;
-        }
-        if (!this.controllersRays) {
-            this.controllersRays = [];
-        }
-        const radius = 0.005;
-        let needHit = true;
-        for (let index = 0; index < this.controllers.length; index++) {
-            const controller = this.controllers[index];
-            const ray = controller.getForwardRay(30);
-            if (needHit) {
-                const pick = this.scene.pickWithRay(ray, (m) => this.links.isLinkMesh(m));
-                if (pick.hit) {
-                    pick.pickedMesh.actionManager.processTrigger(ActionManager.OnPointerOverTrigger); // TODO Extract controller to another class
-                }
-            }
-            if (!this.controllersRays[index]) {
-                this.controllersRays[index] = MeshBuilder.CreateTube("controller ray", {
-                    path: [
-                        ray.origin,
-                        ray.origin.add(ray.direction.scale(ray.length))
-                    ],
-                    radius,
-                    sideOrientation: BABYLON.Mesh.FRONTSIDE,
-                    updatable: true
-                }, this.scene);
-            } else {
-                this.controllersRays[index] = MeshBuilder.CreateTube("controller ray", {
-                    path: [
-                        ray.origin,
-                        ray.origin.add(ray.direction.scale(ray.length))
-                    ],
-                    sideOrientation: BABYLON.Mesh.FRONTSIDE,
-                    radius,
-                    instance: this.controllersRays[index]
-                });
-            }
-        }
     }
 
     private createNavigatorButton() {
@@ -249,8 +196,9 @@ export class Viewer {
 
         for (const fieldItem of targetPicture.fieldItems) {
             const fieldItemInfo = {
-                vertex: fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, distanceToLinks)),
-                imageUrl: this.configuration.sceneUrl + fieldItem.imageUrl
+                vertex: fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
+                imageUrl: this.configuration.sceneUrl + fieldItem.imageUrl,
+                distance: distanceToLinks
             }
             const material = this.fieldItemMaterial
 
@@ -259,23 +207,31 @@ export class Viewer {
                 fieldItemInfo,
                 material);
         }
+        console.log("items created");
+
     }
 
 
-    private async drawImage(url: string, pictureRotation: any) {
-        
+    private drawImage(url: string, pictureRotation: any): Promise<void> {
+
         if (this.currentImage === null) {
-            this.currentImage = new PhotoDome("background", null, { resolution: 32, size: 1000 }, this.scene);
+            this.currentImage = new PhotoDome("background", null, { resolution: 32, size: this.backgroundRadius * 2 }, this.scene);
         } else {
         }
         const task = this.assetsManager.addTextureTask("image task", url, null, false);
-        task.onSuccess = (t) => {
-            this.currentImage.photoTexture.dispose();
-            this.currentImage.photoTexture = t.texture;
-            this.currentImage.rotationQuaternion = pictureRotation;
-        };
-        this.assetsManager.load(); // Hack for start loading
-        await this.assetsManager.loadAsync();
+
+        var promise = new Promise<void>(async (resolve, error) => {
+            this.assetsManager.load();
+            await this.assetsManager.loadAsync();
+
+            task.onSuccess = t => {
+                this.currentImage.photoTexture.dispose();
+                this.currentImage.photoTexture = t.texture;
+                this.currentImage.rotationQuaternion = pictureRotation;
+                resolve();
+            }
+        })
+        return promise;
     }
 
     private cleanLinks() {

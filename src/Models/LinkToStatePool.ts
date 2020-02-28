@@ -64,11 +64,15 @@ export class LinkToStatePool {
 
     public getFieldItem(
         name: string,
-        fieldItemData: { vertex: Vector3[], imageUrl: string },
+        fieldItemInfo: {
+            vertex: Vector3[],
+            imageUrl: string,
+            distance: number
+        },
         material: StandardMaterial): LinkToState {
         const link = new FieldItem(
             name,
-            fieldItemData,
+            fieldItemInfo,
             material.clone(name),
             this.assetsManager,
             this.scene);
