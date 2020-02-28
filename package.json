@@ -10,9 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.1",
-    "babylonjs": "^4.0.3",
-    "babylonjs-gui": "^4.0.3",
-    "babylonjs-inspector": "^4.0.3"
+    "babylonjs": "^4.1.0",
+    "babylonjs-gui": "^4.1.0",
+    "babylonjs-inspector": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^10.12.18",

@@ -10,7 +10,11 @@ export class FieldItem extends LinkToState {
 
     constructor(
         name: string,
-        private fieldItemInfo: { vertex: Vector3[], imageUrl: string },
+        private fieldItemInfo: {
+            vertex: Vector3[],
+            imageUrl: string,
+            distance: number
+        },
         private material: StandardMaterial,
         private assetsManager: AssetsManager,
         scene: Scene) {
@@ -29,7 +33,9 @@ export class FieldItem extends LinkToState {
                 vertexData.applyToMesh(customMesh);
                 return customMesh;
             });
-        this.guiMesh.position = fieldItemInfo.vertex[0].add(fieldItemInfo.vertex[1]).scale(0.5);
+        var longPosition = fieldItemInfo.vertex[0].add(fieldItemInfo.vertex[1]).scale(0.5);
+        var correctPosition = longPosition.normalize().scale(fieldItemInfo.distance);
+        this.guiMesh.position = correctPosition;
         this.guiMesh.position.y += 0.6;
         this.guiMesh.lookAt(this.guiMesh.position.scale(1.1));
     }
@@ -39,43 +45,49 @@ export class FieldItem extends LinkToState {
         if (this.pictureMaterial == null) {
             await this.loadPictureResources();
         }
-        this.picturePlane.isVisible = true;
+        if (this.picturePlane) {
+            this.picturePlane.isVisible = true;
+        }
     }
 
 
     private async loadPictureResources() {
         const task = this.assetsManager.addTextureTask("image task", this.fieldItemInfo.imageUrl, null, true);
         this.assetsManager.load();
-        await this.assetsManager.loadAsync();
 
-        var centerPosition = this.fieldItemInfo.vertex.reduce((prev, curr) => prev.add(curr));
-        centerPosition = centerPosition.scale(1 / this.fieldItemInfo.vertex.length);
+        const centerPosition = this.fieldItemInfo
+            .vertex
+            .reduce((prev, curr) => prev.add(curr))
+            .normalize()
+            .scale(this.fieldItemInfo.distance);
 
-        var textureSize = task.texture.getSize();
-        var maxSize = Math.max(textureSize.width, textureSize.height);
-        var multipler = 10 / maxSize;
-        this.picturePlane = MeshBuilder.CreatePlane(`${this.name}_plane`, { width: textureSize.width * multipler, height: textureSize.height * multipler }, this.scene);
+        task.onSuccess = t => {
+            var textureSize = task.texture.getSize();
+            var maxSize = Math.max(textureSize.width, textureSize.height);
+            var multipler = 10 / maxSize;
+            this.picturePlane = MeshBuilder.CreatePlane(`${this.name}_plane`, {
+                width: textureSize.width * multipler,
+                height: textureSize.height * multipler
+            }, this.scene);
+            this.picturePlane.parent = this.center;
+            this.picturePlane.position = centerPosition;
+            this.picturePlane.lookAt(centerPosition.scale(1.1));
+            var material = new StandardMaterial("", this.scene);
+            material.specularColor = Color3.Black();
+            material.diffuseTexture = task.texture;
 
-        this.picturePlane.parent = this.center;
-        this.picturePlane.position = centerPosition;
-        this.picturePlane.lookAt(centerPosition.scale(1.1));
+            this.picturePlane.material = material;
+            this.pictureMaterial = material;
+            this.pictureTexture = task.texture;
 
-        var material = new StandardMaterial("", this.scene);
-        material.specularColor = Color3.Black();
-        material.diffuseTexture = task.texture;
+            this.picturePlane.isVisible = true;
 
-        this.picturePlane.material = material;
-        this.pictureMaterial = material;
-        this.pictureTexture = task.texture;
-
-        this.picturePlane.isVisible = false;
-
-        this.picturePlane.actionManager = new ActionManager(this.scene);
-        this.picturePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
-            this.picturePlane.isVisible = false;
-            this.linkObject.isVisible = true;
-        }));
-
+            this.picturePlane.actionManager = new ActionManager(this.scene);
+            this.picturePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
+                this.picturePlane.isVisible = false;
+                this.linkObject.isVisible = true;
+            }));
+        };
     }
 
 
@@ -94,8 +106,7 @@ export class FieldItem extends LinkToState {
         if (this.pictureTexture) {
             this.pictureTexture.dispose();
         }
-        if (this.pictureMaterial)
-        {
+        if (this.pictureMaterial) {
             this.pictureMaterial.dispose();
         }
     }
