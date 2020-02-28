@@ -53,7 +53,7 @@ export class Viewer {
         fiMaterial.emissiveColor = Color3.White();
         this.fieldItemMaterial = fiMaterial;
 
-        // ViveController.MODEL_BASE_URL = "https://files.rtuitlab.ru/altair360/vive";
+        ViveController.MODEL_BASE_URL = "models/vive/";
 
 
         const supportsVR = 'getVRDisplays' in navigator;
