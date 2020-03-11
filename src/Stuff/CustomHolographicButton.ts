@@ -1,5 +1,5 @@
 
-import { Nullable } from "babylonjs";
+import { Nullable, Color4 } from "babylonjs";
 import { Observer } from "babylonjs";
 import { Color3, Vector3 } from "babylonjs";
 import { StandardMaterial } from "babylonjs";

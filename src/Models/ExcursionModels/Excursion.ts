@@ -1,4 +1,5 @@
 import { State as State } from "./State";
+import { TableOfContentRow } from "./TableOfContentRow";
 
 /**
  * Excursion object, present start point and all states
@@ -13,4 +14,5 @@ export interface Excursion {
      */
     states: State[];
     colorSchemes: any[];
+    tableOfContent: TableOfContentRow[];
 }

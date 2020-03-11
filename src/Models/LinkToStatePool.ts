@@ -8,11 +8,11 @@ import { FieldItem } from "./FieldItem";
 export class LinkToStatePool {
     private linkAnimation: Animation;
     private links: LinkToState[] = [];
-    private guiManager: GUI3DManager;
     // private timer: NodeJS.Timeout;
 
     constructor(
         private assetsManager: AssetsManager,
+        private guiManager: GUI3DManager,
         private scene: Scene) {
         var animationBox = new Animation(
             "linkToStateAnimation",
@@ -37,8 +37,6 @@ export class LinkToStatePool {
         ];
         animationBox.setKeys(keys);
         this.linkAnimation = animationBox;
-
-        this.guiManager = new GUI3DManager(scene);
     }
 
     public getLink(

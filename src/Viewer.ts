@@ -5,12 +5,13 @@ import { WebVRController, PickingInfo } from "babylonjs";
 
 import { Excursion } from "./Models/ExcursionModels/Excursion";
 import * as GUI from "babylonjs-gui";
-import { AdvancedDynamicTexture } from "babylonjs-gui";
+import { AdvancedDynamicTexture, Button, GUI3DManager } from "babylonjs-gui";
 import { SceneNavigator } from "./SceneNavigator";
 import { Configuration } from "./Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
 import { LinkToStatePool } from "./Models/LinkToStatePool";
 import { BuildConfiguration } from "./BuildConfiguration";
+import { TableOfContentViewer } from "./Models/TableOfContentViewer";
 
 
 export class Viewer {
@@ -18,7 +19,7 @@ export class Viewer {
     private currentImage: PhotoDome = null;
     private scene: Scene;
     private viewScene: Excursion;
-    private sceneNavigator?: SceneNavigator;
+    private tableOfContentViewer: TableOfContentViewer;
 
     private links: LinkToStatePool;
 
@@ -40,7 +41,9 @@ export class Viewer {
         const scene = new Scene(engine);
         this.scene = scene;
         this.assetsManager = new AssetsManager(scene);
-        this.links = new LinkToStatePool(this.assetsManager, scene);
+        const guiManager = new GUI3DManager(scene);
+        this.links = new LinkToStatePool(this.assetsManager, guiManager, scene);
+        this.tableOfContentViewer = new TableOfContentViewer(guiManager, scene);
 
         var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
         glMaterial.diffuseColor = Color3.Blue();
@@ -65,7 +68,7 @@ export class Viewer {
                     controllerMeshes: true,
                     rayLength: 500
                 });
-                
+
                 vrHelper.enableInteractions();
                 vrHelper.displayGaze = true;
                 vrHelper.deviceOrientationCamera.position = Vector3.Zero();
@@ -76,7 +79,7 @@ export class Viewer {
         }
 
         scene.registerBeforeRender(() => {
-            scene.activeCamera.position = Vector3.Zero();
+            // scene.activeCamera.position = Vector3.Zero();
         });
 
 
@@ -132,14 +135,26 @@ export class Viewer {
             newMaterial.diffuseColor = new Color3(color.r, color.g, color.b);
             this.linkSphereMaterials.push(newMaterial);
         }
+        var info = scene.tableOfContent.map(r => {
+            return {
+                title: r.title,
+                states: r.stateIds.map(sid => {
+                    return {
+                        title: this.getName(sid),
+                        id: sid
+                    }
+                })
+            }
+        });
+
+        this.tableOfContentViewer.init(info, (id) => this.goToImage(id));
         await this.goToImage(this.viewScene.firstStateId);
     }
 
     private createNavigatorButton() {
-        console.warn("don't render menu");
-        return;
-        const advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("Menu UI");
-        const button = GUI.Button.CreateSimpleButton("but", "Menu");
+        console.warn("Table of content Desktop UI!!!");
+        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("Menu UI");
+        const button = Button.CreateSimpleButton("but", "Menu");
         button.width = 0.09;
         button.height = "40px";
         button.color = "black";
@@ -147,21 +162,9 @@ export class Viewer {
         button.top = "-45%";
         button.left = "-45%";
         button.onPointerClickObservable.add(() => {
-            if (this.sceneNavigator) {
-                return;
-            } else {
-                this.sceneNavigator = new SceneNavigator(
-                    this.scene,
-                    this.viewScene,
-                    (id) => {
-                        this.goToImage(id);
-                        this.sceneNavigator = null;
-                    });
-            }
-
+            this.tableOfContentViewer.toggleView();
         });
         advancedTexture.addControl(button);
-        console.warn("reuse advanced texture");
     }
 
 
