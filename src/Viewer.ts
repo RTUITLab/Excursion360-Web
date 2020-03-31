@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera, TargetCamera, Angle } from "babylonjs";
 import { AbstractMesh, PhotoDome, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
 import { Camera, Color3, MeshBuilder, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
 import { WebVRController, PickingInfo } from "babylonjs";
@@ -20,7 +20,7 @@ export class Viewer {
     private scene: Scene;
     private viewScene: Excursion;
     private tableOfContentViewer: TableOfContentViewer;
-
+    private tableOfContentButton: Button;
     private links: LinkToStatePool;
 
     private baseLinkSphereMaterial?: StandardMaterial;
@@ -135,19 +135,22 @@ export class Viewer {
             newMaterial.diffuseColor = new Color3(color.r, color.g, color.b);
             this.linkSphereMaterials.push(newMaterial);
         }
-        var info = scene.tableOfContent.map(r => {
-            return {
-                title: r.title,
-                states: r.stateIds.map(sid => {
-                    return {
-                        title: this.getName(sid),
-                        id: sid
-                    }
-                })
-            }
-        });
 
-        this.tableOfContentViewer.init(info, (id) => this.goToImage(id));
+        if (scene.tableOfContent) {
+            var info = scene.tableOfContent.map(r => {
+                return {
+                    title: r.title,
+                    states: r.stateIds.map(sid => {
+                        return {
+                            title: this.getName(sid),
+                            id: sid
+                        }
+                    })
+                }
+            });
+
+            this.tableOfContentViewer.init(info, (id) => this.goToImage(id));
+        }
         await this.goToImage(this.viewScene.firstStateId);
     }
 
@@ -165,6 +168,7 @@ export class Viewer {
             this.tableOfContentViewer.toggleView();
         });
         advancedTexture.addControl(button);
+        this.tableOfContentButton = button;
     }
 
 
@@ -179,7 +183,17 @@ export class Viewer {
             const position = MathStuff.GetPositionForMarker(link.rotation, distanceToLinks);
             const material = this.linkSphereMaterials[link.colorScheme];
 
-            const linkToState = this.links.getLink(name, position, material, () => this.goToImage(link.id));
+            const linkToState = this.links.getLink(name, position, material, () => {
+                if (link.rotationAfterStepAngleOverridden) {
+                    var rotateCam = () => {
+                        var targetCamera = this.scene.activeCamera as TargetCamera;
+                        targetCamera.rotation.y = Angle.FromDegrees(link.rotationAfterStepAngle).radians() + Math.PI;
+                        this.scene.unregisterBeforeRender(rotateCam);
+                    }
+                    this.scene.registerBeforeRender(rotateCam);
+                }
+                return this.goToImage(link.id);
+            });
         }
         for (const groupLink of targetPicture.groupLinks) {
             let name = groupLink.title;
@@ -193,7 +207,13 @@ export class Viewer {
                 groupLink.stateIds.map(stateId => { return { id: stateId, title: this.getName(stateId) } }),
                 position, material,
                 async (selectedId) => {
-                    this.goToImage(selectedId)
+
+                    var overridePair = groupLink.groupStateRotationOverrides.find(p => p.stateId == selectedId);
+                    if (overridePair) {
+                        var targetCamera = this.scene.activeCamera as TargetCamera;
+                        targetCamera.rotation.y = Angle.FromDegrees(overridePair.rotationAfterStepAngle).radians() + Math.PI;
+                    }
+                    return this.goToImage(selectedId)
                 });
         }
 
@@ -210,8 +230,6 @@ export class Viewer {
                 fieldItemInfo,
                 material);
         }
-        console.log("items created");
-
     }
 
 

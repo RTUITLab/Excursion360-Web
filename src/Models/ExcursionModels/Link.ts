@@ -8,4 +8,8 @@ export interface Link extends StateItem {
     id: string;
     /** Id of color scheme */
     colorScheme: number;
+    /** Is camera rotation after step must be update */
+    rotationAfterStepAngleOverridden: boolean;
+    /** Rotation camera angle */
+    rotationAfterStepAngle: number;
 }
