@@ -9,4 +9,6 @@ export interface GroupLink extends StateItem {
     stateIds: string[];
     /** Overrides of state step angles */
     groupStateRotationOverrides: { stateId: string, rotationAfterStepAngle: number }[];
+    /** Additional info under buttons*/
+    infos: string[];
 }

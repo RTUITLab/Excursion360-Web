@@ -52,10 +52,11 @@ export class LinkToStatePool {
     public getGroupLink(
         name: string,
         states: { title: string, id: string }[],
+        infos: string[],
         position: Vector3,
         material: Material,
         triggered: (id: string) => Promise<void>): LinkToState {
-        const link = new GroupLink(name, states, position, material, triggered, this.linkAnimation, this.guiManager, this.scene);
+        const link = new GroupLink(name, states, infos, position, material, triggered, this.linkAnimation, this.guiManager, this.scene);
         this.links.push(link);
         return link;
     }

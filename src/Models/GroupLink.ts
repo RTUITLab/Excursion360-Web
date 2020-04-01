@@ -1,18 +1,19 @@
 import { LinkToState } from "./LinkToState";
-import { Material, Vector3, Scene, Animation, TransformNode, ActionEvent, MeshBuilder } from "babylonjs";
-import { GUI3DManager, CylinderPanel, HolographicButton, StackPanel3D, TextBlock, Rectangle, AbstractButton3D } from "babylonjs-gui";
+import { Material, Vector3, Scene, Animation, TransformNode, ActionEvent, MeshBuilder, AbstractMesh } from "babylonjs";
+import { GUI3DManager, CylinderPanel, HolographicButton, StackPanel3D, TextBlock, Rectangle, AbstractButton3D, AdvancedDynamicTexture } from "babylonjs-gui";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton"
 
 export class GroupLink extends LinkToState {
-
     private isOpened = false;
     private buttonsPoint: TransformNode;
 
     private buttons: AbstractButton3D[] = [];
-    buttonsCount = 1;
+    private infoCards: { mesh: AbstractMesh, texture: AdvancedDynamicTexture }[] = [];
+    itemsCount = 1;
     constructor(
         public name: string,
         states: { title: string, id: string }[],
+        infos: string[],
         position: Vector3,
         material: Material,
         triggered: (id: string) => Promise<void>,
@@ -33,6 +34,10 @@ export class GroupLink extends LinkToState {
         for (const state of states) {
             this.createButton(state.title, () => triggered(state.id));
         }
+        for (const info of infos) {
+            this.createTextCard(info);
+            console.log(info);
+        }
     }
 
 
@@ -42,8 +47,8 @@ export class GroupLink extends LinkToState {
         this.buttons.push(button);
         this.manager.addControl(button);
         button.linkToTransformNode(this.buttonsPoint);
-        button.position.y -= this.buttonsCount * 1.1;
-        this.buttonsCount++;
+        button.position.y -= this.itemsCount * 1.1;
+        this.itemsCount++;
         var text1 = new TextBlock();
         text1.text = title;
         text1.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
@@ -56,12 +61,43 @@ export class GroupLink extends LinkToState {
         button.onPointerClickObservable.add(d => triggered());
     }
 
+    createTextCard(info: string) {
+        const plane = MeshBuilder.CreatePlane(`group link info card`, { width: 4, height: 1 }, this.scene);
+        const pixelsToOne = 512 / 2;
+
+        const texture = AdvancedDynamicTexture.CreateForMesh(plane, 4 * pixelsToOne, 1 * pixelsToOne);
+        this.infoCards.push({ mesh: plane, texture: texture });
+        plane.parent = this.buttonsPoint;
+        plane.position.y -= this.itemsCount * 1.1;
+        this.itemsCount++;
+        var text1 = new TextBlock();
+        text1.text = info;
+        text1.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        text1.resizeToFit = true;
+        text1.color = "white";
+        text1.fontSize = 45;
+
+        const background = new Rectangle("link text rectangle");
+        background.background = "silver";
+        background.alpha = 0.7;
+        background.addControl(text1);
+        texture.addControl(background);
+        texture.scale(1);
+        plane.isVisible = false;
+
+    }
+
     private async triggerAction() {
         this.isOpened = !this.isOpened;
         this.buttons.forEach(b => b.isVisible = this.isOpened);
+        this.infoCards.forEach(b => b.mesh.isVisible = this.isOpened);
     }
 
-    public dispose(){
+    public dispose() {
+        this.infoCards.forEach(c => {
+            c.texture.dispose();
+            c.mesh.dispose();
+        });
         super.dispose();
     }
 

@@ -205,7 +205,9 @@ export class Viewer {
 
             const linkToState = this.links.getGroupLink(name,
                 groupLink.stateIds.map(stateId => { return { id: stateId, title: this.getName(stateId) } }),
-                position, material,
+                groupLink.infos,
+                position,
+                material,
                 async (selectedId) => {
 
                     var overridePair = groupLink.groupStateRotationOverrides.find(p => p.stateId == selectedId);
