@@ -1,7 +1,5 @@
 # Web viewer for 360 images
-|master|develop|
----|---
-|[![Build status](https://dev.azure.com/rtuitlab/ITLab/_apis/build/status/Excursion360-master)](https://dev.azure.com/rtuitlab/ITLab/_build/latest?definitionId=31)|
+[![Build Status](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_apis/build/status/Excursion360-Web?branchName=master)](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_build/latest?definitionId=96&branchName=master)
 
 ## How to start
 
