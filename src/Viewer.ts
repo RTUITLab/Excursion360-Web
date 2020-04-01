@@ -150,6 +150,8 @@ export class Viewer {
             });
 
             this.tableOfContentViewer.init(info, (id) => this.goToImage(id));
+        } else {
+            this.tableOfContentButton.isVisible = false;
         }
         await this.goToImage(this.viewScene.firstStateId);
     }
