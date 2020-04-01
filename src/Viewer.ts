@@ -172,10 +172,10 @@ export class Viewer {
     }
 
 
-    private async goToImage(id: string) {
+    private async goToImage(id: string, actionBeforeChange: () => void = null) {
         const targetPicture = this.viewScene.states.find((p) => p.id === id);
         this.cleanLinks();
-        await this.drawImage(this.configuration.sceneUrl + targetPicture.url, targetPicture.pictureRotation);
+        await this.drawImage(this.configuration.sceneUrl + targetPicture.url, targetPicture.pictureRotation, actionBeforeChange);
         document.title = targetPicture.title;
         const distanceToLinks = 10;
         for (const link of targetPicture.links) {
@@ -184,15 +184,14 @@ export class Viewer {
             const material = this.linkSphereMaterials[link.colorScheme];
 
             const linkToState = this.links.getLink(name, position, material, () => {
+                let rotateCam = () => {};
                 if (link.rotationAfterStepAngleOverridden) {
-                    var rotateCam = () => {
+                    rotateCam = () => {
                         var targetCamera = this.scene.activeCamera as TargetCamera;
                         targetCamera.rotation.y = Angle.FromDegrees(link.rotationAfterStepAngle).radians() + Math.PI;
-                        this.scene.unregisterBeforeRender(rotateCam);
                     }
-                    this.scene.registerBeforeRender(rotateCam);
                 }
-                return this.goToImage(link.id);
+                return this.goToImage(link.id, rotateCam);
             });
         }
         for (const groupLink of targetPicture.groupLinks) {
@@ -209,13 +208,15 @@ export class Viewer {
                 position,
                 material,
                 async (selectedId) => {
-
+                    let rotateCam = () => {};
                     var overridePair = groupLink.groupStateRotationOverrides.find(p => p.stateId == selectedId);
                     if (overridePair) {
-                        var targetCamera = this.scene.activeCamera as TargetCamera;
-                        targetCamera.rotation.y = Angle.FromDegrees(overridePair.rotationAfterStepAngle).radians() + Math.PI;
+                        rotateCam = () => {
+                            var targetCamera = this.scene.activeCamera as TargetCamera;
+                            targetCamera.rotation.y = Angle.FromDegrees(overridePair.rotationAfterStepAngle).radians() + Math.PI;
+                        };
                     }
-                    return this.goToImage(selectedId)
+                    return this.goToImage(selectedId, rotateCam);
                 });
         }
 
@@ -235,7 +236,7 @@ export class Viewer {
     }
 
 
-    private drawImage(url: string, pictureRotation: any): Promise<void> {
+    private drawImage(url: string, pictureRotation: any, actionBeforeChange: () => void = null): Promise<void> {
 
         if (this.currentImage === null) {
             this.currentImage = new PhotoDome("background", null, { resolution: 32, size: this.backgroundRadius * 2 }, this.scene);
@@ -248,6 +249,9 @@ export class Viewer {
             await this.assetsManager.loadAsync();
 
             task.onSuccess = t => {
+                if (actionBeforeChange) {
+                    actionBeforeChange();
+                }
                 this.currentImage.photoTexture.dispose();
                 this.currentImage.photoTexture = t.texture;
                 this.currentImage.rotationQuaternion = pictureRotation;
