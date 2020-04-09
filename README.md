@@ -5,6 +5,11 @@
 
 * Install Node.JS, npm
 
+* Install packages
+```bash
+npm i
+```
+
 * Create file ```.env.local```
 ```env
 CONFIG_FILE_PATH=path to configuration file, config.json by default

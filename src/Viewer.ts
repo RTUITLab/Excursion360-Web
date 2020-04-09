@@ -6,12 +6,12 @@ import { WebVRController, PickingInfo } from "babylonjs";
 import { Excursion } from "./Models/ExcursionModels/Excursion";
 import * as GUI from "babylonjs-gui";
 import { AdvancedDynamicTexture, Button, GUI3DManager } from "babylonjs-gui";
-import { SceneNavigator } from "./SceneNavigator";
-import { Configuration } from "./Configuration";
+import { Configuration } from "./Configuration/Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
 import { LinkToStatePool } from "./Models/LinkToStatePool";
-import { BuildConfiguration } from "./BuildConfiguration";
+import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 import { TableOfContentViewer } from "./Models/TableOfContentViewer";
+import { StateChangeLoadingScreen } from "./StateChangeLoadingScreen";
 
 
 export class Viewer {
@@ -153,11 +153,10 @@ export class Viewer {
         } else {
             this.tableOfContentButton.isVisible = false;
         }
-        await this.goToImage(this.viewScene.firstStateId);
+        await this.goToImage(this.viewScene.firstStateId, null, true);
     }
 
     private createNavigatorButton() {
-        console.warn("Table of content Desktop UI!!!");
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("Menu UI");
         const button = Button.CreateSimpleButton("but", "Menu");
         button.width = 0.09;
@@ -174,7 +173,15 @@ export class Viewer {
     }
 
 
-    private async goToImage(id: string, actionBeforeChange: () => void = null) {
+    private async goToImage(id: string, actionBeforeChange: () => void = null, isFirstShow: boolean = false) {
+
+        if (isFirstShow) {
+            var tryId = location.hash.substr(1);
+            if (this.viewScene.states.some((p) => p.id === tryId)) {
+                id = tryId;
+            }
+        }
+        location.hash = id;
         const targetPicture = this.viewScene.states.find((p) => p.id === id);
         this.cleanLinks();
         await this.drawImage(this.configuration.sceneUrl + targetPicture.url, targetPicture.pictureRotation, actionBeforeChange);
@@ -186,7 +193,7 @@ export class Viewer {
             const material = this.linkSphereMaterials[link.colorScheme];
 
             const linkToState = this.links.getLink(name, position, material, () => {
-                let rotateCam = () => {};
+                let rotateCam = () => { };
                 if (link.rotationAfterStepAngleOverridden) {
                     rotateCam = () => {
                         var targetCamera = this.scene.activeCamera as TargetCamera;
@@ -210,7 +217,7 @@ export class Viewer {
                 position,
                 material,
                 async (selectedId) => {
-                    let rotateCam = () => {};
+                    let rotateCam = () => { };
                     var overridePair = groupLink.groupStateRotationOverrides.find(p => p.stateId == selectedId);
                     if (overridePair) {
                         rotateCam = () => {
@@ -245,11 +252,9 @@ export class Viewer {
         } else {
         }
         const task = this.assetsManager.addTextureTask("image task", url, null, false);
-
         var promise = new Promise<void>(async (resolve, error) => {
             this.assetsManager.load();
             await this.assetsManager.loadAsync();
-
             task.onSuccess = t => {
                 if (actionBeforeChange) {
                     actionBeforeChange();

@@ -1,8 +1,8 @@
 import { Viewer } from "./Viewer";
-import { Configuration } from "./Configuration";
+import { Configuration } from "./Configuration/Configuration";
 import axios from "axios";
 import { Excursion } from "./Models/ExcursionModels/Excursion";
-import { BuildConfiguration } from "./BuildConfiguration";
+import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
