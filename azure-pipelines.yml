@@ -32,6 +32,7 @@ steps:
     replaceExistingArchive: true
 
 - task: GitHubRelease@1
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/v'))
   inputs:
     gitHubConnection: 'github.com_CAPCHIK'
     repositoryName: '$(Build.Repository.Name)'
