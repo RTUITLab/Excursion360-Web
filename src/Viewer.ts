@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera, TargetCamera, Angle } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera, TargetCamera, Angle, Logger } from "babylonjs";
 import { AbstractMesh, PhotoDome, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
 import { Camera, Color3, MeshBuilder, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
 import { WebVRController, PickingInfo } from "babylonjs";
@@ -12,6 +12,7 @@ import { LinkToStatePool } from "./Models/LinkToStatePool";
 import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 import { TableOfContentViewer } from "./Models/TableOfContentViewer";
 import { StateChangeLoadingScreen } from "./StateChangeLoadingScreen";
+import { State } from "./Models/ExcursionModels/State";
 
 
 export class Viewer {
@@ -30,6 +31,7 @@ export class Viewer {
 
     private groupLinkMaterial: Material;
     private fieldItemMaterial: StandardMaterial;
+    currentPicture: State;
 
     constructor(private configuration: Configuration) { }
 
@@ -57,7 +59,9 @@ export class Viewer {
         this.fieldItemMaterial = fiMaterial;
 
         ViveController.MODEL_BASE_URL = "models/vive/";
-
+        window.addEventListener('hashchange', () => {
+            this.goToImage(this.currentPicture.id, () => { }, true);
+        });
 
         const supportsVR = 'getVRDisplays' in navigator;
         var camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
@@ -173,16 +177,19 @@ export class Viewer {
     }
 
 
-    private async goToImage(id: string, actionBeforeChange: () => void = null, isFirstShow: boolean = false) {
-
-        if (isFirstShow) {
+    private async goToImage(id: string, actionBeforeChange: () => void = null, forceFromHash: boolean = false) {
+        if (forceFromHash) {
             var tryId = location.hash.substr(1);
             if (this.viewScene.states.some((p) => p.id === tryId)) {
                 id = tryId;
             }
         }
+        if (this.currentPicture && this.currentPicture.id == id) {
+            return;
+        }
         location.hash = id;
         const targetPicture = this.viewScene.states.find((p) => p.id === id);
+        this.currentPicture = targetPicture;
         this.cleanLinks();
         await this.drawImage(this.configuration.sceneUrl + targetPicture.url, targetPicture.pictureRotation, actionBeforeChange);
         document.title = targetPicture.title;
