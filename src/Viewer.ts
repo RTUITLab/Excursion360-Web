@@ -111,7 +111,7 @@ export class Viewer {
                 )
             );
         } else {
-            // scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
+            scene.activeCamera.inputs.remove(scene.activeCamera.inputs.attached["keyboard"]);
         }
 
         const light2 = new PointLight("light2", new Vector3(0, 2, 0), scene);
