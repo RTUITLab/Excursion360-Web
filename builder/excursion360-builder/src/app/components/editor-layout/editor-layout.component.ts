@@ -5,7 +5,7 @@ import { SceneComponent } from '../editor/scene/scene.component';
 @Component({
   selector: 'app-editor-layout',
   templateUrl: './editor-layout.component.html',
-  styleUrls: ['./editor-layout.component.sass']
+  styleUrls: ['./editor-layout.component.scss']
 })
 export class EditorLayoutComponent implements OnInit, AfterViewInit {
 

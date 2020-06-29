@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angula
 @Component({
   selector: 'app-scene',
   templateUrl: './scene.component.html',
-  styleUrls: ['./scene.component.sass']
+  styleUrls: ['./scene.component.scss']
 })
 export class SceneComponent implements OnInit, AfterViewInit {
   @ViewChild('scene_canvas') 
