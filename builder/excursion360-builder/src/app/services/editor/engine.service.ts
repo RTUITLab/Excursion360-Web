@@ -1,22 +1,36 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Engine, Scene } from 'babylonjs';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class EngineService {
-  engine?: Engine;
-
+@Injectable()
+export class EngineService implements OnDestroy {
+  engine: Engine;
+  private scenes: Scene[] = [];
   constructor() { }
+  ngOnDestroy(): void {
+    throw new Error("Method not implemented.");
+  }
 
   public initEngine(canvas: HTMLCanvasElement) {
     this.engine = new Engine(canvas);
     window.onresize = (a) => {
       this.engine.resize();
     }
+    this.runRenderLoop();
   }
-  
-  public registerScene(scene: Scene) { // run engine in initEngine
-    this.engine.runRenderLoop(() => { scene.render(); });
+
+  public registerScene(scene: Scene) {
+    this.scenes.push(scene);
+    this.runRenderLoop();
+  }
+
+  private runRenderLoop() {
+    setTimeout(() => {
+      this.engine.stopRenderLoop();
+      this.engine.runRenderLoop(() => {
+        this.scenes.forEach(scene => {
+          scene.render()
+        });
+      });
+    }, 100);
   }
 }

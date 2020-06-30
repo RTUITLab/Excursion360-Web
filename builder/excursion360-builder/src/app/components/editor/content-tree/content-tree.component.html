@@ -1,0 +1,5 @@
+<ul>
+    <li *ngFor="let scene of sceneState.scenes">{{scene.title}} <p *ngIf="sceneState.selectedScenes.indexOf(scene)!==-1" >(Selected)</p></li>
+</ul>
+<button (click)="createScene()">Add scene</button>
+<button (click)="createDevScenes()">Create develop scenes</button>
