@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { EngineService } from 'src/app/services/editor/engine.service';
 import { Scene, MeshBuilder, ActionManager, ExecuteCodeAction, UniversalCamera, Vector3, AxesViewer, GizmoManager, AbstractMesh, PointerEventTypes, HighlightLayer, Color3, Mesh } from 'babylonjs';
+import { GridMaterial } from 'babylonjs-materials';
 import { SceneStateService } from 'src/app/services/editor/scene-state.service';
-import { Subscription } from 'rxjs';
+import { EditorSettingsService } from 'src/app/services/editor/editor-settings.service';
+import { Subscription, from } from 'rxjs';
 import { ExcursionScene } from 'src/app/models/excursionScene';
 import { AdvancedDynamicTexture, TextBlock } from 'babylonjs-gui';
 import { FillModelBehavior } from '../../../models/fillModelBehavior';
@@ -15,11 +17,11 @@ import { FillModelBehavior } from '../../../models/fillModelBehavior';
 export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   private _scene: Scene;
   private _gizmoManager: GizmoManager;
-  private _gizmomiddlePoint: AbstractMesh;
+  private _gizmoMiddlePoint: AbstractMesh;
   private _highlight: HighlightLayer;
   private _screenUi: AdvancedDynamicTexture;
 
-  private _sceneWrappers: Map<ExcursionScene, Mesh> = new Map();
+  private _sceneWrappers: Map<ExcursionScene, { mesh: Mesh, titleBlock: TextBlock }> = new Map();
 
   @ViewChild('scene_canvas')
   public canvas: ElementRef<HTMLCanvasElement>;
@@ -30,23 +32,48 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private engineService: EngineService,
-    private sceneState: SceneStateService) { }
+    private sceneState: SceneStateService,
+    private editorSettings: EditorSettingsService) { }
+
+  ngOnInit(): void {
+
+  }
 
   ngAfterViewInit(): void {
     this.engineService.initEngine(this.canvas.nativeElement);
     this._scene = new Scene(this.engineService.engine);
 
     this._screenUi = AdvancedDynamicTexture.CreateFullscreenUI("full screen ui");
-
+    this.editorSettings.showLabels$.subscribe(showLabels => {
+      for (let sceneObject of this._sceneWrappers.values()) {
+        sceneObject.titleBlock.isVisible = showLabels;
+      }
+    });
+    this.editorSettings.labelsSize$.subscribe(labelSize => {
+      for (let sceneObject of this._sceneWrappers.values()) {
+        sceneObject.titleBlock.fontSize = labelSize;
+      }
+    });
     this.setupGizmo();
     this.setupCamera(this.canvas.nativeElement);
 
     this._scene.createDefaultLight();
+    const gridMaterial = new GridMaterial("groundMaterial", this._scene);
+    // gridMaterial.mainColor = Color3.White();
+    gridMaterial.lineColor = Color3.Black();
+    gridMaterial.opacity = 0.99;
     const env = this._scene.createDefaultEnvironment({
+      createGround: false,
       skyboxSize: 1000
     });
-    env.ground.isPickable = false;
-
+    const ground = MeshBuilder.CreatePlane("ground", {
+      width: 1000,
+      height: 1000,
+      sideOrientation: Mesh.DOUBLESIDE
+    });
+    ground.material = gridMaterial;
+    ground.rotate(Vector3.Right(), Math.PI / 2);
+    ground.isPickable = false;
 
     this.addSceneRef = this.sceneState.addScene$.subscribe(
       (excScene) => this.addScene(excScene)
@@ -58,20 +85,20 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
         if (excScenes.length === 0) {
           this._gizmoManager.attachToMesh(null);
         } else {
-          this._gizmoManager.attachToMesh(this._gizmomiddlePoint);
+          this._gizmoManager.attachToMesh(this._gizmoMiddlePoint);
           const meshes = excScenes
             .map(sc => this._sceneWrappers.get(sc));
 
-          this._gizmomiddlePoint.position = meshes
-            .map(m => m.getAbsolutePosition())
+          this._gizmoMiddlePoint.position = meshes
+            .map(m => m.mesh.getAbsolutePosition())
             .reduce((v1, v2) => v1.add(v2))
             .scale(1 / excScenes.length);
 
           meshes.forEach(m => {
-            this._highlight.addMesh(m, Color3.Gray());
-            var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());
-            m.setParent(this._gizmomiddlePoint);
-            m.position = newPosition
+            this._highlight.addMesh(m.mesh, Color3.Gray());
+            var newPosition = m.mesh.absolutePosition.subtract(this._gizmoMiddlePoint.getAbsolutePosition());
+            m.mesh.setParent(this._gizmoMiddlePoint);
+            m.mesh.position = newPosition
           });
         }
       }
@@ -82,10 +109,10 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private unpackFromGizmo() {
     this._highlight.removeAllMeshes();
-    this._gizmomiddlePoint.getChildMeshes().forEach(m => {
-      var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());
+    this._gizmoMiddlePoint.getChildMeshes().forEach(m => {
+      var newPosition = m.absolutePosition.subtract(this._gizmoMiddlePoint.getAbsolutePosition());
       m.setParent(null);
-      m.position = newPosition.add(this._gizmomiddlePoint.position);
+      m.position = newPosition.add(this._gizmoMiddlePoint.position);
     });
   }
 
@@ -95,8 +122,10 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     camera.keysLeft.push(65); // "a"
     camera.keysDown.push(83); // "s"
     camera.keysRight.push(68); // "d"
+
     camera.setTarget(Vector3.Zero());
     camera.attachControl(canvas, true);
+    camera.inputs.attached.mouse["buttons"] = [1, 2];
   }
 
   private setupGizmo() {
@@ -109,21 +138,17 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     gizmoManager.usePointerToAttachGizmos = false;
     gizmoManager.clearGizmoOnEmptyPointerEvent = false;
     gizmoManager.attachableMeshes = [];
-    gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragObservable.add((e) => {
-      console.log(e);
-
-    });
 
     this._scene.onPointerObservable.add(ed => {
       if (ed.type != PointerEventTypes.POINTERDOWN)
         return;
-      if (!Array.from(this._sceneWrappers.values()).map(m => m as AbstractMesh).includes(ed.pickInfo.pickedMesh)) {
+      if (!Array.from(this._sceneWrappers.values()).map(m => m.mesh as AbstractMesh).includes(ed.pickInfo.pickedMesh)) {
         this.sceneState.selectionChanged([]);
       }
     });
     this._gizmoManager = gizmoManager;
-    this._gizmomiddlePoint = MeshBuilder.CreateBox("gizmo middle box", { size: 0.1 });
-    this._gizmomiddlePoint.isVisible = false;
+    this._gizmoMiddlePoint = MeshBuilder.CreateBox("gizmo middle box", { size: 0.1 });
+    this._gizmoMiddlePoint.isVisible = false;
   }
 
   private addScene(excScene: ExcursionScene) {
@@ -143,18 +168,18 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
 
     sphere.addBehavior(new FillModelBehavior(excScene));
 
-    var text1 = new TextBlock();
-    text1.linkOffsetY = -50;
-    text1.text = excScene.title;
-    text1.color = "black";
-    text1.fontSize = 24;
-    this._screenUi.addControl(text1);
-    text1.linkWithMesh(sphere);
-    this._sceneWrappers.set(excScene, sphere);
+    var titleText = new TextBlock("scene_title");
+    titleText.linkOffsetY = -50;
+    titleText.text = excScene.title;
+    titleText.color = "black";
+    titleText.fontSize = this.editorSettings.labelsSize;
+    titleText.isVisible = this.editorSettings.showLabels;
+    this._screenUi.addControl(titleText);
+    titleText.linkWithMesh(sphere);
+    this._sceneWrappers.set(excScene, { mesh: sphere, titleBlock: titleText });
   }
 
-  ngOnInit(): void {
-  }
+
   ngOnDestroy(): void {
     this.addSceneRef.unsubscribe();
     this.selectedSceneRef.unsubscribe();

@@ -10,17 +10,13 @@ export class FillModelBehavior implements Behavior<Mesh> {
     }
 
     init(): void {
-        console.log("init");
-
     }
     attach(target: Mesh): void {
-        console.log("attach");
         target.getScene().registerAfterRender(() => {
             this.scene.position.copyFrom(target.getAbsolutePosition());
         });
     }
     detach(): void {
-        console.log("detach");
     }
 
 }
