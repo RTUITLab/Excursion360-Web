@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { Engine, Scene, MeshBuilder } from "babylonjs"
 import { SceneComponent } from '../editor/scene/scene.component';
+import { EngineService } from '../../services/editor/engine.service';
 
 @Component({
   selector: 'app-editor-layout',
   templateUrl: './editor-layout.component.html',
-  styleUrls: ['./editor-layout.component.scss']
+  styleUrls: ['./editor-layout.component.scss'],
+  providers: [ EngineService ]
 })
 export class EditorLayoutComponent implements OnInit, AfterViewInit {
 
@@ -17,14 +19,5 @@ export class EditorLayoutComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const engine = new Engine(this.sceneElement.canvas.nativeElement);
-    const scene = new Scene(engine);
-    const box = MeshBuilder.CreateBox("box", {});
-    scene.createDefaultCameraOrLight(true, true, true);
-    scene.createDefaultEnvironment();
-    engine.runRenderLoop(() => {
-      scene.render();
-    });
   }
-
 }
