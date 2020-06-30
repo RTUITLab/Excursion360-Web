@@ -1,5 +1,8 @@
-<ul>
-    <li *ngFor="let scene of sceneState.scenes">{{scene.title}} <p *ngIf="sceneState.selectedScenes.indexOf(scene)!==-1" >(Selected)</p></li>
-</ul>
+<div *ngFor="let scene of sceneState.scenes" [ngClass]="{'bold': sceneState.selectedScenes.indexOf(scene)!==-1}">
+    <p>{{scene.title}}</p>
+    <p>{{scene.position.x}} {{scene.position.y}} {{scene.position.z}}</p>
+</div>
+
+
 <button (click)="createScene()">Add scene</button>
 <button (click)="createDevScenes()">Create develop scenes</button>

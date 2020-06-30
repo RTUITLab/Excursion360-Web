@@ -2,9 +2,10 @@ import { Component, OnInit, ViewChild, AfterViewInit, ElementRef, OnDestroy } fr
 import { EngineService } from 'src/app/services/editor/engine.service';
 import { Scene, MeshBuilder, ActionManager, ExecuteCodeAction, UniversalCamera, Vector3, AxesViewer, GizmoManager, AbstractMesh, PointerEventTypes, HighlightLayer, Color3, Mesh } from 'babylonjs';
 import { SceneStateService } from 'src/app/services/editor/scene-state.service';
-import { grainPixelShader } from 'babylonjs/Shaders/grain.fragment';
-import { Subscribable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ExcursionScene } from 'src/app/models/excursionScene';
+import { AdvancedDynamicTexture, TextBlock } from 'babylonjs-gui';
+import { FillModelBehavior } from '../../../models/fillModelBehavior';
 
 @Component({
   selector: 'app-scene',
@@ -16,6 +17,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   private _gizmoManager: GizmoManager;
   private _gizmomiddlePoint: AbstractMesh;
   private _highlight: HighlightLayer;
+  private _screenUi: AdvancedDynamicTexture;
 
   private _sceneWrappers: Map<ExcursionScene, Mesh> = new Map();
 
@@ -33,6 +35,9 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.engineService.initEngine(this.canvas.nativeElement);
     this._scene = new Scene(this.engineService.engine);
+
+    this._screenUi = AdvancedDynamicTexture.CreateFullscreenUI("full screen ui");
+
     this.setupGizmo();
     this.setupCamera(this.canvas.nativeElement);
 
@@ -41,7 +46,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
       skyboxSize: 1000
     });
     env.ground.isPickable = false;
-    
+
 
     this.addSceneRef = this.sceneState.addScene$.subscribe(
       (excScene) => this.addScene(excScene)
@@ -56,15 +61,15 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
           this._gizmoManager.attachToMesh(this._gizmomiddlePoint);
           const meshes = excScenes
             .map(sc => this._sceneWrappers.get(sc));
-            
+
           this._gizmomiddlePoint.position = meshes
             .map(m => m.getAbsolutePosition())
             .reduce((v1, v2) => v1.add(v2))
-            .scale(1/excScenes.length);
+            .scale(1 / excScenes.length);
 
           meshes.forEach(m => {
             this._highlight.addMesh(m, Color3.Gray());
-            var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());            
+            var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());
             m.setParent(this._gizmomiddlePoint);
             m.position = newPosition
           });
@@ -75,8 +80,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     this.engineService.registerScene(this._scene);
   }
 
-  private unpackFromGizmo()
-  {
+  private unpackFromGizmo() {
     this._highlight.removeAllMeshes();
     this._gizmomiddlePoint.getChildMeshes().forEach(m => {
       var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());
@@ -105,6 +109,11 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     gizmoManager.usePointerToAttachGizmos = false;
     gizmoManager.clearGizmoOnEmptyPointerEvent = false;
     gizmoManager.attachableMeshes = [];
+    gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragObservable.add((e) => {
+      console.log(e);
+
+    });
+
     this._scene.onPointerObservable.add(ed => {
       if (ed.type != PointerEventTypes.POINTERDOWN)
         return;
@@ -131,6 +140,16 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     ));
+
+    sphere.addBehavior(new FillModelBehavior(excScene));
+
+    var text1 = new TextBlock();
+    text1.linkOffsetY = -50;
+    text1.text = excScene.title;
+    text1.color = "black";
+    text1.fontSize = 24;
+    this._screenUi.addControl(text1);
+    text1.linkWithMesh(sphere);
     this._sceneWrappers.set(excScene, sphere);
   }
 
