@@ -11,7 +11,7 @@ export class EngineService implements OnDestroy {
   }
 
   public initEngine(canvas: HTMLCanvasElement) {
-    this.engine = new Engine(canvas);
+    this.engine = new Engine(canvas, true, { stencil: true });
     window.onresize = (a) => {
       this.engine.resize();
     }

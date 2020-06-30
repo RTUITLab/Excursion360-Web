@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { EngineService } from 'src/app/services/editor/engine.service';
-import { Scene, MeshBuilder, ActionManager, ExecuteCodeAction, UniversalCamera, Vector3, AxesViewer, GizmoManager, AbstractMesh, PointerEventTypes } from 'babylonjs';
+import { Scene, MeshBuilder, ActionManager, ExecuteCodeAction, UniversalCamera, Vector3, AxesViewer, GizmoManager, AbstractMesh, PointerEventTypes, HighlightLayer, Color3, Mesh } from 'babylonjs';
 import { SceneStateService } from 'src/app/services/editor/scene-state.service';
 import { grainPixelShader } from 'babylonjs/Shaders/grain.fragment';
 import { Subscribable, Subscription } from 'rxjs';
@@ -15,8 +15,9 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   private _scene: Scene;
   private _gizmoManager: GizmoManager;
   private _gizmomiddlePoint: AbstractMesh;
+  private _highlight: HighlightLayer;
 
-  private _sceneWrappers: Map<ExcursionScene, AbstractMesh> = new Map();
+  private _sceneWrappers: Map<ExcursionScene, Mesh> = new Map();
 
   @ViewChild('scene_canvas')
   public canvas: ElementRef<HTMLCanvasElement>;
@@ -36,9 +37,11 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setupCamera(this.canvas.nativeElement);
 
     this._scene.createDefaultLight();
-    this._scene.createDefaultEnvironment({
+    const env = this._scene.createDefaultEnvironment({
       skyboxSize: 1000
     });
+    env.ground.isPickable = false;
+    
 
     this.addSceneRef = this.sceneState.addScene$.subscribe(
       (excScene) => this.addScene(excScene)
@@ -60,9 +63,8 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
             .scale(1/excScenes.length);
 
           meshes.forEach(m => {
-            var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());
-            console.log(newPosition);
-            
+            this._highlight.addMesh(m, Color3.Gray());
+            var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());            
             m.setParent(this._gizmomiddlePoint);
             m.position = newPosition
           });
@@ -75,10 +77,9 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private unpackFromGizmo()
   {
+    this._highlight.removeAllMeshes();
     this._gizmomiddlePoint.getChildMeshes().forEach(m => {
       var newPosition = m.absolutePosition.subtract(this._gizmomiddlePoint.getAbsolutePosition());
-      console.log(newPosition);
-      
       m.setParent(null);
       m.position = newPosition.add(this._gizmomiddlePoint.position);
     });
@@ -95,6 +96,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setupGizmo() {
+    this._highlight = new HighlightLayer("gizmo highlight", this._scene);
     const gizmoManager = new GizmoManager(this._scene);
     gizmoManager.positionGizmoEnabled = true;
     gizmoManager.rotationGizmoEnabled = false;
@@ -106,12 +108,13 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     this._scene.onPointerObservable.add(ed => {
       if (ed.type != PointerEventTypes.POINTERDOWN)
         return;
-      if (!Array.from(this._sceneWrappers.values()).includes(ed.pickInfo.pickedMesh)) {
+      if (!Array.from(this._sceneWrappers.values()).map(m => m as AbstractMesh).includes(ed.pickInfo.pickedMesh)) {
         this.sceneState.selectionChanged([]);
       }
     });
     this._gizmoManager = gizmoManager;
     this._gizmomiddlePoint = MeshBuilder.CreateBox("gizmo middle box", { size: 0.1 });
+    this._gizmomiddlePoint.isVisible = false;
   }
 
   private addScene(excScene: ExcursionScene) {
