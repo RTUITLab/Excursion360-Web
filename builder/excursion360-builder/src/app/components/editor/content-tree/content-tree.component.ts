@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SceneStateService } from 'src/app/services/editor/scene-state.service';
 import { Vector3 } from 'babylonjs';
 import { Subscription } from 'rxjs';
-import { ExcursionScene } from 'src/app/models/excursionScene';
+import { LogsService } from 'src/app/services/logs.service';
+import { Logger } from 'src/app/models/logs/logger';
 
 @Component({
   selector: 'app-content-tree',
@@ -11,13 +12,25 @@ import { ExcursionScene } from 'src/app/models/excursionScene';
 })
 export class ContentTreeComponent implements OnInit, OnDestroy {
   selectedSceneRef: Subscription;
-  constructor(public sceneState: SceneStateService) { }
+  logger: Logger;
+
+  private id = 0;
+  constructor(
+    public sceneState: SceneStateService,
+    logsService: LogsService) {
+      this.logger = logsService.createLogger("ContentTreeComponent");
+     }
   
 
   ngOnInit(): void {
   }
+
+  public addLog() {
+    this.logger.logDebug(`LogMessage ${this.id++}`);
+  }
   public createScene() {
     this.sceneState.createExcursionScene("New scene", Vector3.Zero());
+    this.logger.logDebug("Created scene");
   }
   public createDevScenes() {
     this.sceneState.createExcursionScene(

@@ -59,7 +59,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this._scene.createDefaultLight();
     const gridMaterial = new GridMaterial("groundMaterial", this._scene);
-    // gridMaterial.mainColor = Color3.White();
+
     gridMaterial.lineColor = Color3.Black();
     gridMaterial.opacity = 0.99;
     const env = this._scene.createDefaultEnvironment({
@@ -76,7 +76,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     ground.isPickable = false;
 
     this.addSceneRef = this.sceneState.addScene$.subscribe(
-      (excScene) => this.addScene(excScene)
+      (excScene) => this.addExcursionScene(excScene)
     );
 
     this.selectedSceneRef = this.sceneState.selectedScenes$.subscribe(
@@ -125,7 +125,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
 
     camera.setTarget(Vector3.Zero());
     camera.attachControl(canvas, true);
-    camera.inputs.attached.mouse["buttons"] = [1, 2];
+    camera.inputs.attached.mouse["buttons"] = [2];// only right key
   }
 
   private setupGizmo() {
@@ -151,7 +151,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     this._gizmoMiddlePoint.isVisible = false;
   }
 
-  private addScene(excScene: ExcursionScene) {
+  private addExcursionScene(excScene: ExcursionScene) {
     const sphere = MeshBuilder.CreateSphere(`scene-${excScene.title}`, {});
     sphere.position = excScene.position;
     sphere.actionManager = new ActionManager(this._scene);
