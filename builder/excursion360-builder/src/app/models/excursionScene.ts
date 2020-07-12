@@ -1,9 +1,10 @@
-import {Mesh, TransformNode, Vector3, MeshBuilder, ActionManager, Scene, ExecuteCodeAction, GizmoManager} from 'babylonjs';
-
+import {ExcursionVector3} from "./excursionVector3"
 
 export class ExcursionScene {
-    
-    constructor(public title: string, public position: Vector3) {
-        
+
+    constructor(
+        public id: string,
+        public title: string,
+        public position: ExcursionVector3) {
     }
 }

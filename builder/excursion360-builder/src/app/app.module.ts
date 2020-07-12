@@ -11,6 +11,9 @@ import { ContentTreeComponent } from './components/editor/content-tree/content-t
 import { LogsViewerComponent } from './components/logs-viewer/logs-viewer.component';
 import { SceneInspectorComponent } from './components/editor/scene-inspector/scene-inspector.component';
 
+import { StoreModule } from '@ngrx/store';
+import { scenesReducer } from './scenes.reducer';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,7 +27,8 @@ import { SceneInspectorComponent } from './components/editor/scene-inspector/sce
   imports: [
     BrowserModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    StoreModule.forRoot({ scenes: scenesReducer })
   ],
   providers: [],
   bootstrap: [AppComponent]

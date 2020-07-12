@@ -8,6 +8,7 @@ import { Subscription, from } from 'rxjs';
 import { ExcursionScene } from 'src/app/models/excursionScene';
 import { AdvancedDynamicTexture, TextBlock } from 'babylonjs-gui';
 import { FillModelBehavior } from '../../../models/fillModelBehavior';
+import { Store, select } from '@ngrx/store';
 
 @Component({
   selector: 'app-scene',
@@ -33,6 +34,7 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private engineService: EngineService,
     private sceneState: SceneStateService,
+    private store: Store<{scenes: ExcursionScene[]}>,
     private editorSettings: EditorSettingsService) { }
 
   ngOnInit(): void {
@@ -75,8 +77,8 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
     ground.rotate(Vector3.Right(), Math.PI / 2);
     ground.isPickable = false;
 
-    this.addSceneRef = this.sceneState.addScene$.subscribe(
-      (excScene) => this.addExcursionScene(excScene)
+    this.store.pipe(select("scenes")).subscribe(
+      // TODO reRender scene
     );
 
     this.selectedSceneRef = this.sceneState.selectedScenes$.subscribe(
@@ -152,31 +154,31 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private addExcursionScene(excScene: ExcursionScene) {
-    const sphere = MeshBuilder.CreateSphere(`scene-${excScene.title}`, {});
-    sphere.position = excScene.position;
-    sphere.actionManager = new ActionManager(this._scene);
-    sphere.actionManager.registerAction(new ExecuteCodeAction(
-      ActionManager.OnPickTrigger,
-      (ev) => {
-        if (ev.sourceEvent.ctrlKey) {
-          this.sceneState.selectionChanged(this.sceneState.selectedScenes.concat([excScene]));
-        } else {
-          this.sceneState.selectionChanged([excScene]);
-        }
-      }
-    ));
+    // const sphere = MeshBuilder.CreateSphere(`scene-${excScene.title}`, {});
+    // sphere.position = excScene.position;
+    // sphere.actionManager = new ActionManager(this._scene);
+    // sphere.actionManager.registerAction(new ExecuteCodeAction(
+    //   ActionManager.OnPickTrigger,
+    //   (ev) => {
+    //     if (ev.sourceEvent.ctrlKey) {
+    //       this.sceneState.selectionChanged(this.sceneState.selectedScenes.concat([excScene]));
+    //     } else {
+    //       this.sceneState.selectionChanged([excScene]);
+    //     }
+    //   }
+    // ));
 
-    sphere.addBehavior(new FillModelBehavior(excScene));
+    // sphere.addBehavior(new FillModelBehavior(excScene));
 
-    var titleText = new TextBlock("scene_title");
-    titleText.linkOffsetY = -50;
-    titleText.text = excScene.title;
-    titleText.color = "black";
-    titleText.fontSize = this.editorSettings.labelsSize;
-    titleText.isVisible = this.editorSettings.showLabels;
-    this._screenUi.addControl(titleText);
-    titleText.linkWithMesh(sphere);
-    this._sceneWrappers.set(excScene, { mesh: sphere, titleBlock: titleText });
+    // var titleText = new TextBlock("scene_title");
+    // titleText.linkOffsetY = -50;
+    // titleText.text = excScene.title;
+    // titleText.color = "black";
+    // titleText.fontSize = this.editorSettings.labelsSize;
+    // titleText.isVisible = this.editorSettings.showLabels;
+    // this._screenUi.addControl(titleText);
+    // titleText.linkWithMesh(sphere);
+    // this._sceneWrappers.set(excScene, { mesh: sphere, titleBlock: titleText });
   }
 
 

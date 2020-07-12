@@ -13,7 +13,7 @@ export class FillModelBehavior implements Behavior<Mesh> {
     }
     attach(target: Mesh): void {
         target.getScene().registerAfterRender(() => {
-            this.scene.position.copyFrom(target.getAbsolutePosition());
+            // this.scene.position.copyFrom(target.getAbsolutePosition());
         });
     }
     detach(): void {

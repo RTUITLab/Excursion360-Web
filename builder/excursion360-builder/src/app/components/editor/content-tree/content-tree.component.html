@@ -1,9 +1,10 @@
-<div *ngFor="let scene of sceneState.scenes" [ngClass]="{'bold': sceneState.selectedScenes.indexOf(scene)!==-1}">
+<!-- <div *ngFor="let scene of sceneState.scenes" [ngClass]="{'bold': sceneState.selectedScenes.indexOf(scene)!==-1}">
     <p>{{scene.title}}</p>
     <p>{{scene.position.x}} {{scene.position.y}} {{scene.position.z}}</p>
-</div>
+</div> -->
 
 
 <button (click)="addLog()">Add log</button>
 <button (click)="createScene()">Add scene</button>
 <button (click)="createDevScenes()">Create develop scenes</button>
+<div *ngFor="let scene of scenesFromStore$ | async">{{scene.title}}</div>

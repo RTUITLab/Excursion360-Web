@@ -16,5 +16,6 @@
     {
       "path": "./e2e/tsconfig.json"
     }
-]
+  ],
+  "jsx": "react"
 }
