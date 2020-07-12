@@ -9,6 +9,7 @@ import { ToolbarComponent } from './components/editor/toolbar/toolbar.component'
 import { EditorLayoutComponent } from './components/editor/editor-layout/editor-layout.component';
 import { ContentTreeComponent } from './components/editor/content-tree/content-tree.component';
 import { LogsViewerComponent } from './components/logs-viewer/logs-viewer.component';
+import { SceneInspectorComponent } from './components/editor/scene-inspector/scene-inspector.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { LogsViewerComponent } from './components/logs-viewer/logs-viewer.compon
     ToolbarComponent,
     EditorLayoutComponent,
     ContentTreeComponent,
-    LogsViewerComponent
+    LogsViewerComponent,
+    SceneInspectorComponent
   ],
   imports: [
     BrowserModule,
