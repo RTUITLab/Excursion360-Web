@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, OnChanges, OnDestroy, AfterViewInit, SimpleChanges } from '@angular/core';
 import * as React from "react"
 import * as ReactDOM from "react-dom"
+import App from "./scene"
 
 const reactContainerElementName = "myReactSceneContainer";
 @Component({
   selector: 'app-react-scene',
-  template: `<span #${reactContainerElementName}></span>`,
+  template: `<div class="sceneContainer" #${reactContainerElementName}></div>`,
   styleUrls: ['./react-scene.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
@@ -24,7 +25,7 @@ export class ReactSceneComponent implements OnChanges, OnDestroy, AfterViewInit 
   }
 
   private render() {
-    ReactDOM.render(<div>Hello, react</div>, this.reactContainerRef.nativeElement);
+    ReactDOM.render(<App></App>, this.reactContainerRef.nativeElement);
   }
 
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { EngineService } from 'src/app/services/editor/engine.service';
 import { Scene, MeshBuilder, ActionManager, ExecuteCodeAction, UniversalCamera, Vector3, AxesViewer, GizmoManager, AbstractMesh, PointerEventTypes, HighlightLayer, Color3, Mesh } from 'babylonjs';
-import { GridMaterial } from 'babylonjs-materials';
+// import { GridMaterial } from 'babylonjs-materials';
 import { SceneStateService } from 'src/app/services/editor/scene-state.service';
 import { EditorSettingsService } from 'src/app/services/editor/editor-settings.service';
 import { Subscription, from } from 'rxjs';
@@ -42,80 +42,80 @@ export class SceneComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.engineService.initEngine(this.canvas.nativeElement);
-    this._scene = new Scene(this.engineService.engine);
+    // this.engineService.initEngine(this.canvas.nativeElement);
+    // this._scene = new Scene(this.engineService.engine);
 
-    this._screenUi = AdvancedDynamicTexture.CreateFullscreenUI("full screen ui");
-    this.editorSettings.showLabels$.subscribe(showLabels => {
-      for (let sceneObject of this._sceneWrappers.values()) {
-        sceneObject.titleBlock.isVisible = showLabels;
-      }
-    });
-    this.editorSettings.labelsSize$.subscribe(labelSize => {
-      for (let sceneObject of this._sceneWrappers.values()) {
-        sceneObject.titleBlock.fontSize = labelSize;
-      }
-    });
-    this.setupGizmo();
-    this.setupCamera(this.canvas.nativeElement);
+    // this._screenUi = AdvancedDynamicTexture.CreateFullscreenUI("full screen ui");
+    // this.editorSettings.showLabels$.subscribe(showLabels => {
+    //   for (let sceneObject of this._sceneWrappers.values()) {
+    //     sceneObject.titleBlock.isVisible = showLabels;
+    //   }
+    // });
+    // this.editorSettings.labelsSize$.subscribe(labelSize => {
+    //   for (let sceneObject of this._sceneWrappers.values()) {
+    //     sceneObject.titleBlock.fontSize = labelSize;
+    //   }
+    // });
+    // this.setupGizmo();
+    // this.setupCamera(this.canvas.nativeElement);
 
-    this._scene.createDefaultLight();
-    const gridMaterial = new GridMaterial("groundMaterial", this._scene);
+    // this._scene.createDefaultLight();
+    // const gridMaterial = new GridMaterial("groundMaterial", this._scene);
 
-    gridMaterial.lineColor = Color3.Black();
-    gridMaterial.opacity = 0.99;
-    const env = this._scene.createDefaultEnvironment({
-      createGround: false,
-      skyboxSize: 1000
-    });
-    const ground = MeshBuilder.CreatePlane("ground", {
-      width: 1000,
-      height: 1000,
-      sideOrientation: Mesh.DOUBLESIDE
-    });
-    ground.material = gridMaterial;
-    ground.rotate(Vector3.Right(), Math.PI / 2);
-    ground.isPickable = false;
+    // gridMaterial.lineColor = Color3.Black();
+    // gridMaterial.opacity = 0.99;
+    // const env = this._scene.createDefaultEnvironment({
+    //   createGround: false,
+    //   skyboxSize: 1000
+    // });
+    // const ground = MeshBuilder.CreatePlane("ground", {
+    //   width: 1000,
+    //   height: 1000,
+    //   sideOrientation: Mesh.DOUBLESIDE
+    // });
+    // ground.material = gridMaterial;
+    // ground.rotate(Vector3.Right(), Math.PI / 2);
+    // ground.isPickable = false;
 
-    this.store.pipe(select("scenes")).subscribe(
-      // TODO reRender scene
-    );
+    // this.store.pipe(select("scenes")).subscribe(
+    //   // TODO reRender scene
+    // );
 
-    this.selectedSceneRef = this.sceneState.selectedScenes$.subscribe(
-      (excScenes) => {
-        this.unpackFromGizmo();
-        if (excScenes.length === 0) {
-          this._gizmoManager.attachToMesh(null);
-        } else {
-          this._gizmoManager.attachToMesh(this._gizmoMiddlePoint);
-          const meshes = excScenes
-            .map(sc => this._sceneWrappers.get(sc));
+    // this.selectedSceneRef = this.sceneState.selectedScenes$.subscribe(
+    //   (excScenes) => {
+    //     this.unpackFromGizmo();
+    //     if (excScenes.length === 0) {
+    //       this._gizmoManager.attachToMesh(null);
+    //     } else {
+    //       this._gizmoManager.attachToMesh(this._gizmoMiddlePoint);
+    //       const meshes = excScenes
+    //         .map(sc => this._sceneWrappers.get(sc));
 
-          this._gizmoMiddlePoint.position = meshes
-            .map(m => m.mesh.getAbsolutePosition())
-            .reduce((v1, v2) => v1.add(v2))
-            .scale(1 / excScenes.length);
+    //       this._gizmoMiddlePoint.position = meshes
+    //         .map(m => m.mesh.getAbsolutePosition())
+    //         .reduce((v1, v2) => v1.add(v2))
+    //         .scale(1 / excScenes.length);
 
-          meshes.forEach(m => {
-            this._highlight.addMesh(m.mesh, Color3.Gray());
-            var newPosition = m.mesh.absolutePosition.subtract(this._gizmoMiddlePoint.getAbsolutePosition());
-            m.mesh.setParent(this._gizmoMiddlePoint);
-            m.mesh.position = newPosition
-          });
-        }
-      }
-    );
+    //       meshes.forEach(m => {
+    //         this._highlight.addMesh(m.mesh, Color3.Gray());
+    //         var newPosition = m.mesh.absolutePosition.subtract(this._gizmoMiddlePoint.getAbsolutePosition());
+    //         m.mesh.setParent(this._gizmoMiddlePoint);
+    //         m.mesh.position = newPosition
+    //       });
+    //     }
+    //   }
+    // );
 
-    this.engineService.registerScene(this._scene);
+    // this.engineService.registerScene(this._scene);
   }
 
   private unpackFromGizmo() {
-    this._highlight.removeAllMeshes();
-    this._gizmoMiddlePoint.getChildMeshes().forEach(m => {
-      var newPosition = m.absolutePosition.subtract(this._gizmoMiddlePoint.getAbsolutePosition());
-      m.setParent(null);
-      m.position = newPosition.add(this._gizmoMiddlePoint.position);
-    });
+    // this._highlight.removeAllMeshes();
+    // this._gizmoMiddlePoint.getChildMeshes().forEach(m => {
+    //   var newPosition = m.absolutePosition.subtract(this._gizmoMiddlePoint.getAbsolutePosition());
+    //   m.setParent(null);
+    //   m.position = newPosition.add(this._gizmoMiddlePoint.position);
+    // });
   }
 
   private setupCamera(canvas: HTMLCanvasElement) {
