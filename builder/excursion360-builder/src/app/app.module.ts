@@ -2,6 +2,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 
+import { StoreModule } from '@ngrx/store';
+import { scenesReducer } from './scenes.reducer';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SceneComponent } from './components/editor/scene/scene.component';
@@ -10,9 +13,8 @@ import { EditorLayoutComponent } from './components/editor/editor-layout/editor-
 import { ContentTreeComponent } from './components/editor/content-tree/content-tree.component';
 import { LogsViewerComponent } from './components/logs-viewer/logs-viewer.component';
 import { SceneInspectorComponent } from './components/editor/scene-inspector/scene-inspector.component';
+import { ReactSceneComponent } from './components/editor/react-scene/react-scene.component';
 
-import { StoreModule } from '@ngrx/store';
-import { scenesReducer } from './scenes.reducer';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import { scenesReducer } from './scenes.reducer';
     EditorLayoutComponent,
     ContentTreeComponent,
     LogsViewerComponent,
-    SceneInspectorComponent
+    SceneInspectorComponent,
+    ReactSceneComponent
   ],
   imports: [
     BrowserModule,
