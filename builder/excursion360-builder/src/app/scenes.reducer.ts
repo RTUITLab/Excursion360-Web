@@ -3,7 +3,7 @@ import { createScene, removeScene, renameScene } from "./scenes.actions"
 import { SceneState } from "./models/sceneState"
 import { ExcursionScene } from "./models/excursionScene"
 import { v4 as uuidV4 } from "uuid"
-import { Vector3 } from "babylonjs"
+import { Vector3 } from "@babylonjs/core"
 
 export const initialState: ExcursionScene[] = [];
 

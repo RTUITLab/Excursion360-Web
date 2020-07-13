@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SceneStateService } from 'src/app/services/editor/scene-state.service';
-import { Vector3 } from 'babylonjs';
+import { Vector3 } from '@babylonjs/core';
 import { Subscription, Observable } from 'rxjs';
 import { LogsService } from 'src/app/services/logs.service';
 import { Logger } from 'src/app/models/logs/logger';
@@ -49,17 +49,18 @@ export class ContentTreeComponent implements OnInit, OnDestroy {
     }));
   }
   public createDevScenes() {
-    // this.sceneState.createExcursionScene(
-    //   "Right scene",
-    //   Vector3.Right());
-
-    // this.sceneState.createExcursionScene(
-    //   "Forward scene",
-    //   Vector3.Forward());
-
-    // this.sceneState.createExcursionScene(
-    //   "Up scene",
-    //   Vector3.Up());
+    this.store.dispatch(createScene({
+      title: "Right scene",
+      position: new ExcursionVector3(1, 0, 0)
+    }));
+    this.store.dispatch(createScene({
+      title: "Forward scene",
+      position: new ExcursionVector3(0, 0, 1)
+    }));
+    this.store.dispatch(createScene({
+      title: "Up scene",
+      position: new ExcursionVector3(0, 1, 0)
+    }));
   }
   ngOnDestroy(): void {
     this.selectedSceneRef.unsubscribe();

@@ -1,4 +1,4 @@
-import { Behavior, Mesh } from 'babylonjs';
+import { Behavior, Mesh } from '@babylonjs/core';
 import { ExcursionScene } from './excursionScene';
 
 export class FillModelBehavior implements Behavior<Mesh> {

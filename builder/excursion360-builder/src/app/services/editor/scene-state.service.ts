@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ExcursionScene } from '../../models/excursionScene';
-import { Vector3, GizmoManager, Scene, UniversalCamera } from 'babylonjs';
+import { Vector3, GizmoManager, Scene, UniversalCamera } from '@babylonjs/core';
 import { EngineService } from './engine.service';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { v4 as uuidV4 } from 'uuid';

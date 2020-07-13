@@ -3,6 +3,7 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import App from "./scene"
 import { Store, select } from '@ngrx/store';
+import { ExcursionScene } from 'src/app/models/excursionScene';
 
 const reactContainerElementName = "myReactSceneContainer";
 @Component({
@@ -13,9 +14,9 @@ const reactContainerElementName = "myReactSceneContainer";
 })
 export class ReactSceneComponent implements OnChanges, OnDestroy, AfterViewInit {
 
-  private position: number;
+  private scenes: ExcursionScene[] = [];
   @ViewChild(reactContainerElementName, { static: false }) reactContainerRef: ElementRef;
-  constructor(private store: Store<{ position: number }>) {
+  constructor(private store: Store<{ scenes: ExcursionScene[] }>) {
 
   }
   ngOnDestroy(): void {
@@ -23,8 +24,8 @@ export class ReactSceneComponent implements OnChanges, OnDestroy, AfterViewInit 
   }
   ngAfterViewInit(): void {
     this.render();
-    this.store.pipe(select("position")).subscribe(position => {
-      this.position = position;
+    this.store.pipe(select("scenes")).subscribe(scenes => {
+      this.scenes = scenes;
       this.render();
     });
   }
@@ -33,8 +34,8 @@ export class ReactSceneComponent implements OnChanges, OnDestroy, AfterViewInit 
   }
 
   private render() {
-    const { position } = this;
-    ReactDOM.render(<App position={position}></App>, this.reactContainerRef.nativeElement);
+    const { scenes } = this;
+    ReactDOM.render(<App scenes={scenes}></App>, this.reactContainerRef.nativeElement);
   }
 
 }

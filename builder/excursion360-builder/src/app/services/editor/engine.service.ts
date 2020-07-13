@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Engine, Scene } from 'babylonjs';
+import { Engine, Scene } from '@babylonjs/core';
 
 @Injectable()
 export class EngineService implements OnDestroy {
