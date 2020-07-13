@@ -2,6 +2,7 @@ import { Component, OnInit, ViewEncapsulation, ViewChild, ElementRef, OnChanges,
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import App from "./scene"
+import { Store, select } from '@ngrx/store';
 
 const reactContainerElementName = "myReactSceneContainer";
 @Component({
@@ -12,20 +13,28 @@ const reactContainerElementName = "myReactSceneContainer";
 })
 export class ReactSceneComponent implements OnChanges, OnDestroy, AfterViewInit {
 
+  private position: number;
   @ViewChild(reactContainerElementName, { static: false }) reactContainerRef: ElementRef;
-  constructor() { }
+  constructor(private store: Store<{ position: number }>) {
+
+  }
   ngOnDestroy(): void {
     ReactDOM.unmountComponentAtNode(this.reactContainerRef.nativeElement);
   }
   ngAfterViewInit(): void {
     this.render();
+    this.store.pipe(select("position")).subscribe(position => {
+      this.position = position;
+      this.render();
+    });
   }
   ngOnChanges(changes: SimpleChanges): void {
     this.render();
   }
 
   private render() {
-    ReactDOM.render(<App></App>, this.reactContainerRef.nativeElement);
+    const { position } = this;
+    ReactDOM.render(<App position={position}></App>, this.reactContainerRef.nativeElement);
   }
 
 }

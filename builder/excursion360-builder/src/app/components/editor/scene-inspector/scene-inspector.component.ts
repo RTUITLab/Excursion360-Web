@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { SceneStateService } from 'src/app/services/editor/scene-state.service';
 import { ExcursionScene } from 'src/app/models/excursionScene';
+import { Store, select } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-scene-inspector',
@@ -9,7 +11,13 @@ import { ExcursionScene } from 'src/app/models/excursionScene';
 })
 export class SceneInspectorComponent implements OnInit {
 
-  constructor(private sceneState: SceneStateService) { }
+  public position$: Observable<number>;
+
+  constructor(
+    private store: Store<{ position: number }>,
+    private sceneState: SceneStateService) {
+    this.position$ = store.pipe(select("position"));
+  }
 
   public selectedScene: ExcursionScene;
 

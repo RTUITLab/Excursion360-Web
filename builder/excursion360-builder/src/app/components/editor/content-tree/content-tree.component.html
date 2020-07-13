@@ -7,4 +7,5 @@
 <button (click)="addLog()">Add log</button>
 <button (click)="createScene()">Add scene</button>
 <button (click)="createDevScenes()">Create develop scenes</button>
+<button (click)="localMoveSphere()">Move sphere</button>
 <div *ngFor="let scene of scenesFromStore$ | async">{{scene.title}}</div>

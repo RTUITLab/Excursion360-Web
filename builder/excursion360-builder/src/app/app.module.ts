@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 
 import { StoreModule } from '@ngrx/store';
 import { scenesReducer } from './scenes.reducer';
+import { positionReducer } from './position.reducer';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -31,7 +32,10 @@ import { ReactSceneComponent } from './components/editor/react-scene/react-scene
     BrowserModule,
     FormsModule,
     AppRoutingModule,
-    StoreModule.forRoot({ scenes: scenesReducer })
+    StoreModule.forRoot({
+      scenes: scenesReducer,
+      position: positionReducer
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
