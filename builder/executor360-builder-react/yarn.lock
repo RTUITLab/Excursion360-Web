@@ -1125,6 +1125,21 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
+"@babylonjs/core@4.2.0", "@babylonjs/core@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@babylonjs/core/-/core-4.2.0.tgz#d1cfd43d7e3d2e58cde79083f04eeb607f6c8f18"
+  integrity sha512-sZQigPvMDc0pcgwlKvTF5gsMzGwT8gelQIOyxELrohdFu12pHGhIr61+yVxxq9tpCdzyYD9kS8LM0w2y+5ypkg==
+  dependencies:
+    tslib ">=1.10.0"
+
+"@babylonjs/gui@^4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@babylonjs/gui/-/gui-4.2.0.tgz#c2a35ca6724759731fe0c4ddbfe2490301847f93"
+  integrity sha512-AQnqwFDmQ05FAw4B0BPVUFqWgdSKVI23qVHm/uOOMBQhMo8+WE2pTNATm6Qw/HDVLCp5qUjwIij/3JtG5s0fBw==
+  dependencies:
+    "@babylonjs/core" "4.2.0"
+    tslib ">=1.10.0"
+
 "@bcoe/v8-coverage@^0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
@@ -9271,6 +9286,13 @@ react-app-polyfill@^2.0.0:
     regenerator-runtime "^0.13.7"
     whatwg-fetch "^3.4.1"
 
+react-babylonjs@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/react-babylonjs/-/react-babylonjs-3.0.3.tgz#998a2f115152d2ecd6180ae2a36b6943bc3e311c"
+  integrity sha512-08/AtdB5bitiulyWuVGaSv3BzRpg0nKaMFY/peqI5vgLSjZIjP+XVDkazQogAJzZntQHoBM/4ETZO7PKC4n6hA==
+  dependencies:
+    react-reconciler "^0.26.1"
+
 react-dev-utils@^11.0.1:
   version "11.0.1"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.1.tgz#30106c2055acfd6b047d2dc478a85c356e66fe45"
@@ -9324,6 +9346,15 @@ react-is@^17.0.1:
   version "17.0.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.1.tgz#5b3531bd76a645a4c9fb6e693ed36419e3301339"
   integrity sha512-NAnt2iGDXohE5LI7uBnLnqvLQMtzhkiAOLXTmv+qnF9Ky7xAPcX8Up/xWIhxvLVGJvuLiNc4xQLtuqDRzb4fSA==
+
+react-reconciler@^0.26.1:
+  version "0.26.1"
+  resolved "https://registry.yarnpkg.com/react-reconciler/-/react-reconciler-0.26.1.tgz#860952dd359fd870f94895c254271e3a9de3b2d6"
+  integrity sha512-6E/CvH9zcDmHjhiNJlP0qJ8+3ufnY2b5RWs774Uy8XKWN0l6qfnlkz0XnDacxqj2rbJdq76w9dlFXjPPOQrmqA==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    scheduler "^0.20.1"
 
 react-refresh@^0.8.3:
   version "0.8.3"
@@ -11016,6 +11047,11 @@ tsconfig-paths@^3.9.0:
     json5 "^1.0.1"
     minimist "^1.2.0"
     strip-bom "^3.0.0"
+
+tslib@>=1.10.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
+  integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
 
 tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
