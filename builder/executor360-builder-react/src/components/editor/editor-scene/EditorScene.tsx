@@ -1,62 +1,72 @@
-import { Vector3, Color3, Mesh } from '@babylonjs/core';
+import { Vector3, Color3, Mesh, GroundMesh } from '@babylonjs/core';
+import { GridMaterial } from '@babylonjs/materials';
 import React, { useRef, useState, Component } from 'react'
 import { Engine, Scene, useBeforeRender, useClick, useHover } from 'react-babylonjs';
+import { connect } from 'react-redux';
 
+
+import { ExcursionScene } from '../../../models/ExcursionScene';
+import { RootState } from '../../../redux/rootReducer';
 import './EditorScene.scss';
 
-class EditorScene extends Component {
+interface SceneProps {
+    scenes: ExcursionScene[] | null
+}
+class EditorScene extends React.Component<SceneProps> {
+    public static defaultProps = {
+        scenes: []
+    };
+    private gridMaterialCache: GridMaterial | null = null;
+    groundRefFunc(instance: any) {
+        if (!instance) {
+            return;
+        }
+        if (!this.gridMaterialCache) {
+            const gridMaterial = new GridMaterial("ground_material", instance._scene);
+            gridMaterial.mainColor = Color3.White();
+            gridMaterial.lineColor = Color3.Black();
+            gridMaterial.opacity = 0.8;
+            gridMaterial.sideOrientation = Mesh.DOUBLESIDE; // TODO fix double side grid
+            this.gridMaterialCache = gridMaterial;
+        }
+        instance.material = this.gridMaterialCache;
+    }
+
     render() {
+        const { scenes } = this.props;
         return (
-                <Engine antialias adaptToDeviceRatio canvasId='editor-scene-canvas' >
-                    <Scene>
-                        <arcRotateCamera name="camera1" target={Vector3.Zero()} alpha={Math.PI / 2} beta={Math.PI / 4} radius={8} />
-                        <hemisphericLight name='light1' intensity={0.7} direction={Vector3.Up()} />
-                        <SpinningBox name='left' position={new Vector3(-2, 0, 0)}
-                            color={Color3.FromHexString('#EEB5EB')} hoveredColor={Color3.FromHexString('#C26DBC')}
-                        />
-                        <SpinningBox name='right' position={new Vector3(2, 0, 0)}
-                            color={Color3.FromHexString('#C8F4F9')} hoveredColor={Color3.FromHexString('#3CACAE')}
-                        />
-                    </Scene>
-                </Engine>
+            <Engine antialias adaptToDeviceRatio canvasId='editor-scene-canvas' >
+                <Scene>
+                    <arcRotateCamera keysUp={["w".charCodeAt(0)]} name="camera1" target={Vector3.Zero()} alpha={Math.PI / 2} beta={Math.PI / 4} radius={8} />
+                    <hemisphericLight name='light1' intensity={0.7} direction={Vector3.Up()} />
+                    {scenes && scenes.map(s =>
+                        <box name="box" key={s.id} position={new Vector3(s.position.x, s.position.y, s.position.z)}>
+
+                        </box>
+                    )}
+                    {
+                        // TODO fix double side grid
+                        [{ rotation: 0, id: "top" }, { rotation: Math.PI, id: "bottom" }].map(i =>
+                            <ground
+                                ref={i => this.groundRefFunc(i)}
+                                name={`base_ground_${i.id}`}
+                                width={50}
+                                height={50}
+                                subdivisions={2}
+                                rotation={new Vector3(0, 0,i.rotation)}
+                                receiveShadows={true}
+                                key={i.id}>
+                            </ground>
+                        )
+                    }
+                </Scene>
+            </Engine>
         );
     }
 }
 
-
-const DefaultScale = new Vector3(1, 1, 1);
-const BiggerScale = new Vector3(1.25, 1.25, 1.25);
-
-const SpinningBox = (props: any) => {
-    // access Babylon scene objects with same React hook as regular DOM elements
-    const boxRef = useRef<Mesh | null>(null);
-
-    const [clicked, setClicked] = useState(false);
-    useClick(
-        () => setClicked(clicked => !clicked),
-        boxRef
-    );
-
-    const [hovered, setHovered] = useState(false);
-    useHover(
-        () => setHovered(true),
-        () => setHovered(false),
-        boxRef
-    );
-
-    // This will rotate the box on every Babylon frame.
-    const rpm = 5;
-    useBeforeRender((scene) => {
-        if (boxRef.current) {
-            // Delta time smoothes the animation.
-            var deltaTimeInMillis = scene.getEngine().getDeltaTime();
-            boxRef.current.rotation.y += ((rpm / 60) * Math.PI * 2 * (deltaTimeInMillis / 1000));
-        }
-    });
-
-    return (<box name={props.name} ref={boxRef} size={2} position={props.position} scaling={clicked ? BiggerScale : DefaultScale}>
-        <standardMaterial name={`${props.name}-mat`} diffuseColor={hovered ? props.hoveredColor : props.color} specularColor={Color3.Black()} />
-    </box>);
+const mapStateToProps = (state: RootState) => {
+    return state.scenes;
 }
 
-export default EditorScene;
+export default connect(mapStateToProps, null)(EditorScene);
