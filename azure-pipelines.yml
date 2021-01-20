@@ -44,6 +44,6 @@ steps:
     target: '$(Build.SourceVersion)'
     tagSource: 'gitTag'
     releaseNotesFilePath: 'ReleaseNotes.md'
-    isDraft: true
+    isDraft: false
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
