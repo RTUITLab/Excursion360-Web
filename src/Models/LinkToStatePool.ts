@@ -54,10 +54,11 @@ export class LinkToStatePool {
         states: { title: string, id: string }[],
         infos: string[],
         position: Vector3,
+        minimizing: { scale: number },
         material: Material,
         clickSphere: (gl: GroupLink) => Promise<void>,
         goToSceneTriggered: (id: string) => Promise<void>): GroupLink {
-        const link = new GroupLink(name, states, infos, position, material, clickSphere, goToSceneTriggered, this.linkAnimation, this.guiManager, this.scene);
+        const link = new GroupLink(name, states, infos, position, minimizing, material, clickSphere, goToSceneTriggered, this.linkAnimation, this.guiManager, this.scene);
         this.links.push(link);
         return link;
     }

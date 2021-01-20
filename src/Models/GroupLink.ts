@@ -15,6 +15,7 @@ export class GroupLink extends LinkToState {
         states: { title: string, id: string }[],
         infos: string[],
         position: Vector3,
+        minimizing: { scale: number },
         material: Material,
         private clickSphere: (gl: GroupLink) => Promise<void>,
         goToSceneTriggered: (id: string) => Promise<void>,
@@ -28,7 +29,9 @@ export class GroupLink extends LinkToState {
             material,
             () => this.triggerAction(),
             animation,
-            scene);
+            scene,
+            null,
+            minimizing);
         this.buttonsPoint = new TransformNode("buttons point", scene);
         this.buttonsPoint.parent = this.center;
         this.buttonsPoint.lookAt(this.center.position.scale(1.1));

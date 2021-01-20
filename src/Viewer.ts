@@ -224,6 +224,7 @@ export class Viewer {
                 groupLink.stateIds.map(stateId => { return { id: stateId, title: this.getName(stateId) } }),
                 groupLink.infos,
                 position,
+                { scale: groupLink.minimizeScale },
                 material,
                 async (gl) => {
                     groupLinks.filter(l => l !== gl).forEach(l => l.closeLinks());
