@@ -36,11 +36,11 @@ export class LinkToState {
         }));
         this.linkObject.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, (ev) => {
-                this.onPointerOverTrigger(ev);
+                this.openGuiMesh();
             }));
         this.linkObject.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, (ev) => {
-                this.onPointerOutTrigger(ev);
+                this.hideGuiMesh();
             }));
         this.guiMesh = MeshBuilder.CreatePlane(name, { width: 7, height: 2 }, scene);
         this.guiMesh.parent = this.center;
@@ -102,11 +102,10 @@ export class LinkToState {
 
         return LinkToState.linkModel.clone(`l${name}_polyhedron`, this.center);
     }
-
-    protected onPointerOverTrigger(event: ActionEvent) {
+    protected openGuiMesh() {
         this.guiMesh.isVisible = true;
     }
-    protected onPointerOutTrigger(event: ActionEvent) {
+    protected hideGuiMesh() {
         this.guiMesh.isVisible = false;
     }
 }

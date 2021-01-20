@@ -16,7 +16,8 @@ export class GroupLink extends LinkToState {
         infos: string[],
         position: Vector3,
         material: Material,
-        triggered: (id: string) => Promise<void>,
+        private clickSphere: (gl: GroupLink) => Promise<void>,
+        goToSceneTriggered: (id: string) => Promise<void>,
         animation: Animation,
         private manager: GUI3DManager,
         scene: Scene
@@ -32,7 +33,7 @@ export class GroupLink extends LinkToState {
         this.buttonsPoint.parent = this.center;
         this.buttonsPoint.lookAt(this.center.position.scale(1.1));
         for (const state of states) {
-            this.createButton(state.title, () => triggered(state.id));
+            this.createButton(state.title, () => goToSceneTriggered(state.id));
         }
         for (const info of infos) {
             this.createTextCard(info);
@@ -88,7 +89,22 @@ export class GroupLink extends LinkToState {
     }
 
     private async triggerAction() {
-        this.isOpened = !this.isOpened;
+        this.clickSphere(this);
+        this.setLinksOpened(!this.isOpened);
+    }
+
+    public openLinks() {
+        this.setLinksOpened(true);
+        this.openGuiMesh();
+    }
+
+    public closeLinks() {
+        this.setLinksOpened(false);
+        this.hideGuiMesh();
+    }
+
+    private setLinksOpened(isOpened: boolean) {
+        this.isOpened = isOpened;
         this.buttons.forEach(b => b.isVisible = this.isOpened);
         this.infoCards.forEach(b => b.mesh.isVisible = this.isOpened);
     }
@@ -101,9 +117,9 @@ export class GroupLink extends LinkToState {
         super.dispose();
     }
 
-    protected onPointerOutTrigger(event: ActionEvent) {
+    protected hideGuiMesh() {
         if (!this.isOpened) {
-            super.onPointerOutTrigger(event);
+            super.hideGuiMesh();
         }
     }
 }

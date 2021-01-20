@@ -91,12 +91,12 @@ export class FieldItem extends LinkToState {
     }
 
 
-    protected onPointerOverTrigger(event: ActionEvent) {
-        super.onPointerOverTrigger(event);
+    protected openGuiMesh() {
+        super.openGuiMesh();
         this.material.alpha += 0.3;
     }
-    protected onPointerOutTrigger(event: ActionEvent) {
-        super.onPointerOutTrigger(event);
+    protected hideGuiMesh() {
+        super.hideGuiMesh();
         this.material.alpha -= 0.3;
     }
 
