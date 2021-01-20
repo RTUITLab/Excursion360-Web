@@ -1,7 +1,6 @@
 trigger:
   branches:
-    include:
-      - *
+    include: []
   tags:
     include:
       - v*
