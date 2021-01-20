@@ -1,6 +1,6 @@
 trigger:
   branches:
-    include: []
+    exclude: []
   tags:
     include:
       - v*
