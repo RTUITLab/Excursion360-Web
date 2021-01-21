@@ -11,4 +11,8 @@ export interface GroupLink extends StateItem {
     groupStateRotationOverrides: { stateId: string, rotationAfterStepAngle: number }[];
     /** Additional info under buttons*/
     infos: string[];
+    /**
+     * Minimize modifier for label
+     */
+    minimizeScale: number;
 }

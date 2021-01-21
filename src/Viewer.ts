@@ -13,6 +13,7 @@ import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 import { TableOfContentViewer } from "./Models/TableOfContentViewer";
 import { StateChangeLoadingScreen } from "./StateChangeLoadingScreen";
 import { State } from "./Models/ExcursionModels/State";
+import { GroupLink } from "./Models/GroupLink";
 
 
 export class Viewer {
@@ -210,19 +211,24 @@ export class Viewer {
                 return this.goToImage(link.id, rotateCam);
             });
         }
+        const groupLinks: GroupLink[] = [];
         for (const groupLink of targetPicture.groupLinks) {
             let name = groupLink.title;
             if (!name) {
                 name = "NO TITLE";
             }
             const position = MathStuff.GetPositionForMarker(groupLink.rotation, distanceToLinks);
-            const material = this.groupLinkMaterial
+            const material = this.groupLinkMaterial;
 
             const linkToState = this.links.getGroupLink(name,
                 groupLink.stateIds.map(stateId => { return { id: stateId, title: this.getName(stateId) } }),
                 groupLink.infos,
                 position,
+                { scale: groupLink.minimizeScale },
                 material,
+                async (gl) => {
+                    groupLinks.filter(l => l !== gl).forEach(l => l.closeLinks());
+                },
                 async (selectedId) => {
                     let rotateCam = () => { };
                     var overridePair = groupLink.groupStateRotationOverrides.find(p => p.stateId == selectedId);
@@ -234,6 +240,7 @@ export class Viewer {
                     }
                     return this.goToImage(selectedId, rotateCam);
                 });
+            groupLinks.push(linkToState);
         }
 
         for (const fieldItem of targetPicture.fieldItems) {

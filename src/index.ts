@@ -17,6 +17,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("Can't get scene description");
         return;
     }
+    if (!response.data.tourProtocolVersion) {
+        alert("Too old protocol (without version), use new builder or old viewer");
+        return;
+    }
+    if (response.data.tourProtocolVersion != "v0.7") {
+        alert(`That viewer supports only tour v0.7, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
+        return;
+    }
     const viewer = new Viewer(configuration.data);
     viewer.createScene();
     await viewer.show(response.data);

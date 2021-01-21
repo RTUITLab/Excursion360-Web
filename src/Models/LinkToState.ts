@@ -18,7 +18,8 @@ export class LinkToState {
         triggered: () => Promise<void>,
         animation: Animation,
         protected scene: Scene,
-        linkMeshCreating?: (parent: TransformNode) => AbstractMesh) {
+        linkMeshCreating?: (parent: TransformNode) => AbstractMesh,
+        minimizing: { scale: number } = { scale: 1 }) {
         this.center = new TransformNode(name, scene);
         this.center.position = position;
 
@@ -36,13 +37,16 @@ export class LinkToState {
         }));
         this.linkObject.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, (ev) => {
-                this.onPointerOverTrigger(ev);
+                this.openGuiMesh();
             }));
         this.linkObject.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, (ev) => {
-                this.onPointerOutTrigger(ev);
+                this.hideGuiMesh();
             }));
-        this.guiMesh = MeshBuilder.CreatePlane(name, { width: 7, height: 2 }, scene);
+        this.guiMesh = MeshBuilder.CreatePlane(name, {
+            width: 7 / minimizing.scale,
+            height: 2 / minimizing.scale
+        }, scene);
         this.guiMesh.parent = this.center;
         this.guiMesh.lookAt(this.center.position.scale(1.1));
         this.guiMesh.position.y += 2;
@@ -51,7 +55,9 @@ export class LinkToState {
 
         const pixelsToOne = 512 / 2;
 
-        this.guiTexture = AdvancedDynamicTexture.CreateForMesh(this.guiMesh, 7 * pixelsToOne, 2 * pixelsToOne);
+        this.guiTexture = AdvancedDynamicTexture.CreateForMesh(this.guiMesh,
+            7 * pixelsToOne / minimizing.scale,
+            2 * pixelsToOne / minimizing.scale);
 
         const background = new Rectangle("link text rectangle");
         background.background = "silver";
@@ -102,11 +108,12 @@ export class LinkToState {
 
         return LinkToState.linkModel.clone(`l${name}_polyhedron`, this.center);
     }
-
-    protected onPointerOverTrigger(event: ActionEvent) {
-        this.guiMesh.isVisible = true;
+    protected openGuiMesh() {
+        if (this.name) {
+            this.guiMesh.isVisible = true;
+        }
     }
-    protected onPointerOutTrigger(event: ActionEvent) {
+    protected hideGuiMesh() {
         this.guiMesh.isVisible = false;
     }
 }
