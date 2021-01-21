@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
-import { scenesReducer } from './scenesReducer'
+import { editorReducer } from './editorReducer'
 export const rootReduser = combineReducers({
-    scenes: scenesReducer
+    editor: editorReducer
 })
 export type RootState = ReturnType<typeof rootReduser>

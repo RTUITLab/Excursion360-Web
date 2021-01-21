@@ -20,8 +20,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types":[
-      "babylonjs",
-      "babylonjs-materials"
     ]
   },
   "include": [

@@ -1,8 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit, ElementRef, OnDestroy } from '@angular/core';
 import { EngineService } from 'src/app/services/editor/engine.service';
-import { Scene, MeshBuilder, ActionManager, ExecuteCodeAction, UniversalCamera, Vector3, AxesViewer, GizmoManager, AbstractMesh, PointerEventTypes, HighlightLayer, Color3, Mesh } from '@babylonjs/core';
-// import { GridMaterial } from 'babylonjs-materials';
-import { SceneStateService } from 'src/app/services/editor/scene-state.service';
+import { Scene, MeshBuilder, ActionManager, ExecuteCodeAction, UniversalCamera, Vector3, AxesViewer, GizmoManager, AbstractMesh, PointerEventTypes, HighlightLayer, Color3, Mesh } from '@babylonjs/core';import { SceneStateService } from 'src/app/services/editor/scene-state.service';
 import { EditorSettingsService } from 'src/app/services/editor/editor-settings.service';
 import { Subscription, from } from 'rxjs';
 import { ExcursionScene } from 'src/app/models/excursionScene';
