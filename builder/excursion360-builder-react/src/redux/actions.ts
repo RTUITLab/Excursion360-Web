@@ -1,5 +1,5 @@
 import { ExcursionScene } from '../models/ExcursionScene';
-import { ClearSelectedScenesAction, CLEAR_SELECTED_SCENES, CreateSceneAction, CREATE_SCENE, SelectOneMoreSceneAction, SelectOneSceneAction, SELECT_ONE_MORE_SCENE, SELECT_ONE_SCENE } from "./types";
+import { ClearSelectedScenesAction, CLEAR_SELECTED_SCENES, CreateSceneAction, CREATE_SCENE, DeselectOneMoreSceneAction, DESELECT_ONE_MORE_SCENE, SelectOneMoreSceneAction, SelectOneSceneAction, SELECT_ONE_MORE_SCENE, SELECT_ONE_SCENE } from "./types";
 
 export function createScene(scene: ExcursionScene): CreateSceneAction {
     return {
@@ -18,6 +18,13 @@ export function selectOneScene(sceneId: string): SelectOneSceneAction {
 export function selectOneMoreScene(sceneId: string): SelectOneMoreSceneAction {
     return {
         type: SELECT_ONE_MORE_SCENE,
+        payload: sceneId
+    }
+}
+
+export function deselectOneScene(sceneId: string): DeselectOneMoreSceneAction {
+    return {
+        type: DESELECT_ONE_MORE_SCENE,
         payload: sceneId
     }
 }

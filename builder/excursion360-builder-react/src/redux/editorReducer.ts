@@ -1,4 +1,4 @@
-import { CLEAR_SELECTED_SCENES, CREATE_SCENE, MyReduxTypes, SELECT_ONE_MORE_SCENE, SELECT_ONE_SCENE } from "./types";
+import { CLEAR_SELECTED_SCENES, CREATE_SCENE, DESELECT_ONE_MORE_SCENE, MyReduxTypes, SELECT_ONE_MORE_SCENE, SELECT_ONE_SCENE } from "./types";
 import { ExcursionScene } from '../models/ExcursionScene';
 
 const initialState = {
@@ -25,6 +25,12 @@ export const editorReducer = (state = initialState, action: MyReduxTypes) => {
                 ...state,
                 scenes: [...state.scenes],
                 selectedSceneIds: [...state.selectedSceneIds, action.payload]
+            }
+        case DESELECT_ONE_MORE_SCENE:
+            return {
+                ...state,
+                scenes: [...state.scenes],
+                selectedSceneIds: state.selectedSceneIds.filter(s => s != action.payload)
             }
         case CLEAR_SELECTED_SCENES:
             return {

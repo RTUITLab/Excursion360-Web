@@ -4,11 +4,13 @@ import './ContentTree.scss';
 
 import { ExcursionScene } from '../../../models/ExcursionScene';
 import { ExcursionVector3 } from '../../../models/ExcursionVector3';
-import { createScene } from "../../../redux/actions";
+import { createScene, selectOneMoreScene, deselectOneScene } from "../../../redux/actions";
 import { RootState } from '../../../redux/rootReducer';
-import { CreateSceneAction } from '../../../redux/types';
+import { CreateSceneAction, SelectOneMoreSceneAction, DeselectOneMoreSceneAction } from '../../../redux/types';
 interface ContentTreeProps {
     createScene: (scene: ExcursionScene) => CreateSceneAction,
+    selectOneMoreScene: (sceneId: string) => SelectOneMoreSceneAction,
+    deselectOneScene: (sceneId: string) => DeselectOneMoreSceneAction,
     scenes: ExcursionScene[],
     selectedSceneIds: string[]
 }
@@ -23,6 +25,13 @@ class ContentTree extends React.Component<ContentTreeProps> {
             )
         );
     }
+    toggleScene(sceneId: string) {
+        if (this.props.selectedSceneIds.includes(sceneId)) {
+            this.props.deselectOneScene(sceneId);
+        } else {
+            this.props.selectOneMoreScene(sceneId);
+        }
+    }
     render() {
         return (
             <div>
@@ -32,8 +41,9 @@ class ContentTree extends React.Component<ContentTreeProps> {
                     {this.props.scenes && this.props.scenes.map(s =>
                         <li key={s.id}>
                             <p>{s.title}</p>
-                            <p>{this.props.selectedSceneIds.includes(s.id) + ""}</p>
-                            <input type="checkbox" checked={this.props.selectedSceneIds.includes(s.id)}/>
+                            <input type="checkbox"
+                                checked={this.props.selectedSceneIds.includes(s.id)}
+                                onChange={() => this.toggleScene(s.id)} />
                         </li>
                     )}
                 </ul>
@@ -45,6 +55,6 @@ const mapStateToProps = (state: RootState) => {
     return { scenes: state.editor.scenes, selectedSceneIds: state.editor.selectedSceneIds };
 }
 const mapDispatchToProps = {
-    createScene
+    createScene, selectOneMoreScene, deselectOneScene
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ContentTree);
