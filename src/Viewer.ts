@@ -160,7 +160,7 @@ export class Viewer {
         } else {
             this.tableOfContentButton.isVisible = false;
         }
-        await this.goToImage(this.viewScene.firstStateId, null, true);
+        await this.goToImage(this.viewScene.firstStateId, null, true, true);
     }
 
     public rotateCameraToQuaternion(rotation: any): void {
@@ -186,14 +186,14 @@ export class Viewer {
     }
 
 
-    private async goToImage(id: string, actionBeforeChange: () => void = null, forceFromHash: boolean = false) {
+    private async goToImage(id: string, actionBeforeChange: () => void = null, forceFromHash: boolean = false, forceReload = false) {
         if (forceFromHash) {
             var tryId = location.hash.substr(1);
             if (this.viewScene.states.some((p) => p.id === tryId)) {
                 id = tryId;
             }
         }
-        if (this.currentPicture && this.currentPicture.id == id) {
+        if (!forceReload && this.currentPicture && this.currentPicture.id == id) {
             return;
         }
         location.hash = id;
