@@ -161,6 +161,12 @@ export class Viewer {
         await this.goToImage(this.viewScene.firstStateId, null, true);
     }
 
+    public rotateCameraToQuaternion(rotation: any): void {
+        const targetPosition = MathStuff.GetPositionForMarker(rotation, 100);
+        const targetCamera = this.scene.activeCamera as TargetCamera;
+        targetCamera.setTarget(targetPosition);
+    }
+
     private createNavigatorButton() {
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("Menu UI");
         const button = Button.CreateSimpleButton("but", "Menu");
