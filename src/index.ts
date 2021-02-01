@@ -27,5 +27,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const viewer = new Viewer(configuration.data);
     viewer.createScene();
+    (document as any).viewer = viewer;
     await viewer.show(response.data);
 });
