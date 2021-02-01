@@ -135,6 +135,10 @@ export class Viewer {
 
     public async show(scene: Excursion) {
         this.viewScene = scene;
+        for (const material of this.linkSphereMaterials) {
+            material.dispose();
+        }
+        this.linkSphereMaterials = [];
         for (const color of scene.colorSchemes) {
             const newMaterial = this.baseLinkSphereMaterial.clone("link material");
             newMaterial.diffuseColor = new Color3(color.r, color.g, color.b);
@@ -269,7 +273,6 @@ export class Viewer {
 
         if (this.currentImage === null) {
             this.currentImage = new PhotoDome("background", null, { resolution: 32, size: this.backgroundRadius * 2 }, this.scene);
-        } else {
         }
         const task = this.assetsManager.addTextureTask("image task", url, null, false);
         var promise = new Promise<void>(async (resolve, error) => {
@@ -283,7 +286,7 @@ export class Viewer {
                 this.currentImage.photoTexture = t.texture;
                 this.currentImage.rotationQuaternion = pictureRotation;
                 resolve();
-            }
+            };
         })
         return promise;
     }
