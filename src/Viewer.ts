@@ -25,7 +25,6 @@ export class Viewer {
     private tableOfContentButton: Button;
     private links: LinkToStatePool;
 
-    private baseLinkSphereMaterial?: StandardMaterial;
     private linkSphereMaterials: StandardMaterial[] = [];
 
     private assetsManager: AssetsManager;
@@ -124,11 +123,7 @@ export class Viewer {
             engine.resize();
         });
 
-        const material = new StandardMaterial("link material", scene);
-
-        material.diffuseColor = Color3.Red();
-        material.specularPower = 200;
-        this.baseLinkSphereMaterial = material;
+        
 
         this.createNavigatorButton();
     }
@@ -139,8 +134,11 @@ export class Viewer {
             material.dispose();
         }
         this.linkSphereMaterials = [];
+        const baseMaterial = new StandardMaterial("link material", this.scene);
+        baseMaterial.diffuseColor = Color3.Red();
+        baseMaterial.specularPower = 200;
         for (const color of scene.colorSchemes) {
-            const newMaterial = this.baseLinkSphereMaterial.clone("link material");
+            const newMaterial = baseMaterial.clone("link material");
             newMaterial.diffuseColor = new Color3(color.r, color.g, color.b);
             this.linkSphereMaterials.push(newMaterial);
         }
