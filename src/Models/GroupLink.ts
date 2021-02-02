@@ -40,7 +40,6 @@ export class GroupLink extends LinkToState {
         }
         for (const info of infos) {
             this.createTextCard(info);
-            console.log(info);
         }
     }
 
