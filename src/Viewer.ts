@@ -157,6 +157,7 @@ export class Viewer {
             });
 
             this.tableOfContentViewer.init(info, (id) => this.goToImage(id));
+            this.tableOfContentButton.isVisible = true;
         } else {
             this.tableOfContentButton.isVisible = false;
         }
@@ -172,6 +173,7 @@ export class Viewer {
     private createNavigatorButton() {
         const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("Menu UI");
         const button = Button.CreateSimpleButton("but", "Menu");
+        button.isVisible = false;
         button.width = 0.09;
         button.height = "40px";
         button.color = "black";
@@ -187,7 +189,7 @@ export class Viewer {
 
 
     private async goToImage(id: string, actionBeforeChange: () => void = null, forceFromHash: boolean = false, forceReload = false) {
-        if (forceFromHash) {
+        if (!forceReload && forceFromHash) {
             var tryId = location.hash.substr(1);
             if (this.viewScene.states.some((p) => p.id === tryId)) {
                 id = tryId;

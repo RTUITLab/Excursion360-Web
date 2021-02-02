@@ -11,22 +11,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("Can't get configuration");
         return;
     }
-
-    const response = await axios.get<Excursion>(configuration.data.sceneUrl + "tour.json");
-    if (response.status !== 200) {
-        console.warn("Can't get scene description");
-        return;
-    }
-    if (!response.data.tourProtocolVersion) {
-        alert("Too old protocol (without version), use new builder or old viewer");
-        return;
-    }
-    if (response.data.tourProtocolVersion != "v0.7") {
-        alert(`That viewer supports only tour v0.7, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
-        return;
-    }
     const viewer = new Viewer(configuration.data);
     viewer.createScene();
     (document as any).viewer = viewer;
-    await viewer.show(response.data);
+    try {
+        const response = await axios.get<Excursion>(configuration.data.sceneUrl + "tour.json");
+        if (response.status !== 200) {
+            console.warn("Can't get scene description");
+            return;
+        }
+        if (!response.data.tourProtocolVersion) {
+            alert("Too old protocol (without version), use new builder or old viewer");
+            return;
+        }
+        if (response.data.tourProtocolVersion != "v0.7") {
+            alert(`That viewer supports only tour v0.7, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
+            return;
+        }
+        await viewer.show(response.data);
+    } catch (error) {
+        console.error(error);
+        alert(`Can't load excursion from ${configuration.data.sceneUrl}`);
+    }
 });
