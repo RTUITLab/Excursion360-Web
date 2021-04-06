@@ -14,6 +14,7 @@ import { TableOfContentViewer } from "./Models/TableOfContentViewer";
 import { StateChangeLoadingScreen } from "./StateChangeLoadingScreen";
 import { State } from "./Models/ExcursionModels/State";
 import { GroupLink } from "./Models/GroupLink";
+import { FieldItemInfo } from "./Models/FieldItemInfo";
 
 
 export class Viewer {
@@ -123,7 +124,7 @@ export class Viewer {
             engine.resize();
         });
 
-        
+
 
         this.createNavigatorButton();
     }
@@ -161,7 +162,14 @@ export class Viewer {
         } else {
             this.tableOfContentButton.isVisible = false;
         }
-        await this.goToImage(this.viewScene.firstStateId, null, true, true);
+
+        let targetId = this.viewScene.firstStateId;
+        const tryId = location.hash.substr(1);
+        if (this.viewScene.states.some((p) => p.id === tryId)) {
+            targetId = tryId;
+        }
+
+        await this.goToImage(targetId, null, true);
     }
 
     public rotateCameraToQuaternion(rotation: any): void {
@@ -188,13 +196,8 @@ export class Viewer {
     }
 
 
-    private async goToImage(id: string, actionBeforeChange: () => void = null, forceFromHash: boolean = false, forceReload = false) {
-        if (!forceReload && forceFromHash) {
-            var tryId = location.hash.substr(1);
-            if (this.viewScene.states.some((p) => p.id === tryId)) {
-                id = tryId;
-            }
-        }
+    private async goToImage(id: string, actionBeforeChange: () => void = null, forceReload = false) {
+
         if (!forceReload && this.currentPicture && this.currentPicture.id == id) {
             return;
         }
@@ -254,12 +257,15 @@ export class Viewer {
         }
 
         for (const fieldItem of targetPicture.fieldItems) {
-            const fieldItemInfo = {
-                vertex: fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
-                imageUrl: this.configuration.sceneUrl + fieldItem.imageUrl,
-                distance: distanceToLinks
-            }
-            const material = this.fieldItemMaterial
+            const fieldItemInfo = new FieldItemInfo(
+                fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
+                fieldItem.images.map(i => this.configuration.sceneUrl + i ),
+                fieldItem.videos.map(v => this.configuration.sceneUrl + v ),
+                fieldItem.text,
+                fieldItem.audios.map(a => this.configuration.sceneUrl + a ),
+                distanceToLinks
+            );
+            const material = this.fieldItemMaterial;
 
             const linkToState = this.links.getFieldItem(
                 fieldItem.title,

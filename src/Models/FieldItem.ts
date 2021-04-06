@@ -1,4 +1,5 @@
 import { LinkToState } from "./LinkToState";
+import { FieldItemInfo } from "./FieldItemInfo";
 import { Vector3, Material, Scene, Animation, AbstractMesh, MeshBuilder, Mesh, TransformNode, VertexData, ActionEvent, StandardMaterial, AssetsManager, Texture, BackgroundMaterial, Color3, ActionManager, ExecuteCodeAction } from "babylonjs";
 import { runInThisContext } from "vm";
 
@@ -8,13 +9,11 @@ export class FieldItem extends LinkToState {
     private pictureMaterial: Material;
     private picturePlane: AbstractMesh;
 
+    private static containerSize: number = 10;
+
     constructor(
         name: string,
-        private fieldItemInfo: {
-            vertex: Vector3[],
-            imageUrl: string,
-            distance: number
-        },
+        private fieldItemInfo: FieldItemInfo,
         private material: StandardMaterial,
         private assetsManager: AssetsManager,
         scene: Scene) {
@@ -43,16 +42,33 @@ export class FieldItem extends LinkToState {
     protected async onTrigger() {
         this.linkObject.isVisible = false;
         if (this.pictureMaterial == null) {
+            await this.createBackgdroundPlane();
             await this.loadPictureResources();
         }
         if (this.picturePlane) {
             this.picturePlane.isVisible = true;
         }
     }
+    private async createBackgdroundPlane() {
+        console.error("TODO debug mode, just creating");
+        const backgroundPlane = MeshBuilder.CreatePlane(`${this.name}_background_plane`, {
+            width: FieldItem.containerSize * 1.2,
+            height: FieldItem.containerSize * 1.2
+        }, this.scene);
+        backgroundPlane.parent = this.center;
+        const centerPosition = this.fieldItemInfo
+            .vertex
+            .reduce((prev, curr) => prev.add(curr))
+            .normalize()
+            .scale(this.fieldItemInfo.distance * 1.1);
+        backgroundPlane.position = centerPosition;
+        backgroundPlane.lookAt(centerPosition.scale(1.4));
 
+        backgroundPlane.material = this.material;
+    }
 
     private async loadPictureResources() {
-        const task = this.assetsManager.addTextureTask("image task", this.fieldItemInfo.imageUrl, null, true);
+        const task = this.assetsManager.addTextureTask("image task", this.fieldItemInfo.images[0], null, true);
         this.assetsManager.load();
 
         const centerPosition = this.fieldItemInfo
