@@ -2,12 +2,17 @@ import { LinkToState } from "./LinkToState";
 import { FieldItemInfo } from "./FieldItemInfo";
 import { Vector3, Material, Scene, Animation, AbstractMesh, MeshBuilder, Mesh, TransformNode, VertexData, ActionEvent, StandardMaterial, AssetsManager, Texture, BackgroundMaterial, Color3, ActionManager, ExecuteCodeAction } from "babylonjs";
 import { runInThisContext } from "vm";
+import { CustomHolographicButton } from "../Stuff/CustomHolographicButton";
+import { GUI3DManager, TextBlock } from "babylonjs-gui";
+import { StackPanel3D } from "babylonjs-gui";
 
 export class FieldItem extends LinkToState {
 
     private pictureTexture: Texture;
     private pictureMaterial: Material;
     private picturePlane: AbstractMesh;
+
+    private navigationButtons: CustomHolographicButton[] = [];
 
     private static containerSize: number = 10;
 
@@ -16,6 +21,7 @@ export class FieldItem extends LinkToState {
         private fieldItemInfo: FieldItemInfo,
         private material: StandardMaterial,
         private assetsManager: AssetsManager,
+        private gui3Dmanager: GUI3DManager,
         scene: Scene) {
         super(
             name,
@@ -52,7 +58,7 @@ export class FieldItem extends LinkToState {
     private async createBackgdroundPlane() {
         console.error("TODO debug mode, just creating");
         const backgroundPlane = MeshBuilder.CreatePlane(`${this.name}_background_plane`, {
-            width: FieldItem.containerSize * 1.2,
+            width: FieldItem.containerSize * 1.6,
             height: FieldItem.containerSize * 1.2
         }, this.scene);
         backgroundPlane.parent = this.center;
@@ -65,7 +71,53 @@ export class FieldItem extends LinkToState {
         backgroundPlane.lookAt(centerPosition.scale(1.4));
 
         backgroundPlane.material = this.material;
+
+
+        this.createButton('Фотографии', backgroundPlane);
+        this.createButton('Видео', backgroundPlane);
+        this.createButton('Текст', backgroundPlane);
+        this.createButton('Аудио', backgroundPlane);
+
     }
+
+    private createButton(title: string, parent: TransformNode) {
+        var button = new CustomHolographicButton(`field-item-button-${title}`, 2, 1);
+        this.navigationButtons.push(button);
+        this.gui3Dmanager.addControl(button);
+        button.linkToTransformNode(parent);
+        var buttonContent = new TextBlock();
+        buttonContent.text = title;
+        buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        buttonContent.resizeToFit = true;
+        buttonContent.color = "white";
+        buttonContent.fontSize = 140;
+        button.content = buttonContent;
+        button.contentScaleRatio = 1;
+        button.isVisible = true;
+        button.position.y += FieldItem.containerSize / 2; // All on one line
+        button.onPointerClickObservable.add(d => this.updateSelectedButton(button));
+
+        // Stack emulation
+        const containerSize = FieldItem.containerSize * 1.4
+        const size = containerSize / (this.navigationButtons.length + 1);
+        console.log(`count ${this.navigationButtons.length}`);
+        console.log(`size ${size}`);
+        for (let i = 0; i < this.navigationButtons.length; i++) {
+            const currentButton = this.navigationButtons[i];
+            const position = 
+                -containerSize / 2 // left point
+                + size * (i + 1); // offset
+            console.log(`button ${i} position ${position}`);
+            currentButton.position.x = position;
+        }
+    }
+
+    private updateSelectedButton(targetButton: CustomHolographicButton) {
+        for (const button of this.navigationButtons) {
+            button.scaling = button === targetButton ? Vector3.One().scale(1.2) : Vector3.One();
+        }
+    }
+
 
     private async loadPictureResources() {
         const task = this.assetsManager.addTextureTask("image task", this.fieldItemInfo.images[0], null, true);

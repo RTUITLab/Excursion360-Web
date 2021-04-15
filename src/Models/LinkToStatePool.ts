@@ -73,6 +73,7 @@ export class LinkToStatePool {
             fieldItemInfo,
             material.clone(name),
             this.assetsManager,
+            this.guiManager,
             this.scene);
         this.links.push(link);
         return link;
