@@ -5,17 +5,18 @@ import { runInThisContext } from "vm";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton";
 import { GUI3DManager, TextBlock } from "babylonjs-gui";
 import { StackPanel3D } from "babylonjs-gui";
+import { ImagesContent } from "./FieldItemContents/ImagesContent";
+import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
 
 export class FieldItem extends LinkToState {
 
-    private pictureTexture: Texture;
-    private pictureMaterial: Material;
-    private picturePlane: AbstractMesh;
-
-    private navigationButtons: CustomHolographicButton[] = [];
-
     private static containerSize: number = 10;
 
+    private closeButton: CustomHolographicButton;
+    private navigationButtons: CustomHolographicButton[] = [];
+    private imageContent: ImagesContent;
+    private contentBackground: Mesh;
+    private showContent: boolean = false;
     constructor(
         name: string,
         private fieldItemInfo: FieldItemInfo,
@@ -47,16 +48,23 @@ export class FieldItem extends LinkToState {
 
     protected async onTrigger() {
         this.linkObject.isVisible = false;
-        if (this.pictureMaterial == null) {
-            await this.createBackgdroundPlane();
-            await this.loadPictureResources();
-        }
-        if (this.picturePlane) {
-            this.picturePlane.isVisible = true;
-        }
+        this.toggleShowContent();
     }
-    private async createBackgdroundPlane() {
+
+    private toggleShowContent() {
         console.error("TODO debug mode, just creating");
+        this.showContent = !this.showContent;
+        if (!this.contentBackground) {
+            this.createContent();
+        }
+        this.contentBackground.isVisible = this.showContent;
+        this.closeButton.isVisible = this.showContent;
+        for (const navButton of this.navigationButtons) {
+            navButton.isVisible = this.showContent;
+        }
+        this.imageContent.setIsVisible(this.showContent);
+    }
+    createContent() {
         const backgroundPlane = MeshBuilder.CreatePlane(`${this.name}_background_plane`, {
             width: FieldItem.containerSize * 1.6,
             height: FieldItem.containerSize * 1.2
@@ -72,17 +80,39 @@ export class FieldItem extends LinkToState {
 
         backgroundPlane.material = this.material;
 
+        this.createNavButton('Фотографии', backgroundPlane);
+        this.createNavButton('Видео', backgroundPlane);
+        this.createNavButton('Текст', backgroundPlane);
+        this.createNavButton('Аудио', backgroundPlane);
+        this.updateSelectedButton(this.navigationButtons[0]);
 
-        this.createButton('Фотографии', backgroundPlane);
-        this.createButton('Видео', backgroundPlane);
-        this.createButton('Текст', backgroundPlane);
-        this.createButton('Аудио', backgroundPlane);
+        const closeButton = this.createButton('X', backgroundPlane, 1, 1);
+        closeButton.position.x = FieldItem.containerSize / 1.5;
+        closeButton.position.y = FieldItem.containerSize / 2;
+        closeButton.onPointerClickObservable.add(e => {
+            this.linkObject.isVisible = true;
+            this.toggleShowContent();
+        });
+        this.closeButton = closeButton;
 
+        this.imageContent = new ImagesContent(this.fieldItemInfo.images,
+            backgroundPlane,
+            FieldItem.containerSize * 1.6,
+            FieldItem.containerSize,
+            this.gui3Dmanager,
+            this.assetsManager,
+            this.scene);
+        this.contentBackground = backgroundPlane;
     }
 
-    private createButton(title: string, parent: TransformNode) {
-        var button = new CustomHolographicButton(`field-item-button-${title}`, 2, 1);
+    private createNavButton(title: string, parent: TransformNode) {
+        var button = this.createButton(title, parent);
         this.navigationButtons.push(button);
+        ObjectsStackPanelHelper.placeAsHorizontalStack(this.navigationButtons, FieldItem.containerSize * 1.4);
+    }
+
+    private createButton(title: string, parent: TransformNode, width = 2, height = 1): CustomHolographicButton {
+        var button = new CustomHolographicButton(`field-item-button-${title}`, width, height);
         this.gui3Dmanager.addControl(button);
         button.linkToTransformNode(parent);
         var buttonContent = new TextBlock();
@@ -96,20 +126,7 @@ export class FieldItem extends LinkToState {
         button.isVisible = true;
         button.position.y += FieldItem.containerSize / 2; // All on one line
         button.onPointerClickObservable.add(d => this.updateSelectedButton(button));
-
-        // Stack emulation
-        const containerSize = FieldItem.containerSize * 1.4
-        const size = containerSize / (this.navigationButtons.length + 1);
-        console.log(`count ${this.navigationButtons.length}`);
-        console.log(`size ${size}`);
-        for (let i = 0; i < this.navigationButtons.length; i++) {
-            const currentButton = this.navigationButtons[i];
-            const position = 
-                -containerSize / 2 // left point
-                + size * (i + 1); // offset
-            console.log(`button ${i} position ${position}`);
-            currentButton.position.x = position;
-        }
+        return button;
     }
 
     private updateSelectedButton(targetButton: CustomHolographicButton) {
@@ -117,47 +134,6 @@ export class FieldItem extends LinkToState {
             button.scaling = button === targetButton ? Vector3.One().scale(1.2) : Vector3.One();
         }
     }
-
-
-    private async loadPictureResources() {
-        const task = this.assetsManager.addTextureTask("image task", this.fieldItemInfo.images[0], null, true);
-        this.assetsManager.load();
-
-        const centerPosition = this.fieldItemInfo
-            .vertex
-            .reduce((prev, curr) => prev.add(curr))
-            .normalize()
-            .scale(this.fieldItemInfo.distance);
-
-        task.onSuccess = t => {
-            var textureSize = task.texture.getSize();
-            var maxSize = Math.max(textureSize.width, textureSize.height);
-            var multipler = 10 / maxSize;
-            this.picturePlane = MeshBuilder.CreatePlane(`${this.name}_plane`, {
-                width: textureSize.width * multipler,
-                height: textureSize.height * multipler
-            }, this.scene);
-            this.picturePlane.parent = this.center;
-            this.picturePlane.position = centerPosition;
-            this.picturePlane.lookAt(centerPosition.scale(1.1));
-            var material = new StandardMaterial("", this.scene);
-            material.specularColor = Color3.Black();
-            material.diffuseTexture = task.texture;
-
-            this.picturePlane.material = material;
-            this.pictureMaterial = material;
-            this.pictureTexture = task.texture;
-
-            this.picturePlane.isVisible = true;
-
-            this.picturePlane.actionManager = new ActionManager(this.scene);
-            this.picturePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
-                this.picturePlane.isVisible = false;
-                this.linkObject.isVisible = true;
-            }));
-        };
-    }
-
 
     protected openGuiMesh() {
         super.openGuiMesh();
@@ -171,11 +147,9 @@ export class FieldItem extends LinkToState {
     public dispose() {
         super.dispose();
         this.material.dispose();
-        if (this.pictureTexture) {
-            this.pictureTexture.dispose();
-        }
-        if (this.pictureMaterial) {
-            this.pictureMaterial.dispose();
+        this.imageContent.dispose();
+        for (const navButton of this.navigationButtons) {
+            navButton.dispose();
         }
     }
 }

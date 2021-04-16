@@ -1,0 +1,189 @@
+import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
+import { Scene } from "babylonjs";
+import { TransformNode } from "babylonjs";
+import { GUI3DManager } from "babylonjs-gui";
+import { TextBlock } from "babylonjs-gui";
+import { ObjectsStackPanelHelper } from "../ObjectsStackPanelHelper";
+import { AssetsManager } from "babylonjs";
+import { MeshBuilder } from "babylonjs";
+import { StandardMaterial } from "babylonjs";
+import { Color3 } from "babylonjs";
+import { ActionManager } from "babylonjs";
+import { ExecuteCodeAction } from "babylonjs";
+import { Material } from "babylonjs";
+import { Texture } from "babylonjs";
+import { TextureAssetTask } from "babylonjs/Misc/assetsManager";
+import { Mesh } from "babylonjs";
+import { Vector3 } from "babylonjs";
+
+export class ImagesContent {
+
+    private rightButton: CustomHolographicButton;
+    private leftButton: CustomHolographicButton;
+    private currentImage: number = 0;
+    private imageButtons: CustomHolographicButton[];
+
+    private resources: {
+        plane: Mesh,
+        material: Material,
+        texture: Texture,
+        task: TextureAssetTask
+    }[] = [];
+    
+    setIsVisible(visible: boolean) {
+        this.rightButton.isVisible = visible;
+        this.leftButton.isVisible = visible;
+        for (const imageButton of this.imageButtons) {
+            imageButton.isVisible = visible;
+        }
+        for (const resource of this.resources) {
+            if (resource && resource.plane) {
+                resource.plane.isVisible = visible;
+            }
+        }
+        if (visible) {
+            this.openPicture(this.currentImage);
+        }
+    }
+
+    constructor(
+        private images: string[],
+        private parent: TransformNode,
+        private contentWidth: number,
+        private contentHeight: number,
+        private gui3Dmanager: GUI3DManager,
+        private assetsManager: AssetsManager,
+        private scene: Scene) {
+        this.rightButton = this.createButton(">", contentWidth / 2.5);
+        this.rightButton.onPointerClickObservable.add(ed => {
+            console.log("right click");
+
+            this.openPicture(this.currentImage + 1);
+        });
+        this.leftButton = this.createButton("<", -contentWidth / 2.5);
+        this.leftButton.onPointerClickObservable.add(ed => {
+            this.openPicture(this.currentImage - 1);
+        });
+        const imageButtons: CustomHolographicButton[] = [];
+        console.log(images.length);
+
+        for (let i = 0; i < images.length; i++) {
+            const indexButton = this.createButton(`${i + 1}`, 0, -contentHeight / 2);
+            let index = i;
+            indexButton.onPointerClickObservable.add(ed => {
+                this.openPicture(index);
+            })
+            imageButtons.push(indexButton);
+        }
+        ObjectsStackPanelHelper.placeAsHorizontalStack(imageButtons, contentWidth);
+        this.imageButtons = imageButtons;
+        this.resources = images.map(i => null);
+        this.openPicture(this.currentImage);
+    }
+
+    private createButton(content: string, xPosition: number = 0, yPosition = 0): CustomHolographicButton {
+        var button = new CustomHolographicButton(`image-content-button-right-${content}`, 1, 1);
+        this.gui3Dmanager.addControl(button);
+        button.linkToTransformNode(this.parent);
+        var buttonContent = new TextBlock();
+        buttonContent.text = content;
+        buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        buttonContent.resizeToFit = true;
+        buttonContent.color = "white";
+        buttonContent.fontSize = 140;
+        button.content = buttonContent;
+        button.position.x = xPosition;
+        button.position.y = yPosition;
+
+        return button;
+    }
+
+    private async openPicture(index: number) {
+        if (index < 0) {
+            index = this.resources.length - index;
+        }
+        index = index % this.resources.length;
+        for (let i = 0; i < this.resources.length; i++) {
+            console.log(i);
+            const imageResource = this.resources[i];
+            if (index == i) { // Target resource
+                this.imageButtons[i].scaling = Vector3.One().scale(1.2);
+                if (!imageResource) { // Not loaded yet
+                    this.resources[i] =
+                    {
+                        texture: null,
+                        material: null,
+                        plane: null,
+                        task: this.loadPictureResources(index, this.images[index]),
+                    };
+                } else if (imageResource.plane) { // Loaded
+                    imageResource.plane.isVisible = true;
+                } else { // In loading, just wait
+
+                }
+            } else {
+                this.imageButtons[i].scaling = Vector3.One();
+                if (imageResource && imageResource.plane) { // Hide all loaded images
+                    imageResource.plane.isVisible = false;
+                }
+            }
+        }
+        this.currentImage = index;
+    }
+
+    private loadPictureResources(index: number, url: string): TextureAssetTask {
+        const task = this.assetsManager.addTextureTask("image task", url, null, true);
+        this.assetsManager.load();
+
+        task.onSuccess = t => {
+            var textureSize = task.texture.getSize();
+            var maxSize = Math.max(textureSize.width, textureSize.height);
+            var multipler = 10 / maxSize;
+            const imagePlane = MeshBuilder.CreatePlane(`image_content_image_${url}`, {
+                width: textureSize.width * multipler,
+                height: textureSize.height * multipler
+            }, this.scene);
+            imagePlane.parent = this.parent;
+            imagePlane.position.z = -0.1;
+            var material = new StandardMaterial("", this.scene);
+            material.specularColor = Color3.Black();
+            material.diffuseTexture = task.texture;
+
+            imagePlane.material = material;
+            this.resources[index].plane = imagePlane;
+            this.resources[index].material = material;
+            this.resources[index].texture = task.texture;
+
+
+            imagePlane.isVisible = true;
+
+            imagePlane.actionManager = new ActionManager(this.scene);
+            imagePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
+                // imagePlane.isVisible = false;
+                // this.linkObject.isVisible = true;
+                console.log("image click");
+            }));
+        };
+        return task;
+    }
+
+    public dispose(): void {
+        for (const button of this.imageButtons) {
+            button.dispose();
+        }
+        for (const resource of this.resources) {
+            if (!resource) {
+                continue;
+            }
+            if (resource.plane) {
+                resource.plane.dispose();
+            }
+            if (resource.material) {
+                resource.plane.dispose();
+            }
+            if (resource.texture) {
+                resource.plane.dispose();
+            }
+        }
+    }
+}
