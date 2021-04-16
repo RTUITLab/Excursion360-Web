@@ -34,7 +34,7 @@ export class NavigationMenu {
         index = index % this.buttons.length;
         for (let i = 0; i < this.buttons.length; i++) {
             const button = this.buttons[i];
-            button.scaling = i == index ? Vector3.One().scale(1.1) : Vector3.One();
+            button.scaling = i == index ? Vector3.One().scale(1.3) : Vector3.One();
         }
     }
 

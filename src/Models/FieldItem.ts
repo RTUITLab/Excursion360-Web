@@ -92,6 +92,7 @@ export class FieldItem extends LinkToState {
             () => ({width: 2, height: 1}),
             async (i) => {}
         );
+        this.navigationButtons.setCurrentIndex(0);
 
         const closeButton = this.createButton('X', backgroundPlane, 1, 1);
         closeButton.position.x = FieldItem.containerSize / 1.5;
