@@ -7,13 +7,14 @@ import { GUI3DManager, TextBlock } from "babylonjs-gui";
 import { StackPanel3D } from "babylonjs-gui";
 import { ImagesContent } from "./FieldItemContents/ImagesContent";
 import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
+import { NavigationMenu } from "./NavigationMenu";
 
 export class FieldItem extends LinkToState {
 
     private static containerSize: number = 10;
 
     private closeButton: CustomHolographicButton;
-    private navigationButtons: CustomHolographicButton[] = [];
+    private navigationButtons: NavigationMenu;
     private imageContent: ImagesContent;
     private contentBackground: Mesh;
     private showContent: boolean = false;
@@ -47,6 +48,7 @@ export class FieldItem extends LinkToState {
     }
 
     protected async onTrigger() {
+        this.hideGuiMesh();
         this.linkObject.isVisible = false;
         this.toggleShowContent();
     }
@@ -59,9 +61,7 @@ export class FieldItem extends LinkToState {
         }
         this.contentBackground.isVisible = this.showContent;
         this.closeButton.isVisible = this.showContent;
-        for (const navButton of this.navigationButtons) {
-            navButton.isVisible = this.showContent;
-        }
+        this.navigationButtons.setIsVisible(this.showContent);
         this.imageContent.setIsVisible(this.showContent);
     }
     createContent() {
@@ -80,11 +80,18 @@ export class FieldItem extends LinkToState {
 
         backgroundPlane.material = this.material;
 
-        this.createNavButton('Фотографии', backgroundPlane);
-        this.createNavButton('Видео', backgroundPlane);
-        this.createNavButton('Текст', backgroundPlane);
-        this.createNavButton('Аудио', backgroundPlane);
-        this.updateSelectedButton(this.navigationButtons[0]);
+        this.navigationButtons = new NavigationMenu(
+            ['Фотографии',
+            'Видео',
+            'Текст',
+            'Аудио'],
+            FieldItem.containerSize * 1.6,
+            FieldItem.containerSize / 2,
+            backgroundPlane,
+            this.gui3Dmanager,
+            () => ({width: 2, height: 1}),
+            async (i) => {}
+        );
 
         const closeButton = this.createButton('X', backgroundPlane, 1, 1);
         closeButton.position.x = FieldItem.containerSize / 1.5;
@@ -105,11 +112,6 @@ export class FieldItem extends LinkToState {
         this.contentBackground = backgroundPlane;
     }
 
-    private createNavButton(title: string, parent: TransformNode) {
-        var button = this.createButton(title, parent);
-        this.navigationButtons.push(button);
-        ObjectsStackPanelHelper.placeAsHorizontalStack(this.navigationButtons, FieldItem.containerSize * 1.4);
-    }
 
     private createButton(title: string, parent: TransformNode, width = 2, height = 1): CustomHolographicButton {
         var button = new CustomHolographicButton(`field-item-button-${title}`, width, height);
@@ -124,32 +126,25 @@ export class FieldItem extends LinkToState {
         button.content = buttonContent;
         button.contentScaleRatio = 1;
         button.isVisible = true;
-        button.position.y += FieldItem.containerSize / 2; // All on one line
-        button.onPointerClickObservable.add(d => this.updateSelectedButton(button));
+        button.position.y += FieldItem.containerSize / 2; // top bar
         return button;
     }
 
-    private updateSelectedButton(targetButton: CustomHolographicButton) {
-        for (const button of this.navigationButtons) {
-            button.scaling = button === targetButton ? Vector3.One().scale(1.2) : Vector3.One();
-        }
-    }
 
     protected openGuiMesh() {
         super.openGuiMesh();
-        this.material.alpha += 0.3;
+        console.log(this.material.alpha)
+        this.material.alpha = 0.6;
     }
     protected hideGuiMesh() {
         super.hideGuiMesh();
-        this.material.alpha -= 0.3;
+        this.material.alpha = 0.3;
     }
 
     public dispose() {
         super.dispose();
         this.material.dispose();
         this.imageContent.dispose();
-        for (const navButton of this.navigationButtons) {
-            navButton.dispose();
-        }
+        this.navigationButtons.dispose();
     }
 }

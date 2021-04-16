@@ -15,13 +15,14 @@ import { Texture } from "babylonjs";
 import { TextureAssetTask } from "babylonjs/Misc/assetsManager";
 import { Mesh } from "babylonjs";
 import { Vector3 } from "babylonjs";
+import { NavigationMenu } from "../NavigationMenu";
 
 export class ImagesContent {
 
     private rightButton: CustomHolographicButton;
     private leftButton: CustomHolographicButton;
+    private imageButtons: NavigationMenu;
     private currentImage: number = 0;
-    private imageButtons: CustomHolographicButton[];
 
     private resources: {
         plane: Mesh,
@@ -29,13 +30,11 @@ export class ImagesContent {
         texture: Texture,
         task: TextureAssetTask
     }[] = [];
-    
+
     setIsVisible(visible: boolean) {
         this.rightButton.isVisible = visible;
         this.leftButton.isVisible = visible;
-        for (const imageButton of this.imageButtons) {
-            imageButton.isVisible = visible;
-        }
+        this.imageButtons.setIsVisible(visible);
         for (const resource of this.resources) {
             if (resource && resource.plane) {
                 resource.plane.isVisible = visible;
@@ -56,27 +55,24 @@ export class ImagesContent {
         private scene: Scene) {
         this.rightButton = this.createButton(">", contentWidth / 2.5);
         this.rightButton.onPointerClickObservable.add(ed => {
-            console.log("right click");
-
             this.openPicture(this.currentImage + 1);
         });
         this.leftButton = this.createButton("<", -contentWidth / 2.5);
         this.leftButton.onPointerClickObservable.add(ed => {
             this.openPicture(this.currentImage - 1);
         });
-        const imageButtons: CustomHolographicButton[] = [];
+
         console.log(images.length);
 
-        for (let i = 0; i < images.length; i++) {
-            const indexButton = this.createButton(`${i + 1}`, 0, -contentHeight / 2);
-            let index = i;
-            indexButton.onPointerClickObservable.add(ed => {
-                this.openPicture(index);
-            })
-            imageButtons.push(indexButton);
-        }
-        ObjectsStackPanelHelper.placeAsHorizontalStack(imageButtons, contentWidth);
-        this.imageButtons = imageButtons;
+
+        this.imageButtons = new NavigationMenu(
+            images.map((image, i) => i.toString()),
+            contentWidth,
+            - contentHeight / 2,
+            parent,
+            gui3Dmanager,
+            (i) => ({ width: 1, height: 1 }),
+            async (i) => { this.openPicture(i); });
         this.resources = images.map(i => null);
         this.openPicture(this.currentImage);
     }
@@ -98,16 +94,16 @@ export class ImagesContent {
         return button;
     }
 
-    private async openPicture(index: number) {
+    private openPicture(index: number) {
         if (index < 0) {
             index = this.resources.length - index;
         }
         index = index % this.resources.length;
+        this.imageButtons.setCurrentIndex(index);
         for (let i = 0; i < this.resources.length; i++) {
             console.log(i);
             const imageResource = this.resources[i];
             if (index == i) { // Target resource
-                this.imageButtons[i].scaling = Vector3.One().scale(1.2);
                 if (!imageResource) { // Not loaded yet
                     this.resources[i] =
                     {
@@ -122,7 +118,6 @@ export class ImagesContent {
 
                 }
             } else {
-                this.imageButtons[i].scaling = Vector3.One();
                 if (imageResource && imageResource.plane) { // Hide all loaded images
                     imageResource.plane.isVisible = false;
                 }
@@ -159,18 +154,14 @@ export class ImagesContent {
 
             imagePlane.actionManager = new ActionManager(this.scene);
             imagePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
-                // imagePlane.isVisible = false;
-                // this.linkObject.isVisible = true;
-                console.log("image click");
+                this.openPicture(this.currentImage + 1);
             }));
         };
         return task;
     }
 
     public dispose(): void {
-        for (const button of this.imageButtons) {
-            button.dispose();
-        }
+        this.imageButtons.dispose();
         for (const resource of this.resources) {
             if (!resource) {
                 continue;
