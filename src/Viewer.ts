@@ -10,8 +10,6 @@ import { Configuration } from "./Configuration/Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
 import { LinkToStatePool } from "./Models/LinkToStatePool";
 import { BuildConfiguration } from "./Configuration/BuildConfiguration";
-import { TableOfContentViewer } from "./Models/TableOfContentViewer";
-import { StateChangeLoadingScreen } from "./StateChangeLoadingScreen";
 import { State } from "./Models/ExcursionModels/State";
 import { GroupLink } from "./Models/GroupLink";
 import { FieldItemInfo } from "./Models/FieldItemInfo";
@@ -22,8 +20,6 @@ export class Viewer {
     private currentImage: PhotoDome = null;
     private scene: Scene;
     private viewScene: Excursion;
-    private tableOfContentViewer: TableOfContentViewer;
-    private tableOfContentButton: Button;
     private links: LinkToStatePool;
 
     private linkSphereMaterials: StandardMaterial[] = [];
@@ -46,7 +42,6 @@ export class Viewer {
         this.assetsManager = new AssetsManager(scene);
         const guiManager = new GUI3DManager(scene);
         this.links = new LinkToStatePool(this.assetsManager, guiManager, scene);
-        this.tableOfContentViewer = new TableOfContentViewer(guiManager, scene);
 
         var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
         glMaterial.diffuseColor = Color3.Blue();
@@ -123,10 +118,6 @@ export class Viewer {
         window.addEventListener("resize", () => {
             engine.resize();
         });
-
-
-
-        this.createNavigatorButton();
     }
 
     public async show(scene: Excursion) {
@@ -144,25 +135,6 @@ export class Viewer {
             this.linkSphereMaterials.push(newMaterial);
         }
 
-        if (scene.tableOfContent) {
-            var info = scene.tableOfContent.map(r => {
-                return {
-                    title: r.title,
-                    states: r.stateIds.map(sid => {
-                        return {
-                            title: this.getName(sid),
-                            id: sid
-                        }
-                    })
-                }
-            });
-
-            this.tableOfContentViewer.init(info, (id) => this.goToImage(id));
-            this.tableOfContentButton.isVisible = true;
-        } else {
-            this.tableOfContentButton.isVisible = false;
-        }
-
         let targetId = this.viewScene.firstStateId;
         const tryId = location.hash.substr(1);
         if (this.viewScene.states.some((p) => p.id === tryId)) {
@@ -176,23 +148,6 @@ export class Viewer {
         const targetPosition = MathStuff.GetPositionForMarker(rotation, 100);
         const targetCamera = this.scene.activeCamera as TargetCamera;
         targetCamera.setTarget(targetPosition);
-    }
-
-    private createNavigatorButton() {
-        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("Menu UI");
-        const button = Button.CreateSimpleButton("but", "Menu");
-        button.isVisible = false;
-        button.width = 0.09;
-        button.height = "40px";
-        button.color = "black";
-        button.background = "white";
-        button.top = "-45%";
-        button.left = "-45%";
-        button.onPointerClickObservable.add(() => {
-            this.tableOfContentViewer.toggleView();
-        });
-        advancedTexture.addControl(button);
-        this.tableOfContentButton = button;
     }
 
 

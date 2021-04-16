@@ -54,7 +54,6 @@ export class FieldItem extends LinkToState {
     }
 
     private toggleShowContent() {
-        console.error("TODO debug mode, just creating");
         this.showContent = !this.showContent;
         if (!this.contentBackground) {
             this.createContent();
@@ -95,7 +94,7 @@ export class FieldItem extends LinkToState {
         this.navigationButtons.setCurrentIndex(0);
 
         const closeButton = this.createButton('X', backgroundPlane, 1, 1);
-        closeButton.position.x = FieldItem.containerSize / 1.5;
+        closeButton.position.x = FieldItem.containerSize / 1.4;
         closeButton.position.y = FieldItem.containerSize / 2;
         closeButton.onPointerClickObservable.add(e => {
             this.linkObject.isVisible = true;
