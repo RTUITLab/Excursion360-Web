@@ -56,7 +56,7 @@ export class Viewer {
 
         ViveController.MODEL_BASE_URL = "models/vive/";
         window.addEventListener('hashchange', () => {
-            this.goToImage(this.currentPicture.id, () => { }, true);
+            this.goToImage(this.currentPicture.id, () => { }, false);
         });
 
         const supportsVR = 'getVRDisplays' in navigator;
@@ -211,13 +211,14 @@ export class Viewer {
             groupLinks.push(linkToState);
         }
 
+
         for (const fieldItem of targetPicture.fieldItems) {
             const fieldItemInfo = new FieldItemInfo(
                 fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
-                fieldItem.images.map(i => this.configuration.sceneUrl + i ),
-                fieldItem.videos.map(v => this.configuration.sceneUrl + v ),
+                fieldItem.images.map(i => this.configuration.sceneUrl + i),
+                fieldItem.videos.map(v => this.configuration.sceneUrl + v),
                 fieldItem.text,
-                fieldItem.audios.map(a => this.configuration.sceneUrl + a ),
+                fieldItem.audios.map(a => this.configuration.sceneUrl + a),
                 distanceToLinks
             );
             const material = this.fieldItemMaterial;

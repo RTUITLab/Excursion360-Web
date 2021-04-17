@@ -62,9 +62,6 @@ export class ImagesContent {
             this.openPicture(this.currentImage - 1);
         });
 
-        console.log(images.length);
-
-
         this.imageButtons = new NavigationMenu(
             images.map((image, i) => i.toString()),
             contentWidth,
@@ -101,7 +98,6 @@ export class ImagesContent {
         index = index % this.resources.length;
         this.imageButtons.setCurrentIndex(index);
         for (let i = 0; i < this.resources.length; i++) {
-            console.log(i);
             const imageResource = this.resources[i];
             if (index == i) { // Target resource
                 if (!imageResource) { // Not loaded yet

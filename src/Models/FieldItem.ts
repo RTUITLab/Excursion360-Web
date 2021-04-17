@@ -8,14 +8,18 @@ import { StackPanel3D } from "babylonjs-gui";
 import { ImagesContent } from "./FieldItemContents/ImagesContent";
 import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
 import { NavigationMenu } from "./NavigationMenu";
+import { VideoContent } from "./FieldItemContents/VideoContent";
 
 export class FieldItem extends LinkToState {
 
     private static containerSize: number = 10;
 
+    private currentContentIndex: number = 0;
+
     private closeButton: CustomHolographicButton;
     private navigationButtons: NavigationMenu;
     private imageContent: ImagesContent;
+    private videoContent: VideoContent;
     private contentBackground: Mesh;
     private showContent: boolean = false;
     constructor(
@@ -40,6 +44,7 @@ export class FieldItem extends LinkToState {
                 vertexData.applyToMesh(customMesh);
                 return customMesh;
             });
+
         var longPosition = fieldItemInfo.vertex[0].add(fieldItemInfo.vertex[1]).scale(0.5);
         var correctPosition = longPosition.normalize().scale(fieldItemInfo.distance);
         this.guiMesh.position = correctPosition;
@@ -61,7 +66,11 @@ export class FieldItem extends LinkToState {
         this.contentBackground.isVisible = this.showContent;
         this.closeButton.isVisible = this.showContent;
         this.navigationButtons.setIsVisible(this.showContent);
-        this.imageContent.setIsVisible(this.showContent);
+        this.imageContent && this.imageContent.setIsVisible(this.showContent);
+        this.videoContent && this.videoContent.setIsVisible(this.showContent);
+        if (this.showContent) {
+            this.changeContent(this.currentContentIndex);
+        }
     }
     createContent() {
         const backgroundPlane = MeshBuilder.CreatePlane(`${this.name}_background_plane`, {
@@ -79,19 +88,7 @@ export class FieldItem extends LinkToState {
 
         backgroundPlane.material = this.material;
 
-        this.navigationButtons = new NavigationMenu(
-            ['Фотографии',
-            'Видео',
-            'Текст',
-            'Аудио'],
-            FieldItem.containerSize * 1.6,
-            FieldItem.containerSize / 2,
-            backgroundPlane,
-            this.gui3Dmanager,
-            () => ({width: 2, height: 1}),
-            async (i) => {}
-        );
-        this.navigationButtons.setCurrentIndex(0);
+
 
         const closeButton = this.createButton('X', backgroundPlane, 1, 1);
         closeButton.position.x = FieldItem.containerSize / 1.4;
@@ -102,14 +99,58 @@ export class FieldItem extends LinkToState {
         });
         this.closeButton = closeButton;
 
-        this.imageContent = new ImagesContent(this.fieldItemInfo.images,
-            backgroundPlane,
+        const navMenuItems = [];
+
+        if (this.fieldItemInfo.images && this.fieldItemInfo.images.length > 0) {
+            this.imageContent = new ImagesContent(this.fieldItemInfo.images,
+                backgroundPlane,
+                FieldItem.containerSize * 1.6,
+                FieldItem.containerSize,
+                this.gui3Dmanager,
+                this.assetsManager,
+                this.scene);
+            navMenuItems.push("Фотографии");
+        }
+        if (this.fieldItemInfo.videos && this.fieldItemInfo.videos.length > 0) {
+            this.videoContent = new VideoContent(this.fieldItemInfo.videos[0], // TODO: handle all videos
+                backgroundPlane,
+                FieldItem.containerSize * 1.6,
+                FieldItem.containerSize,
+                this.gui3Dmanager,
+                this.assetsManager,
+                this.scene);
+            navMenuItems.push("Видео");
+        }
+
+        this.navigationButtons = new NavigationMenu(
+            navMenuItems,
             FieldItem.containerSize * 1.6,
-            FieldItem.containerSize,
+            FieldItem.containerSize / 2,
+            backgroundPlane,
             this.gui3Dmanager,
-            this.assetsManager,
-            this.scene);
+            () => ({ width: 2, height: 1 }),
+            async (i) => { this.changeContent(i); }
+        );
+
         this.contentBackground = backgroundPlane;
+        this.changeContent(0);
+    }
+
+    private changeContent(contentIndex: number) {
+        this.navigationButtons.setCurrentIndex(contentIndex);
+
+        this.imageContent && this.imageContent.setIsVisible(false);
+        this.videoContent && this.videoContent.setIsVisible(false);
+        
+        switch (contentIndex) {
+            case 0:
+                this.imageContent.setIsVisible(true);
+                break;
+            case 1:
+                this.videoContent.setIsVisible(true);
+                break;
+            default: break;
+        }
     }
 
 
@@ -133,7 +174,6 @@ export class FieldItem extends LinkToState {
 
     protected openGuiMesh() {
         super.openGuiMesh();
-        console.log(this.material.alpha)
         this.material.alpha = 0.6;
     }
     protected hideGuiMesh() {
@@ -143,8 +183,12 @@ export class FieldItem extends LinkToState {
 
     public dispose() {
         super.dispose();
-        this.material.dispose();
-        this.imageContent.dispose();
-        this.navigationButtons.dispose();
+        if (this.contentBackground) {
+            this.contentBackground.dispose();
+            this.material.dispose();
+            this.imageContent && this.imageContent.dispose();
+            this.videoContent && this.videoContent.dispose();
+            this.navigationButtons.dispose();
+        }
     }
 }
