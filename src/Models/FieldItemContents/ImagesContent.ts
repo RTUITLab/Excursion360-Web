@@ -93,7 +93,7 @@ export class ImagesContent {
 
     private openPicture(index: number) {
         if (index < 0) {
-            index = this.resources.length - index;
+            index = this.resources.length + index;
         }
         index = index % this.resources.length;
         this.imageButtons.setCurrentIndex(index);

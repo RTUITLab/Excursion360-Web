@@ -128,7 +128,7 @@ export class FieldItem extends LinkToState {
         if (this.fieldItemInfo.text && this.fieldItemInfo.text.length > 0) {
             this.textContent = new TextContent(this.fieldItemInfo.text,
                 backgroundPlane,
-                FieldItem.containerSize * 1.3,
+                FieldItem.containerSize * 1,
                 FieldItem.containerSize * 0.8,
                 this.gui3Dmanager,
                 this.assetsManager,
