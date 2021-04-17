@@ -10,6 +10,7 @@ import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
 import { NavigationMenu } from "./NavigationMenu";
 import { VideoContent } from "./FieldItemContents/VideoContent";
 import { TextConten as TextContent } from "./FieldItemContents/TextContent";
+import { AudioContent } from "./FieldItemContents/AudioContent";
 
 export class FieldItem extends LinkToState {
 
@@ -22,6 +23,7 @@ export class FieldItem extends LinkToState {
     private imageContent: ImagesContent;
     private videoContent: VideoContent;
     private textContent: TextContent;
+    private audioContent: AudioContent;
     private contentBackground: Mesh;
     private showContent: boolean = false;
     constructor(
@@ -71,6 +73,7 @@ export class FieldItem extends LinkToState {
         this.imageContent && this.imageContent.setIsVisible(this.showContent);
         this.videoContent && this.videoContent.setIsVisible(this.showContent);
         this.textContent && this.textContent.setIsVisible(this.showContent);
+        this.audioContent && this.audioContent.setIsVisible(this.showContent);
         if (this.showContent) {
             this.changeContent(this.currentContentIndex);
         }
@@ -147,6 +150,13 @@ export class FieldItem extends LinkToState {
             async (i) => { this.changeContent(i); }
         );
 
+        if (this.fieldItemInfo.audios && this.fieldItemInfo.audios.length > 0) {
+            this.audioContent = new AudioContent(this.fieldItemInfo.audios[0], backgroundPlane,
+                FieldItem.containerSize * 1.6,
+                FieldItem.containerSize / 2,
+                this.gui3Dmanager, this.assetsManager, this.scene);
+
+        }
         this.contentBackground = backgroundPlane;
         this.changeContent(0);
     }
@@ -206,6 +216,7 @@ export class FieldItem extends LinkToState {
             this.imageContent && this.imageContent.dispose();
             this.videoContent && this.videoContent.dispose();
             this.textContent && this.textContent.dispose();
+            this.audioContent && this.audioContent.dispose();
             this.navigationButtons.dispose();
         }
     }

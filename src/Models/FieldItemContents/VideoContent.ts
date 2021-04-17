@@ -41,6 +41,7 @@ export class VideoContent {
         this.playPauseButton.isVisible = visible;
         if (!visible) {
             this.videoTexture.video.pause();
+            this.playPauseButtonText.text = this.playIcon;
         }
     }
 
