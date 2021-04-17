@@ -9,6 +9,7 @@ import { ImagesContent } from "./FieldItemContents/ImagesContent";
 import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
 import { NavigationMenu } from "./NavigationMenu";
 import { VideoContent } from "./FieldItemContents/VideoContent";
+import { TextConten as TextContent } from "./FieldItemContents/TextContent";
 
 export class FieldItem extends LinkToState {
 
@@ -20,6 +21,7 @@ export class FieldItem extends LinkToState {
     private navigationButtons: NavigationMenu;
     private imageContent: ImagesContent;
     private videoContent: VideoContent;
+    private textContent: TextContent;
     private contentBackground: Mesh;
     private showContent: boolean = false;
     constructor(
@@ -68,6 +70,7 @@ export class FieldItem extends LinkToState {
         this.navigationButtons.setIsVisible(this.showContent);
         this.imageContent && this.imageContent.setIsVisible(this.showContent);
         this.videoContent && this.videoContent.setIsVisible(this.showContent);
+        this.textContent && this.textContent.setIsVisible(this.showContent);
         if (this.showContent) {
             this.changeContent(this.currentContentIndex);
         }
@@ -122,6 +125,18 @@ export class FieldItem extends LinkToState {
             navMenuItems.push("Видео");
         }
 
+        if (this.fieldItemInfo.text && this.fieldItemInfo.text.length > 0) {
+            this.textContent = new TextContent(this.fieldItemInfo.text,
+                backgroundPlane,
+                FieldItem.containerSize * 1.3,
+                FieldItem.containerSize * 0.8,
+                this.gui3Dmanager,
+                this.assetsManager,
+                this.scene);
+            navMenuItems.push("Текст");
+        }
+
+
         this.navigationButtons = new NavigationMenu(
             navMenuItems,
             FieldItem.containerSize * 1.6,
@@ -141,7 +156,7 @@ export class FieldItem extends LinkToState {
 
         this.imageContent && this.imageContent.setIsVisible(false);
         this.videoContent && this.videoContent.setIsVisible(false);
-        
+        this.textContent && this.textContent.setIsVisible(false);
         switch (contentIndex) {
             case 0:
                 this.imageContent.setIsVisible(true);
@@ -149,6 +164,8 @@ export class FieldItem extends LinkToState {
             case 1:
                 this.videoContent.setIsVisible(true);
                 break;
+            case 2:
+                this.textContent.setIsVisible(true);
             default: break;
         }
     }
@@ -188,6 +205,7 @@ export class FieldItem extends LinkToState {
             this.material.dispose();
             this.imageContent && this.imageContent.dispose();
             this.videoContent && this.videoContent.dispose();
+            this.textContent && this.textContent.dispose();
             this.navigationButtons.dispose();
         }
     }
