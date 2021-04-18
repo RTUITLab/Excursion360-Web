@@ -30,8 +30,10 @@ export class ImagesContent {
         texture: Texture,
         task: TextureAssetTask
     }[] = [];
+    private isVisible: boolean;
 
     setIsVisible(visible: boolean) {
+        this.isVisible = visible;
         this.rightButton.isVisible = visible;
         this.leftButton.isVisible = visible;
         this.imageButtons.setIsVisible(visible);
@@ -125,7 +127,6 @@ export class ImagesContent {
     private loadPictureResources(index: number, url: string): TextureAssetTask {
         const task = this.assetsManager.addTextureTask("image task", url, null, true);
         this.assetsManager.load();
-
         task.onSuccess = t => {
             var textureSize = task.texture.getSize();
             var maxSize = Math.max(textureSize.width, textureSize.height);
@@ -146,7 +147,7 @@ export class ImagesContent {
             this.resources[index].texture = task.texture;
 
 
-            imagePlane.isVisible = true;
+            imagePlane.isVisible = this.isVisible;
 
             imagePlane.actionManager = new ActionManager(this.scene);
             imagePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {

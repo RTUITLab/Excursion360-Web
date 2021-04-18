@@ -28,6 +28,7 @@ export class VideoContent {
         private parent: TransformNode,
         private contentWidth: number,
         private contentHeight: number,
+        private onPlay: () => void,
         private gui3Dmanager: GUI3DManager,
         private assetsManager: AssetsManager,
         private scene: Scene) {
@@ -101,13 +102,21 @@ export class VideoContent {
         return button;
     }
 
+    public playVideo() {
+        this.onPlay();
+        this.videoTexture.video.play();
+        this.playPauseButtonText.text = this.pauseIcon;
+    }
+    public pauseVideo() {
+        this.videoTexture.video.pause();
+        this.playPauseButtonText.text = this.playIcon;
+    }
+
     private toggleVideoPlay() {
         if (this.videoTexture.video.paused) {
-            this.videoTexture.video.play();
-            this.playPauseButtonText.text = this.pauseIcon;
+            this.playVideo();
         } else {
-            this.videoTexture.video.pause();
-            this.playPauseButtonText.text = this.playIcon;
+            this.pauseVideo();
         }
     }
     public dispose() {

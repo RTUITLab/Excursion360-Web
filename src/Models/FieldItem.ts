@@ -65,6 +65,9 @@ export class FieldItem extends LinkToState {
     public setShowContent(showContent: boolean) {
         this.showContent = showContent;
         this.linkObject.isVisible = !this.showContent;
+        if (!showContent && !this.contentBackground) { // Not opened yet
+            return;
+        }
         if (!this.contentBackground) {
             this.createContent();
         }
@@ -122,6 +125,7 @@ export class FieldItem extends LinkToState {
                 backgroundPlane,
                 FieldItem.containerSize * 1.6,
                 FieldItem.containerSize,
+                () => this.audioContent && this.audioContent.pauseAudio(),
                 this.gui3Dmanager,
                 this.assetsManager,
                 this.scene);
@@ -154,6 +158,7 @@ export class FieldItem extends LinkToState {
             this.audioContent = new AudioContent(this.fieldItemInfo.audios[0], backgroundPlane,
                 FieldItem.containerSize * 1.6,
                 FieldItem.containerSize / 2,
+                () => this.videoContent && this.videoContent.pauseVideo(),
                 this.gui3Dmanager, this.assetsManager, this.scene);
 
         }

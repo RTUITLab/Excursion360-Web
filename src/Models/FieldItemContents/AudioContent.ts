@@ -33,6 +33,7 @@ export class AudioContent {
         private parent: TransformNode,
         private contentWidth: number,
         private contentHeight: number,
+        private onPlay: () => void,
         private gui3Dmanager: GUI3DManager,
         private assetsManager: AssetsManager,
         private scene: Scene) {
@@ -93,7 +94,7 @@ export class AudioContent {
         this.gui3Dmanager.addControl(button);
         button.linkToTransformNode(this.backgroundPlane);
         var buttonContent = new TextBlock();
-        buttonContent.text = this.playIcon;
+        buttonContent.text = "...";
         buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
         buttonContent.resizeToFit = true;
         buttonContent.color = "white";
@@ -102,7 +103,7 @@ export class AudioContent {
         button.content = buttonContent;
         button.contentScaleRatio = 1;
         button.isVisible = true;
-        button.position.y = -0.1 ;
+        button.position.y = -0.1;
         button.onPointerClickObservable.add(e => {
             this.toggleAudioPlay();
         })
@@ -110,26 +111,42 @@ export class AudioContent {
         this.playPauseButtonText = buttonContent;
     }
 
+    public playAudio() {
+        if (!this.audio) {
+            return;
+        }
+        this.onPlay();
+        this.audio.play();
+        this.playPauseButtonText.text = this.pauseIcon;
+    }
+
+    public pauseAudio() {
+        if (!this.audio) {
+            return;
+        }
+        this.audio.pause();
+        this.playPauseButtonText.text = this.playIcon;
+    }
+
     toggleAudioPlay() {
         if (!this.audio) {
             return;
         }
         if (this.audio.isPlaying) {
-            this.audio.pause();
-            this.playPauseButtonText.text = this.playIcon;
+            this.pauseAudio();
         } else {
-            this.audio.play();
-            this.playPauseButtonText.text = this.pauseIcon;
+            this.playAudio();
         }
     }
 
     createSound() {
         const audio = new Sound("audio_content", this.audioUrl, this.scene, () => {
             this.audio = audio;
+            this.playPauseButtonText.text = this.playIcon;
         }, {
             loop: false,
             autoplay: false
-          });
+        });
     }
     dispose() {
         this.playPauseButton.dispose();
