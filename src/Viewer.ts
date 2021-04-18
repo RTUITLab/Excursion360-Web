@@ -220,7 +220,7 @@ export class Viewer {
                 fieldItem.images.map(i => this.configuration.sceneUrl + i),
                 fieldItem.videos.map(v => this.configuration.sceneUrl + v),
                 fieldItem.text,
-                fieldItem.audios.map(a => this.configuration.sceneUrl + a),
+                fieldItem.audios.map(a => ({ ...a, src: this.configuration.sceneUrl + a.src })),
                 distanceToLinks
             );
             const material = this.fieldItemMaterial;
@@ -242,8 +242,6 @@ export class Viewer {
         }
         const task = this.assetsManager.addTextureTask("image task", url, null, false);
         var promise = new Promise<void>(async (resolve, error) => {
-            this.assetsManager.load();
-            await this.assetsManager.loadAsync();
             task.onSuccess = t => {
                 if (actionBeforeChange) {
                     actionBeforeChange();
@@ -253,6 +251,8 @@ export class Viewer {
                 this.currentImage.rotationQuaternion = pictureRotation;
                 resolve();
             };
+            this.assetsManager.load();
+            await this.assetsManager.loadAsync();
         })
         return promise;
     }

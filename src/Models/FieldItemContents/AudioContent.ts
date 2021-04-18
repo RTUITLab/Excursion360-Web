@@ -13,6 +13,8 @@ import { AdvancedDynamicTexture } from "babylonjs-gui";
 import { Vector3 } from "babylonjs";
 import { Space } from "babylonjs";
 import { Sound } from "babylonjs";
+import { FieldItemAudioContent } from "../ExcursionModels/FieldItemAudioContent";
+import { Engine } from "babylonjs";
 
 
 export class AudioContent {
@@ -22,14 +24,16 @@ export class AudioContent {
 
     private playPauseButton: CustomHolographicButton;
     private playPauseButtonText: TextBlock;
+    private currentPositionText: TextBlock;
+    private currentPositionTimer: any;
 
     private static backgroundMaterial: Material;
     private backgroundPlane: Mesh;
     private audio: Sound;
-    uiLayerPlane: Mesh;
+    private uiLayerPlane: Mesh;
 
     constructor(
-        private audioUrl: string,
+        private audioInfo: FieldItemAudioContent,
         private parent: TransformNode,
         private contentWidth: number,
         private contentHeight: number,
@@ -75,15 +79,24 @@ export class AudioContent {
         console.log(uiLayerPlane.parent);
 
         const texture = AdvancedDynamicTexture.CreateForMesh(backgroundPlane);
-        const headerBlock = new TextBlock();
 
+        const headerBlock = new TextBlock();
         headerBlock.text = "Аудио";
         headerBlock.color = "white";
         headerBlock.fontSize = "200";
         headerBlock.top = -400;
 
 
+        const currentPositionBlock = new TextBlock();
+        currentPositionBlock.text = this.getCurrentPositionText();
+        currentPositionBlock.color = "white";
+        currentPositionBlock.fontSize = "200";
+        currentPositionBlock.top = 400;
+
+
         texture.addControl(headerBlock);
+        texture.addControl(currentPositionBlock);
+        this.currentPositionText = currentPositionBlock;
 
         this.backgroundPlane = backgroundPlane;
         this.uiLayerPlane = uiLayerPlane;
@@ -103,7 +116,7 @@ export class AudioContent {
         button.content = buttonContent;
         button.contentScaleRatio = 1;
         button.isVisible = true;
-        button.position.y = -0.1;
+        // button.position.y = -0.1;
         button.onPointerClickObservable.add(e => {
             this.toggleAudioPlay();
         })
@@ -128,7 +141,7 @@ export class AudioContent {
         this.playPauseButtonText.text = this.playIcon;
     }
 
-    toggleAudioPlay() {
+    private toggleAudioPlay() {
         if (!this.audio) {
             return;
         }
@@ -139,20 +152,59 @@ export class AudioContent {
         }
     }
 
-    createSound() {
-        const audio = new Sound("audio_content", this.audioUrl, this.scene, () => {
+    private createSound() {
+        const audio = new Sound("audio_content", this.audioInfo.src, this.scene, () => {
             this.audio = audio;
             this.playPauseButtonText.text = this.playIcon;
+            this.currentPositionTimer = setInterval(() => this.currentPositionText.text = this.getCurrentPositionText(), 500);
         }, {
             loop: false,
             autoplay: false
         });
     }
+
+    private getCurrentPositionText(): string {
+        return `${this.durationView(this.getCurrentPosition())}/${this.durationView(this.audioInfo.duration)}`;
+    }
+
+    private durationView(time: number) {
+        const targetTime = Math.round(time);
+        let view = `${targetTime % 60}`;
+        let minutes = Math.floor(targetTime / 60);
+        view = `${minutes % 60}:${view}`;
+        if (!minutes) {
+            return view;
+        }
+        let hours = Math.floor(minutes / 60);
+        if (!hours) {
+            return view;
+        }
+        view = `${hours}:${view}`;
+    }
+
+    private getCurrentPosition(): number {
+
+        if (!this.audio) {
+            return 0;
+        }
+        console.log(this.audio['_htmlAudioElement']);
+
+        let currentTime: number = this.audio['_startOffset'];
+
+        if (this.audio.isPlaying && Engine.audioEngine?.audioContext) {
+            currentTime += Engine.audioEngine.audioContext.currentTime - this.audio['_startTime'];
+        }
+        return currentTime;
+    }
+
+
+
     dispose() {
         this.playPauseButton.dispose();
         this.uiLayerPlane.material.dispose();
         this.uiLayerPlane.dispose();
         this.backgroundPlane.dispose();
         this.audio && this.audio.dispose();
+        this.currentPositionTimer && clearInterval(this.currentPositionTimer);
     }
 }

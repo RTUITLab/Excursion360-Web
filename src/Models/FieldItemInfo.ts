@@ -1,4 +1,5 @@
 import { Vector3 } from "babylonjs"
+import { FieldItemAudioContent } from "./ExcursionModels/FieldItemAudioContent";
 
 export class FieldItemInfo {
     constructor(
@@ -6,7 +7,7 @@ export class FieldItemInfo {
         public images: string[],
         public videos: string[],
         public text: string,
-        public audios: string[],
+        public audios: FieldItemAudioContent[],
         public distance: number
     ) { }
 }
