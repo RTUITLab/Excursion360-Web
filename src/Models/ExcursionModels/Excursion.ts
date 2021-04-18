@@ -14,7 +14,7 @@ export interface Excursion {
      */
     states: State[];
     colorSchemes: any[];
-    tableOfContent: TableOfContentRow[];
+
     /**
      * Version of protocol
      */

@@ -3,6 +3,7 @@ import { Scene, Vector3, Material, AbstractMesh, Animation, StandardMaterial, As
 import { GroupLink } from "./GroupLink";
 import { GUI3DManager } from "babylonjs-gui";
 import { FieldItem } from "./FieldItem";
+import { FieldItemInfo } from "./FieldItemInfo";
 
 // TODO reuse link objects
 export class LinkToStatePool {
@@ -65,17 +66,16 @@ export class LinkToStatePool {
 
     public getFieldItem(
         name: string,
-        fieldItemInfo: {
-            vertex: Vector3[],
-            imageUrl: string,
-            distance: number
-        },
-        material: StandardMaterial): LinkToState {
+        fieldItemInfo: FieldItemInfo,
+        onOpen: (fi: FieldItem) => Promise<void>,
+        material: StandardMaterial): FieldItem {
         const link = new FieldItem(
             name,
             fieldItemInfo,
+            onOpen,
             material.clone(name),
             this.assetsManager,
+            this.guiManager,
             this.scene);
         this.links.push(link);
         return link;

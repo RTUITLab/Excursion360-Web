@@ -24,8 +24,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert("Too old protocol (without version), use new builder or old viewer");
             return;
         }
-        if (response.data.tourProtocolVersion != "v0.7") {
-            alert(`That viewer supports only tour v0.7, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
+        if (response.data.tourProtocolVersion != "v0.8") {
+            alert(`That viewer supports only tour v0.8, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
             return;
         }
         await viewer.show(response.data);

@@ -19,6 +19,9 @@ steps:
   inputs:
     command: 'ci'
 - task: Npm@1
+  env:
+    CONFIG_FILE_PATH: 'config.json'
+    NEED_DEBUG_LAYER: 'false'
   displayName: npm run build
   inputs:
     command: 'custom'

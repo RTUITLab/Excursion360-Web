@@ -1,5 +1,10 @@
+import { FieldItemAudioContent } from "./FieldItemAudioContent";
+
 export class FieldItem {
      title: string;
      vertices: any[];
-     imageUrl: string;
+     images: string[];
+     videos: string[];
+     text: string;
+     audios: FieldItemAudioContent[];
 }

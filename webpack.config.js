@@ -30,7 +30,8 @@ module.exports = function (env, argv) {
       ]
     },
     plugins: [new Dotenv({
-      path: "./.env.local"
+      path: "./.env.local",
+      systemvars: true
     })],
     devServer: {
       contentBase: path.join(__dirname, "build"),

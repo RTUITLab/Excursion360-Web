@@ -10,10 +10,11 @@ import { Configuration } from "./Configuration/Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
 import { LinkToStatePool } from "./Models/LinkToStatePool";
 import { BuildConfiguration } from "./Configuration/BuildConfiguration";
-import { TableOfContentViewer } from "./Models/TableOfContentViewer";
-import { StateChangeLoadingScreen } from "./StateChangeLoadingScreen";
 import { State } from "./Models/ExcursionModels/State";
 import { GroupLink } from "./Models/GroupLink";
+import { FieldItemInfo } from "./Models/FieldItemInfo";
+import { LinkToState } from "./Models/LinkToState";
+import { FieldItem } from "./Models/FieldItem";
 
 
 export class Viewer {
@@ -21,8 +22,6 @@ export class Viewer {
     private currentImage: PhotoDome = null;
     private scene: Scene;
     private viewScene: Excursion;
-    private tableOfContentViewer: TableOfContentViewer;
-    private tableOfContentButton: Button;
     private links: LinkToStatePool;
 
     private linkSphereMaterials: StandardMaterial[] = [];
@@ -45,7 +44,6 @@ export class Viewer {
         this.assetsManager = new AssetsManager(scene);
         const guiManager = new GUI3DManager(scene);
         this.links = new LinkToStatePool(this.assetsManager, guiManager, scene);
-        this.tableOfContentViewer = new TableOfContentViewer(guiManager, scene);
 
         var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
         glMaterial.diffuseColor = Color3.Blue();
@@ -60,7 +58,7 @@ export class Viewer {
 
         ViveController.MODEL_BASE_URL = "models/vive/";
         window.addEventListener('hashchange', () => {
-            this.goToImage(this.currentPicture.id, () => { }, true);
+            this.goToImage(this.currentPicture.id, () => { }, false);
         });
 
         const supportsVR = 'getVRDisplays' in navigator;
@@ -122,10 +120,6 @@ export class Viewer {
         window.addEventListener("resize", () => {
             engine.resize();
         });
-
-        
-
-        this.createNavigatorButton();
     }
 
     public async show(scene: Excursion) {
@@ -143,25 +137,13 @@ export class Viewer {
             this.linkSphereMaterials.push(newMaterial);
         }
 
-        if (scene.tableOfContent) {
-            var info = scene.tableOfContent.map(r => {
-                return {
-                    title: r.title,
-                    states: r.stateIds.map(sid => {
-                        return {
-                            title: this.getName(sid),
-                            id: sid
-                        }
-                    })
-                }
-            });
-
-            this.tableOfContentViewer.init(info, (id) => this.goToImage(id));
-            this.tableOfContentButton.isVisible = true;
-        } else {
-            this.tableOfContentButton.isVisible = false;
+        let targetId = this.viewScene.firstStateId;
+        const tryId = location.hash.substr(1);
+        if (this.viewScene.states.some((p) => p.id === tryId)) {
+            targetId = tryId;
         }
-        await this.goToImage(this.viewScene.firstStateId, null, true, true);
+
+        await this.goToImage(targetId, null, true);
     }
 
     public rotateCameraToQuaternion(rotation: any): void {
@@ -170,31 +152,9 @@ export class Viewer {
         targetCamera.setTarget(targetPosition);
     }
 
-    private createNavigatorButton() {
-        const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("Menu UI");
-        const button = Button.CreateSimpleButton("but", "Menu");
-        button.isVisible = false;
-        button.width = 0.09;
-        button.height = "40px";
-        button.color = "black";
-        button.background = "white";
-        button.top = "-45%";
-        button.left = "-45%";
-        button.onPointerClickObservable.add(() => {
-            this.tableOfContentViewer.toggleView();
-        });
-        advancedTexture.addControl(button);
-        this.tableOfContentButton = button;
-    }
 
+    private async goToImage(id: string, actionBeforeChange: () => void = null, forceReload = false) {
 
-    private async goToImage(id: string, actionBeforeChange: () => void = null, forceFromHash: boolean = false, forceReload = false) {
-        if (!forceReload && forceFromHash) {
-            var tryId = location.hash.substr(1);
-            if (this.viewScene.states.some((p) => p.id === tryId)) {
-                id = tryId;
-            }
-        }
         if (!forceReload && this.currentPicture && this.currentPicture.id == id) {
             return;
         }
@@ -253,18 +213,24 @@ export class Viewer {
             groupLinks.push(linkToState);
         }
 
+        const fieldItems: FieldItem[] = [];
         for (const fieldItem of targetPicture.fieldItems) {
-            const fieldItemInfo = {
-                vertex: fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
-                imageUrl: this.configuration.sceneUrl + fieldItem.imageUrl,
-                distance: distanceToLinks
-            }
-            const material = this.fieldItemMaterial
+            const fieldItemInfo = new FieldItemInfo(
+                fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
+                fieldItem.images.map(i => this.configuration.sceneUrl + i),
+                fieldItem.videos.map(v => this.configuration.sceneUrl + v),
+                fieldItem.text,
+                fieldItem.audios.map(a => ({ ...a, src: this.configuration.sceneUrl + a.src })),
+                distanceToLinks
+            );
+            const material = this.fieldItemMaterial;
 
-            const linkToState = this.links.getFieldItem(
+            const createdFieldItem = this.links.getFieldItem(
                 fieldItem.title,
                 fieldItemInfo,
+                async fi => fieldItems.filter(i => i !== fi).forEach(i => i.setShowContent(false)),
                 material);
+            fieldItems.push(createdFieldItem);
         }
     }
 
@@ -276,8 +242,6 @@ export class Viewer {
         }
         const task = this.assetsManager.addTextureTask("image task", url, null, false);
         var promise = new Promise<void>(async (resolve, error) => {
-            this.assetsManager.load();
-            await this.assetsManager.loadAsync();
             task.onSuccess = t => {
                 if (actionBeforeChange) {
                     actionBeforeChange();
@@ -287,6 +251,8 @@ export class Viewer {
                 this.currentImage.rotationQuaternion = pictureRotation;
                 resolve();
             };
+            this.assetsManager.load();
+            await this.assetsManager.loadAsync();
         })
         return promise;
     }
