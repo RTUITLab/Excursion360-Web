@@ -29,6 +29,7 @@ export class FieldItem extends LinkToState {
     constructor(
         name: string,
         private fieldItemInfo: FieldItemInfo,
+        private onOpen: (fi: FieldItem) => Promise<void>,
         private material: StandardMaterial,
         private assetsManager: AssetsManager,
         private gui3Dmanager: GUI3DManager,
@@ -37,7 +38,7 @@ export class FieldItem extends LinkToState {
             name,
             Vector3.Zero(),
             material,
-            () => this.onTrigger(),
+            async () => { await this.onTrigger(); await onOpen(this); },
             null,
             scene,
             (p) => {
@@ -58,12 +59,12 @@ export class FieldItem extends LinkToState {
 
     protected async onTrigger() {
         this.hideGuiMesh();
-        this.linkObject.isVisible = false;
-        this.toggleShowContent();
+        this.setShowContent(true);
     }
 
-    private toggleShowContent() {
-        this.showContent = !this.showContent;
+    public setShowContent(showContent: boolean) {
+        this.showContent = showContent;
+        this.linkObject.isVisible = !this.showContent;
         if (!this.contentBackground) {
             this.createContent();
         }
@@ -78,7 +79,7 @@ export class FieldItem extends LinkToState {
             this.changeContent(this.currentContentIndex);
         }
     }
-    createContent() {
+    private createContent() {
         const backgroundPlane = MeshBuilder.CreatePlane(`${this.name}_background_plane`, {
             width: FieldItem.containerSize * 1.6,
             height: FieldItem.containerSize * 1.2
@@ -100,8 +101,7 @@ export class FieldItem extends LinkToState {
         closeButton.position.x = FieldItem.containerSize / 1.4;
         closeButton.position.y = FieldItem.containerSize / 2;
         closeButton.onPointerClickObservable.add(e => {
-            this.linkObject.isVisible = true;
-            this.toggleShowContent();
+            this.setShowContent(false);
         });
         this.closeButton = closeButton;
 

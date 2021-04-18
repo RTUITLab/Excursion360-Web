@@ -67,10 +67,12 @@ export class LinkToStatePool {
     public getFieldItem(
         name: string,
         fieldItemInfo: FieldItemInfo,
-        material: StandardMaterial): LinkToState {
+        onOpen: (fi: FieldItem) => Promise<void>,
+        material: StandardMaterial): FieldItem {
         const link = new FieldItem(
             name,
             fieldItemInfo,
+            onOpen,
             material.clone(name),
             this.assetsManager,
             this.guiManager,

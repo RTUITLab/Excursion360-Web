@@ -13,6 +13,8 @@ import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 import { State } from "./Models/ExcursionModels/State";
 import { GroupLink } from "./Models/GroupLink";
 import { FieldItemInfo } from "./Models/FieldItemInfo";
+import { LinkToState } from "./Models/LinkToState";
+import { FieldItem } from "./Models/FieldItem";
 
 
 export class Viewer {
@@ -211,7 +213,7 @@ export class Viewer {
             groupLinks.push(linkToState);
         }
 
-
+        const fieldItems: FieldItem[] = [];
         for (const fieldItem of targetPicture.fieldItems) {
             const fieldItemInfo = new FieldItemInfo(
                 fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
@@ -223,10 +225,12 @@ export class Viewer {
             );
             const material = this.fieldItemMaterial;
 
-            const linkToState = this.links.getFieldItem(
+            const createdFieldItem = this.links.getFieldItem(
                 fieldItem.title,
                 fieldItemInfo,
+                async fi => fieldItems.filter(i => i !== fi).forEach(i => i.setShowContent(false)),
                 material);
+            fieldItems.push(createdFieldItem);
         }
     }
 
