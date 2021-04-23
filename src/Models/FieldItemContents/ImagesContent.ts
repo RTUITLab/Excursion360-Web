@@ -130,7 +130,15 @@ export class ImagesContent {
         task.onSuccess = t => {
             var textureSize = task.texture.getSize();
             var maxSize = Math.max(textureSize.width, textureSize.height);
-            var multipler = 10 / maxSize;
+            var localContentWith = this.contentWidth / 1.5;
+            var localContentHeight = this.contentHeight / 1.3;
+
+            let multipler: number = 1;
+            if (textureSize.width > textureSize.height) { // horizontal
+                multipler = localContentWith / textureSize.width;
+            } else {
+                multipler = localContentHeight / textureSize.height;
+            }
             const imagePlane = MeshBuilder.CreatePlane(`image_content_image_${url}`, {
                 width: textureSize.width * multipler,
                 height: textureSize.height * multipler
