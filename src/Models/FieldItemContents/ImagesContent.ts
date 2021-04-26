@@ -16,8 +16,13 @@ import { TextureAssetTask } from "babylonjs/Misc/assetsManager";
 import { Mesh } from "babylonjs";
 import { Vector3 } from "babylonjs";
 import { NavigationMenu } from "../NavigationMenu";
+import { FieldItemContent } from "./FieldItemContent";
 
-export class ImagesContent {
+export class ImagesContent implements FieldItemContent {
+
+    get type(): string {
+        return "image";
+    }
 
     private rightButton: CustomHolographicButton;
     private leftButton: CustomHolographicButton;

@@ -9,8 +9,9 @@ import { ImagesContent } from "./FieldItemContents/ImagesContent";
 import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
 import { NavigationMenu } from "./NavigationMenu";
 import { VideoContent } from "./FieldItemContents/VideoContent";
-import { TextConten as TextContent } from "./FieldItemContents/TextContent";
+import { TextContent as TextContent } from "./FieldItemContents/TextContent";
 import { AudioContent } from "./FieldItemContents/AudioContent";
+import { FieldItemContent } from "./FieldItemContents/FieldItemContent";
 
 export class FieldItem extends LinkToState {
 
@@ -20,10 +21,16 @@ export class FieldItem extends LinkToState {
 
     private closeButton: CustomHolographicButton;
     private navigationButtons: NavigationMenu;
-    private imageContent: ImagesContent;
-    private videoContent: VideoContent;
-    private textContent: TextContent;
-    private audioContent: AudioContent;
+
+    private contentList: FieldItemContent[] = [];
+    private get audioContent(): AudioContent {
+        return this.contentList.find(i => i.type == AudioContent.CONTENT_TYPE) as AudioContent;
+    }
+
+    private get videoContent(): VideoContent {
+        return this.contentList.find(i => i.type == VideoContent.CONTENT_TYPE) as VideoContent;
+    }
+
     private contentBackground: Mesh;
     private showContent: boolean = false;
     constructor(
@@ -74,10 +81,11 @@ export class FieldItem extends LinkToState {
         this.contentBackground.isVisible = this.showContent;
         this.closeButton.isVisible = this.showContent;
         this.navigationButtons.setIsVisible(this.showContent);
-        this.imageContent && this.imageContent.setIsVisible(this.showContent);
-        this.videoContent && this.videoContent.setIsVisible(this.showContent);
-        this.textContent && this.textContent.setIsVisible(this.showContent);
-        this.audioContent && this.audioContent.setIsVisible(this.showContent);
+
+        for (const content of this.contentList) {
+            content.setIsVisible(this.showContent);
+        }
+
         if (this.showContent) {
             this.changeContent(this.currentContentIndex);
         }
@@ -111,17 +119,18 @@ export class FieldItem extends LinkToState {
         const navMenuItems = [];
 
         if (this.fieldItemInfo.images && this.fieldItemInfo.images.length > 0) {
-            this.imageContent = new ImagesContent(this.fieldItemInfo.images,
+            const imageContent = new ImagesContent(this.fieldItemInfo.images,
                 backgroundPlane,
                 FieldItem.containerSize * 1.6,
                 FieldItem.containerSize,
                 this.gui3Dmanager,
                 this.assetsManager,
                 this.scene);
+            this.contentList.push(imageContent);
             navMenuItems.push("Фотографии");
         }
         if (this.fieldItemInfo.videos && this.fieldItemInfo.videos.length > 0) {
-            this.videoContent = new VideoContent(this.fieldItemInfo.videos[0], // TODO: handle all videos
+            const videoContent = new VideoContent(this.fieldItemInfo.videos[0], // TODO: handle all videos
                 backgroundPlane,
                 FieldItem.containerSize * 1.6,
                 FieldItem.containerSize,
@@ -129,17 +138,19 @@ export class FieldItem extends LinkToState {
                 this.gui3Dmanager,
                 this.assetsManager,
                 this.scene);
+            this.contentList.push(videoContent);
             navMenuItems.push("Видео");
         }
 
         if (this.fieldItemInfo.text && this.fieldItemInfo.text.length > 0) {
-            this.textContent = new TextContent(this.fieldItemInfo.text,
+            const textContent = new TextContent(this.fieldItemInfo.text,
                 backgroundPlane,
                 FieldItem.containerSize * 1,
                 FieldItem.containerSize * 0.8,
                 this.gui3Dmanager,
                 this.assetsManager,
                 this.scene);
+            this.contentList.push(textContent);
             navMenuItems.push("Текст");
         }
 
@@ -155,12 +166,12 @@ export class FieldItem extends LinkToState {
         );
 
         if (this.fieldItemInfo.audios && this.fieldItemInfo.audios.length > 0) {
-            this.audioContent = new AudioContent(this.fieldItemInfo.audios[0], backgroundPlane,
+            const audioContent = new AudioContent(this.fieldItemInfo.audios[0], backgroundPlane,
                 FieldItem.containerSize * 1.6,
                 FieldItem.containerSize / 2,
                 () => this.videoContent && this.videoContent.pauseVideo(),
                 this.gui3Dmanager, this.assetsManager, this.scene);
-
+            this.contentList.push(audioContent);
         }
         this.contentBackground = backgroundPlane;
         this.changeContent(0);
@@ -169,19 +180,11 @@ export class FieldItem extends LinkToState {
     private changeContent(contentIndex: number) {
         this.navigationButtons.setCurrentIndex(contentIndex);
 
-        this.imageContent && this.imageContent.setIsVisible(false);
-        this.videoContent && this.videoContent.setIsVisible(false);
-        this.textContent && this.textContent.setIsVisible(false);
-        switch (contentIndex) {
-            case 0:
-                this.imageContent.setIsVisible(true);
-                break;
-            case 1:
-                this.videoContent.setIsVisible(true);
-                break;
-            case 2:
-                this.textContent.setIsVisible(true);
-            default: break;
+        const withoutAudio =this.contentList.filter(c => c.type !== AudioContent.CONTENT_TYPE); 
+
+        for (let i = 0; i < withoutAudio.length; i++) {
+            const content = withoutAudio[i];
+            content.setIsVisible(i === contentIndex);
         }
     }
 
@@ -218,10 +221,9 @@ export class FieldItem extends LinkToState {
         if (this.contentBackground) {
             this.contentBackground.dispose();
             this.material.dispose();
-            this.imageContent && this.imageContent.dispose();
-            this.videoContent && this.videoContent.dispose();
-            this.textContent && this.textContent.dispose();
-            this.audioContent && this.audioContent.dispose();
+            for (const content of this.contentList) {
+                content.dispose();
+            }
             this.navigationButtons.dispose();
         }
     }

@@ -13,8 +13,15 @@ import { ScrollViewer } from "babylonjs-gui";
 import { PointerEventTypes } from "babylonjs";
 import { PointerInfo } from "babylonjs/Events/pointerEvents";
 import { rgbdDecodePixelShader } from "babylonjs/Shaders/rgbdDecode.fragment";
+import { FieldItemContent } from "./FieldItemContent";
 
-export class TextConten {
+export class TextContent implements FieldItemContent {
+    static readonly CONTENT_TYPE: string = "text";
+
+    get type(): string {
+        return TextContent.CONTENT_TYPE;
+    }
+
     private textPlane: Mesh;
     private textTexture: AdvancedDynamicTexture;
 

@@ -9,8 +9,15 @@ import { ActionManager } from "babylonjs";
 import { ExecuteCodeAction } from "babylonjs";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
 import { TextBlock } from "babylonjs-gui";
+import { FieldItemContent } from "./FieldItemContent";
 
-export class VideoContent {
+export class VideoContent implements FieldItemContent {
+    static readonly CONTENT_TYPE: string = "video";
+
+    get type(): string {
+        return VideoContent.CONTENT_TYPE;
+    }
+
 
     private playIcon = '\u25B6';
     private pauseIcon = 'II';

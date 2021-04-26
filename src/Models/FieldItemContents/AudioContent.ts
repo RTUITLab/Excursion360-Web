@@ -15,9 +15,15 @@ import { Space } from "babylonjs";
 import { Sound } from "babylonjs";
 import { FieldItemAudioContent } from "../ExcursionModels/FieldItemAudioContent";
 import { Engine } from "babylonjs";
+import { FieldItemContent } from "./FieldItemContent";
 
 
-export class AudioContent {
+export class AudioContent implements FieldItemContent {
+    static readonly CONTENT_TYPE: string = "audio";
+
+    get type(): string {
+        return AudioContent.CONTENT_TYPE;
+    }
 
     private playIcon = '\u25B6';
     private pauseIcon = 'II';
@@ -76,7 +82,6 @@ export class AudioContent {
         backgroundPlane.material = AudioContent.backgroundMaterial;
         const uiLayerPlane = backgroundPlane.clone();
         uiLayerPlane.position.z = backgroundPlane.position.z + 0.01;
-        console.log(uiLayerPlane.parent);
 
         const texture = AdvancedDynamicTexture.CreateForMesh(backgroundPlane);
 
@@ -187,7 +192,6 @@ export class AudioContent {
         if (!this.audio) {
             return 0;
         }
-        console.log(this.audio['_htmlAudioElement']);
 
         let currentTime: number = this.audio['_startOffset'];
 
