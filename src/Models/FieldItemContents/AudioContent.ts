@@ -205,7 +205,6 @@ export class AudioContent implements FieldItemContent {
 
     dispose() {
         this.playPauseButton.dispose();
-        this.uiLayerPlane.material.dispose();
         this.uiLayerPlane.dispose();
         this.backgroundPlane.dispose();
         this.audio && this.audio.dispose();
