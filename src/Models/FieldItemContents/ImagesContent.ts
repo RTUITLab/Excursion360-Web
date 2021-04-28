@@ -39,9 +39,9 @@ export class ImagesContent implements FieldItemContent {
 
     setIsVisible(visible: boolean) {
         this.isVisible = visible;
-        this.rightButton.isVisible = visible;
-        this.leftButton.isVisible = visible;
-        this.imageButtons.setIsVisible(visible);
+        this.rightButton && (this.rightButton.isVisible = visible);
+        this.leftButton && (this.leftButton.isVisible = visible);
+        this.imageButtons && this.imageButtons.setIsVisible(visible);
         for (const resource of this.resources) {
             if (resource && resource.plane) {
                 resource.plane.isVisible = visible;
@@ -60,23 +60,26 @@ export class ImagesContent implements FieldItemContent {
         private gui3Dmanager: GUI3DManager,
         private assetsManager: AssetsManager,
         private scene: Scene) {
-        this.rightButton = this.createButton(">", contentWidth / 2.5);
-        this.rightButton.onPointerClickObservable.add(ed => {
-            this.openPicture(this.currentImage + 1);
-        });
-        this.leftButton = this.createButton("<", -contentWidth / 2.5);
-        this.leftButton.onPointerClickObservable.add(ed => {
-            this.openPicture(this.currentImage - 1);
-        });
+        if (images.length > 1) {
 
-        this.imageButtons = new NavigationMenu(
-            images.map((image, i) => i.toString()),
-            contentWidth,
-            - contentHeight / 2,
-            parent,
-            gui3Dmanager,
-            (i) => ({ width: 1, height: 1 }),
-            async (i) => { this.openPicture(i); });
+            this.rightButton = this.createButton(">", contentWidth / 2.5);
+            this.rightButton.onPointerClickObservable.add(ed => {
+                this.openPicture(this.currentImage + 1);
+            });
+            this.leftButton = this.createButton("<", -contentWidth / 2.5);
+            this.leftButton.onPointerClickObservable.add(ed => {
+                this.openPicture(this.currentImage - 1);
+            });
+
+            this.imageButtons = new NavigationMenu(
+                images.map((image, i) => i.toString()),
+                contentWidth,
+                - contentHeight / 2,
+                parent,
+                gui3Dmanager,
+                (i) => ({ width: 1, height: 1 }),
+                async (i) => { this.openPicture(i); });
+        }
         this.resources = images.map(i => null);
         this.openPicture(this.currentImage);
     }
@@ -103,7 +106,7 @@ export class ImagesContent implements FieldItemContent {
             index = this.resources.length + index;
         }
         index = index % this.resources.length;
-        this.imageButtons.setCurrentIndex(index);
+        this.imageButtons && this.imageButtons.setCurrentIndex(index);
         for (let i = 0; i < this.resources.length; i++) {
             const imageResource = this.resources[i];
             if (index == i) { // Target resource
@@ -161,17 +164,21 @@ export class ImagesContent implements FieldItemContent {
 
 
             imagePlane.isVisible = this.isVisible;
+            if (this.images.length > 1) {
 
-            imagePlane.actionManager = new ActionManager(this.scene);
-            imagePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
-                this.openPicture(this.currentImage + 1);
-            }));
+                imagePlane.actionManager = new ActionManager(this.scene);
+                imagePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
+                    this.openPicture(this.currentImage + 1);
+                }));
+            }
         };
         return task;
     }
 
     public dispose(): void {
-        this.imageButtons.dispose();
+        this.imageButtons && this.imageButtons.dispose();
+        this.rightButton && this.rightButton.dispose();
+        this.leftButton && this.leftButton.dispose();
         for (const resource of this.resources) {
             if (!resource) {
                 continue;
