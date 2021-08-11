@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera, TargetCamera, Angle, Logger } from "babylonjs";
+import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera, TargetCamera, Angle, Logger, DynamicTexture } from "babylonjs";
 import { AbstractMesh, PhotoDome, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
 import { Camera, Color3, MeshBuilder, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
 import { WebVRController, PickingInfo } from "babylonjs";
@@ -15,12 +15,16 @@ import { GroupLink } from "./Models/GroupLink";
 import { FieldItemInfo } from "./Models/FieldItemInfo";
 import { LinkToState } from "./Models/LinkToState";
 import { FieldItem } from "./Models/FieldItem";
+import axios from "axios";
+import { CroppedImage } from "./Models/ExcursionModels/CroppedImage";
+import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 
 
 export class Viewer {
 
-    private currentImage: PhotoDome = null;
+    private currentImage: DynamicPhotoDome = null;
     private scene: Scene;
+    private canvas: HTMLCanvasElement;
     private viewScene: Excursion;
     private links: LinkToStatePool;
 
@@ -38,6 +42,7 @@ export class Viewer {
 
     public createScene() {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
+        this.canvas = canvas;
         const engine = new Engine(canvas, true);
         const scene = new Scene(engine);
         this.scene = scene;
@@ -92,7 +97,9 @@ export class Viewer {
 
         if (BuildConfiguration.NeedDebugLayer) {
             console.log("deep debug");
-
+            if (sessionStorage.getItem("show_debug_layer")) {
+                scene.debugLayer.show();
+            }
             scene.actionManager.registerAction(
                 new ExecuteCodeAction(
                     {
@@ -102,8 +109,10 @@ export class Viewer {
                     () => {
                         if (scene.debugLayer.isVisible()) {
                             scene.debugLayer.hide();
+                            sessionStorage.removeItem("show_debug_layer");
                         } else {
                             scene.debugLayer.show();
+                            sessionStorage.setItem("show_debug_layer", "yes");
                         }
                     }
                 )
@@ -119,6 +128,7 @@ export class Viewer {
         });
         window.addEventListener("resize", () => {
             engine.resize();
+            this.currentImage.setCanvasSize(canvas.width, canvas.height);
         });
     }
 
@@ -162,7 +172,7 @@ export class Viewer {
         const targetPicture = this.viewScene.states.find((p) => p.id === id);
         this.currentPicture = targetPicture;
         this.cleanLinks();
-        await this.drawImage(this.configuration.sceneUrl + targetPicture.url, targetPicture.pictureRotation, actionBeforeChange);
+        await this.drawImage(targetPicture, actionBeforeChange);
         document.title = targetPicture.title;
         const distanceToLinks = 10;
         for (const link of targetPicture.links) {
@@ -235,26 +245,56 @@ export class Viewer {
     }
 
 
-    private drawImage(url: string, pictureRotation: any, actionBeforeChange: () => void = null): Promise<void> {
-
+    private async drawImage(targetPicture: State, actionBeforeChange: () => void = null): Promise<void> {
         if (this.currentImage === null) {
-            this.currentImage = new PhotoDome("background", null, { resolution: 32, size: this.backgroundRadius * 2 }, this.scene);
+            this.currentImage = new DynamicPhotoDome(this.backgroundRadius * 2, this.scene);
+            this.currentImage.setCanvasSize(this.canvas.width, this.canvas.height);
+            this.scene.onAfterRenderObservable.add((scene, event) => this.currentImage.trackImageParts(scene))
         }
-        const task = this.assetsManager.addTextureTask("image task", url, null, false);
+
+        let imageUrl: string;
+        let postAction: (image: HTMLImageElement) => void;;
+        if (targetPicture.croppedImageUrl) {
+            const imageRoot = this.configuration.sceneUrl + targetPicture.croppedImageUrl;
+
+            const metaInfoLocation = imageRoot + "/meta.json";
+            const meta = (await axios.get<CroppedImage>(metaInfoLocation)).data;
+
+            imageUrl = imageRoot + "/" + meta.lowQualityImage.route;
+
+            postAction = (image) => {
+                this.currentImage.setByImage(image, meta);
+                this.currentImage.setImageParts(imageRoot, meta.rectangles);
+            }
+
+        } else if (targetPicture.url) {
+            imageUrl = this.configuration.sceneUrl + targetPicture.url;
+            postAction = (image) => {
+                this.currentImage.setByImage(image);
+            }
+        } else {
+            throw new Error("Incorrect state image url! Specify url or croppedImageUrl");
+        }
+
+        const task = this.assetsManager.addImageTask("image task", imageUrl);
         var promise = new Promise<void>(async (resolve, error) => {
             task.onSuccess = t => {
                 if (actionBeforeChange) {
                     actionBeforeChange();
                 }
-                this.currentImage.photoTexture.dispose();
-                this.currentImage.photoTexture = t.texture;
-                this.currentImage.rotationQuaternion = pictureRotation;
+                this.currentImage.setRotation(targetPicture.pictureRotation);
+                this.currentImage.setByImage(t.image);
+                postAction(t.image);
                 resolve();
             };
+            task.onError = (task, message, exception) => {
+                error({ message, exception });
+            }
+            // TODO: assets manager loading
             this.assetsManager.load();
             await this.assetsManager.loadAsync();
         })
-        return promise;
+        await promise;
     }
 
     private cleanLinks() {

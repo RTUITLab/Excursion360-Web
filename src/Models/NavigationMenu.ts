@@ -26,7 +26,7 @@ export class NavigationMenu {
         }
         ObjectsStackPanelHelper.placeAsHorizontalStack(this.buttons, menuWitdh);
     }
-    
+
     public setCurrentIndex(index: number) {
         if (index < 0) {
             index = this.buttons.length - index;
@@ -66,7 +66,7 @@ export class NavigationMenu {
         button.onPointerClickObservable.add(ev => {
             this.setCurrentIndex(index);
             this.selectionChanged(index);
-        } );
+        });
         return button;
     }
 

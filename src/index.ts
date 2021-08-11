@@ -4,6 +4,8 @@ import axios from "axios";
 import { Excursion } from "./Models/ExcursionModels/Excursion";
 import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 
+const supportedTourVersion = "v0.9";
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     const configuration = await axios.get<Configuration>(BuildConfiguration.ConfigFilePath || "config.json");
@@ -24,8 +26,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             alert("Too old protocol (without version), use new builder or old viewer");
             return;
         }
-        if (response.data.tourProtocolVersion != "v0.8") {
-            alert(`That viewer supports only tour v0.8, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
+        if (response.data.tourProtocolVersion != supportedTourVersion) {
+            alert(`That viewer supports only tour ${supportedTourVersion}, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
             return;
         }
         await viewer.show(response.data);
