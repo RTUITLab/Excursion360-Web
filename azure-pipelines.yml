@@ -9,6 +9,9 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  isPreview: $[contains(variables['Build.SourceBranch'], 'preview')]
+
 steps:
 - task: NodeTool@0
   inputs:
@@ -48,5 +51,6 @@ steps:
     tagSource: 'gitTag'
     releaseNotesFilePath: 'ReleaseNotes.md'
     isDraft: false
+    isPreRelease: $(isPreview)
     changeLogCompareToRelease: 'lastFullRelease'
     changeLogType: 'commitBased'
