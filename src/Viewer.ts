@@ -173,7 +173,7 @@ export class Viewer {
         this.currentPicture = targetPicture;
         this.cleanLinks();
         await this.drawImage(targetPicture, actionBeforeChange);
-        document.title = targetPicture.title;
+        document.title = targetPicture.title || this.viewScene.title;
         const distanceToLinks = 10;
         for (const link of targetPicture.links) {
             const name = this.getName(link.id);

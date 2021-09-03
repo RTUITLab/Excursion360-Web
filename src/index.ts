@@ -22,15 +22,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.warn("Can't get scene description");
             return;
         }
-        if (!response.data.tourProtocolVersion) {
+        const excursion = response.data;
+        if (!excursion.tourProtocolVersion) {
             alert("Too old protocol (without version), use new builder or old viewer");
             return;
         }
-        if (response.data.tourProtocolVersion != supportedTourVersion) {
+        if (excursion.tourProtocolVersion != supportedTourVersion) {
             alert(`That viewer supports only tour ${supportedTourVersion}, please use another viewer or builder (now try ${response.data.tourProtocolVersion})`);
             return;
         }
-        await viewer.show(response.data);
+        console.table({
+            title: excursion.title,
+            id: excursion.id,
+            buildTime: new Date(excursion.buildTime),
+            versionNum: excursion.versionNum,
+            protocolVersion: excursion.tourProtocolVersion
+        });
+        await viewer.show(excursion);
     } catch (error) {
         console.error(error);
         alert(`Can't load excursion from ${configuration.data.sceneUrl}`);
