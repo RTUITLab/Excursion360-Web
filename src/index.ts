@@ -8,6 +8,7 @@ const supportedTourVersion = "v0.9";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+    console.log(`excursion viewer ${supportedTourVersion}`);
     const configuration = await axios.get<Configuration>(BuildConfiguration.ConfigFilePath || "config.json");
     if (configuration.status !== 200) {
         console.warn("Can't get configuration");
