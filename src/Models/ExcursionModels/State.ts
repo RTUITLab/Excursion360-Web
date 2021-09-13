@@ -11,8 +11,10 @@ export interface State {
     id: string;
     /** Title, show it on links and page title */
     title: string;
-    /** URL of resource */
+    /** URL of full state image */
     url: string;
+    /** URL of cropped image location */
+    croppedImageUrl: string;
     /** Type of state */
     type: StateType;
     /** Picture Quaternion rotation */

@@ -6,6 +6,22 @@ import { TableOfContentRow } from "./TableOfContentRow";
  */
 export interface Excursion {
     /**
+     * Unique id of excursion
+     */
+    id: string;
+    /**
+     * Excursion title
+     */
+    title: string;
+    /**
+     * Excursion creation time in UTC format
+     */
+    buildTime: string;
+    /**
+     * Excursion build version number
+     */
+    versionNum: number;
+    /**
      * Id of first state to show
      */
     firstStateId: string;
