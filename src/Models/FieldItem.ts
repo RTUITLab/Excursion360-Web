@@ -80,7 +80,7 @@ export class FieldItem extends LinkToState {
         }
         this.contentBackground.isVisible = this.showContent;
         this.closeButton.isVisible = this.showContent;
-        this.navigationButtons.setIsVisible(this.showContent);
+        this.navigationButtons && this.navigationButtons.setIsVisible(this.showContent);
 
         for (const content of this.contentList) {
             content.setIsVisible(this.showContent);
@@ -95,6 +95,7 @@ export class FieldItem extends LinkToState {
             width: FieldItem.containerSize * 1.6,
             height: FieldItem.containerSize * 1.2
         }, this.scene);
+        backgroundPlane.actionManager = new ActionManager(this.scene);
         backgroundPlane.parent = this.center;
         const centerPosition = this.fieldItemInfo
             .vertex
@@ -154,16 +155,17 @@ export class FieldItem extends LinkToState {
             navMenuItems.push("Текст");
         }
 
-
-        this.navigationButtons = new NavigationMenu(
-            navMenuItems,
-            FieldItem.containerSize * 1.6,
-            FieldItem.containerSize / 2,
-            backgroundPlane,
-            this.gui3Dmanager,
-            () => ({ width: 2, height: 1 }),
-            async (i) => { this.changeContent(i); }
-        );
+        if (navMenuItems.length > 1) {
+            this.navigationButtons = new NavigationMenu(
+                navMenuItems,
+                FieldItem.containerSize * 1.6,
+                FieldItem.containerSize / 2,
+                backgroundPlane,
+                this.gui3Dmanager,
+                () => ({ width: 2, height: 1 }),
+                async (i) => { this.changeContent(i); }
+            );
+        }
 
         if (this.fieldItemInfo.audios && this.fieldItemInfo.audios.length > 0) {
             const audioContent = new AudioContent(this.fieldItemInfo.audios[0], backgroundPlane,
@@ -178,9 +180,7 @@ export class FieldItem extends LinkToState {
     }
 
     private changeContent(contentIndex: number) {
-        this.navigationButtons.setCurrentIndex(contentIndex);
-
-        const withoutAudio =this.contentList.filter(c => c.type !== AudioContent.CONTENT_TYPE); 
+        const withoutAudio = this.contentList.filter(c => c.type !== AudioContent.CONTENT_TYPE);
 
         for (let i = 0; i < withoutAudio.length; i++) {
             const content = withoutAudio[i];
@@ -224,6 +224,11 @@ export class FieldItem extends LinkToState {
             for (const content of this.contentList) {
                 content.dispose();
             }
+        }
+        if (this.closeButton) {
+            this.closeButton.dispose();
+        }
+        if (this.navigationButtons) {
             this.navigationButtons.dispose();
         }
     }

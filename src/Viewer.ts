@@ -1,11 +1,9 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Quaternion, SwitchBooleanAction, Action, DirectionalLight, FreeCamera, TargetCamera, Angle, Logger, DynamicTexture } from "babylonjs";
-import { AbstractMesh, PhotoDome, Mesh, ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
-import { Camera, Color3, MeshBuilder, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
-import { WebVRController, PickingInfo } from "babylonjs";
+import { Engine, Scene, FreeCamera, TargetCamera, Angle } from "babylonjs";
+import { ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
+import { Color3, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
 
 import { Excursion } from "./Models/ExcursionModels/Excursion";
-import * as GUI from "babylonjs-gui";
-import { AdvancedDynamicTexture, Button, GUI3DManager } from "babylonjs-gui";
+import { GUI3DManager } from "babylonjs-gui";
 import { Configuration } from "./Configuration/Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
 import { LinkToStatePool } from "./Models/LinkToStatePool";
@@ -13,7 +11,6 @@ import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 import { State } from "./Models/ExcursionModels/State";
 import { GroupLink } from "./Models/GroupLink";
 import { FieldItemInfo } from "./Models/FieldItemInfo";
-import { LinkToState } from "./Models/LinkToState";
 import { FieldItem } from "./Models/FieldItem";
 import axios from "axios";
 import { CroppedImage } from "./Models/ExcursionModels/CroppedImage";
@@ -84,11 +81,6 @@ export class Viewer {
                 camera.dispose();
             });
         }
-
-        scene.registerBeforeRender(() => {
-            // scene.activeCamera.position = Vector3.Zero();
-        });
-
 
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
         engine.loadingUIBackgroundColor = "transparent";
@@ -253,7 +245,7 @@ export class Viewer {
         }
 
         let imageUrl: string;
-        let postAction: (image: HTMLImageElement) => void;;
+        let postAction: (image: HTMLImageElement) => void;
         if (targetPicture.croppedImageUrl) {
             const imageRoot = this.configuration.sceneUrl + targetPicture.croppedImageUrl;
 
