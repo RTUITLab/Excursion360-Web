@@ -77,6 +77,9 @@ export default class DynamicPhotoDome {
   }
 
   findPart(pickInfo: PickingInfo): CroppedImagePart {
+    if (!pickInfo.hit) {
+      return null;
+    }
     const textureSize = this.texture.getSize();
     const { x, y } = pickInfo.getTextureCoordinates().multiplyByFloats(textureSize.width, textureSize.height);
     const target = this.imagePartsToLoad.find(r => x >= r.x && y >= r.y && x <= r.x + r.width && y <= r.y + r.height);

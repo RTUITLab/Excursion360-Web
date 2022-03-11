@@ -226,7 +226,7 @@ export class Viewer {
         const fieldItems: FieldItem[] = [];
         for (const fieldItem of targetPicture.fieldItems) {
             const fieldItemInfo = new FieldItemInfo(
-                fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius)),
+                fieldItem.vertices.map(q => MathStuff.GetPositionForMarker(q, this.backgroundRadius * 0.99)),
                 fieldItem.images.map(i => this.configuration.sceneUrl + i),
                 fieldItem.videos.map(v => this.configuration.sceneUrl + v),
                 fieldItem.text,
