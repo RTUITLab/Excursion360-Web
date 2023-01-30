@@ -104,11 +104,10 @@ export default class DynamicPhotoDome {
     this.imagePartsToLoad = null;
     this.loadedImageParts.clear();
     let { width, height } = size || { width: image.width, height: image.height };
-    if (width > this.maxTextureSize || height > this.maxTextureSize) {
-      const max = Math.max(width, height);
-      this.textureMultipler = this.maxTextureSize / max;
-      width *= this.textureMultipler;
-      height *= this.textureMultipler;
+    while (width + height > this.maxTextureSize) {
+      this.textureMultipler *= 0.5;
+      width /= 2;
+      height /= 2;
     }
     this.texture.scaleTo(width, height);
     this.drawContext.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);

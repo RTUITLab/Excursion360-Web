@@ -275,7 +275,6 @@ export class Viewer {
                     actionBeforeChange();
                 }
                 this.currentImage.setRotation(targetPicture.pictureRotation);
-                this.currentImage.setByImage(t.image);
                 postAction(t.image);
                 resolve();
             };
