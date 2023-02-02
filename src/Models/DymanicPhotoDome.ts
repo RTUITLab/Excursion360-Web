@@ -2,7 +2,7 @@ import { DynamicTexture, MeshBuilder, PhotoDome, PickingInfo, Quaternion, Scene,
 import { Vector3 } from "babylonjs/Maths/math.vector";
 import { CroppedImage } from "./ExcursionModels/CroppedImage";
 import { CroppedImagePart } from "./ExcursionModels/CroppedImagePart";
-
+import * as Bowser from "bowser";
 export default class DynamicPhotoDome {
 
 
@@ -104,15 +104,25 @@ export default class DynamicPhotoDome {
     this.imagePartsToLoad = null;
     this.loadedImageParts.clear();
     let { width, height } = size || { width: image.width, height: image.height };
-    while (width + height > this.maxTextureSize) {
-      this.textureMultipler *= 0.5;
-      width /= 2;
-      height /= 2;
+    const browser = Bowser.getParser(window.navigator.userAgent);
+    if (browser.getBrowserName() == "Safari") {
+      while (width * height > 16777216) {
+        this.textureMultipler *= 0.5;
+        width /= 2;
+        height /= 2;
+      }
+    } else {
+      while (width + height > this.maxTextureSize) {
+        this.textureMultipler *= 0.5;
+        width /= 2;
+        height /= 2;
+      }
     }
     this.texture.scaleTo(width, height);
     this.drawContext.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);
     this.texture.update(false);
   }
+
 
   public setImageParts(baseRoute: string, newParts: CroppedImagePart[]) {
     this.baseRoute = baseRoute;
