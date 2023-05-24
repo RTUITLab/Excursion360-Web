@@ -28,7 +28,6 @@ export default class DynamicPhotoDome {
     const canvas = scene.getEngine().getRenderingCanvas();
     const gl = canvas.getContext("webgl") || canvas.getContext("webgl2");
     this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-
     this.texture = new DynamicTexture("photodome dynamic texture", { width: 0, height: 0 }, scene, false);
     this.drawContext = this.texture.getContext();
     this.photoDome = new PhotoDome("photodome", null, { resolution: 32, size }, scene);
@@ -50,16 +49,15 @@ export default class DynamicPhotoDome {
       this.lastActiveCameraRotation = scene.activeCamera.absoluteRotation.clone();
       this.triggerFindImageParts = true;
     }
-    if (this.triggerFindImageParts) {
-      this.findImageParts(scene);
+    if (this.triggerFindImageParts && this.findImageParts(scene)) {
       this.triggerFindImageParts = false;
     }
   }
-  findImageParts(scene: Scene) {
+  findImageParts(scene: Scene): boolean {
     if (!this.imagePartsToLoad
       || this.imagePartsToLoad.length == 0
       || this.imagePartsToLoad.length == this.loadedImageParts.size) {
-      return;
+      return false;
     }
 
     for (let x = 0; x < this.canvasWidth; x += this.findRectangleStepW) {
@@ -81,6 +79,7 @@ export default class DynamicPhotoDome {
         }
       }
     }
+    return true;
   }
 
   findPart(pickInfo: PickingInfo): CroppedImagePart {
@@ -107,17 +106,19 @@ export default class DynamicPhotoDome {
     const browser = Bowser.getParser(window.navigator.userAgent);
     if (browser.getBrowserName() == "Safari") {
       while (width * height > 16777216) {
-        this.textureMultipler *= 0.5;
-        width /= 2;
-        height /= 2;
+        this.textureMultipler /= 1.1;
+        width /= 1.1;
+        height /= 1.1;
       }
     } else {
+      console.log("w, h", width, height, this.maxTextureSize);
       while (width + height > this.maxTextureSize) {
-        this.textureMultipler *= 0.5;
-        width /= 2;
-        height /= 2;
+        this.textureMultipler /= 1.1;
+        width /= 1.1;
+        height /= 1.1;
       }
     }
+    console.log("w, h", width, height, this.maxTextureSize);
     this.texture.scaleTo(width, height);
     this.drawContext.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);
     this.texture.update(false);
