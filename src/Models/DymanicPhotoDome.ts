@@ -129,6 +129,7 @@ export default class DynamicPhotoDome {
     this.baseRoute = baseRoute;
     this.imagePartsToLoad = newParts;
     this.loadedImageParts.clear();
+    this.triggerFindImageParts = true;
   }
 
   public setCanvasSize(width: number, height: number) {
