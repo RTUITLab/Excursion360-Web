@@ -47,7 +47,6 @@ export class AudioContent implements FieldItemContent {
         private gui3Dmanager: GUI3DManager,
         private assetsManager: AssetsManager,
         private scene: Scene) {
-
         if (!AudioContent.backgroundMaterial) {
             const material = new StandardMaterial('audio content background material', scene);
             material.diffuseColor = Color3.FromHexString("#727F8C");
@@ -193,7 +192,7 @@ export class AudioContent implements FieldItemContent {
             return 0;
         }
 
-        let currentTime: number = this.audio['_startOffset'];
+        let currentTime: number = this.audio['_offset'];
 
         if (this.audio.isPlaying && Engine.audioEngine?.audioContext) {
             currentTime += Engine.audioEngine.audioContext.currentTime - this.audio['_startTime'];

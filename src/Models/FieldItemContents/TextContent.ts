@@ -88,12 +88,13 @@ export class TextContent implements FieldItemContent {
         tb.fontSize = "32px";
 
         sv.addControl(tb);
-        sv.verticalBar.onPointerDownObservable.add(e =>{
-            this.scene.activeCamera.inputs.attached.mouse.detachControl(this.scene.activeCamera.inputs.attachedElement);
-        });
-        sv.verticalBar.onPointerUpObservable.add(e => {
-            this.scene.activeCamera.inputs.attachInput(this.scene.activeCamera.inputs.attached.mouse);
-        });
+        //TODO: вернуть поведение скролла на текстовом контенте
+        // sv.verticalBar.onPointerDownObservable.add(e =>{
+        //     this.scene.activeCamera.inputs.attached.mouse.detachControl(this.scene.activeCamera.inputs.attachedElement);
+        // });
+        // sv.verticalBar.onPointerUpObservable.add(e => {
+        //     this.scene.activeCamera.inputs.attachInput(this.scene.activeCamera.inputs.attached.mouse);
+        // });
 
 
         this.textPlane = plane;

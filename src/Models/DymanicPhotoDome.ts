@@ -1,13 +1,10 @@
-import { DynamicTexture, MeshBuilder, PhotoDome, PickingInfo, Quaternion, Scene, Texture } from "babylonjs";
-import { Vector3 } from "babylonjs/Maths/math.vector";
-import { CroppedImage } from "./ExcursionModels/CroppedImage";
+import { DynamicTexture, ICanvasRenderingContext, PhotoDome, PickingInfo, Quaternion, Scene } from "babylonjs";
 import { CroppedImagePart } from "./ExcursionModels/CroppedImagePart";
-import * as Bowser from "bowser";
 export default class DynamicPhotoDome {
 
 
   private texture: DynamicTexture;
-  private drawContext: CanvasRenderingContext2D;
+  private drawContext: ICanvasRenderingContext;
   private photoDome: PhotoDome;
 
   private canvasWidth: number = 0;
@@ -71,8 +68,8 @@ export default class DynamicPhotoDome {
           const drawContext = this.drawContext;
           const texture = this.texture;
           const multipler = this.textureMultipler;
-          image.onload = function (this: HTMLImageElement) {
-            drawContext.drawImage(this, 0, 0, part.width, part.height, part.x * multipler, part.y * multipler, part.width * multipler, part.height * multipler);
+          image.onload = () => {
+            drawContext.drawImage(image, 0, 0, part.width, part.height, part.x * multipler, part.y * multipler, part.width * multipler, part.height * multipler);
             texture.update(false);
           }
           image.src = `${this.baseRoute}/${part.route}`;
@@ -82,7 +79,7 @@ export default class DynamicPhotoDome {
     return true;
   }
 
-  findPart(pickInfo: PickingInfo): CroppedImagePart {
+  findPart(pickInfo: PickingInfo): CroppedImagePart | null {
     if (!pickInfo.hit) {
       return null;
     }
@@ -96,28 +93,19 @@ export default class DynamicPhotoDome {
   }
 
   public setRotation(pictureRotation: any) {
-    this.photoDome.rotationQuaternion = pictureRotation;
+    this.photoDome.rotationQuaternion = new Quaternion(pictureRotation.x, pictureRotation.y, pictureRotation.z, pictureRotation.w);
   }
 
   public setByImage(image: HTMLImageElement, size?: { width: number, height: number }) {
     this.imagePartsToLoad = null;
     this.loadedImageParts.clear();
     let { width, height } = size || { width: image.width, height: image.height };
-    const browser = Bowser.getParser(window.navigator.userAgent);
-    if (browser.getBrowserName() == "Safari") {
-      while (width * height > 16777216) {
-        this.textureMultipler /= 1.1;
-        width /= 1.1;
-        height /= 1.1;
-      }
-    } else {
-      console.log("w, h", width, height, this.maxTextureSize);
-      while (width + height > this.maxTextureSize) {
-        this.textureMultipler /= 1.1;
-        width /= 1.1;
-        height /= 1.1;
-      }
-    }
+
+    // Пока соотношение сторон 2 к 1 - все окей, на данном этапе это ок
+    this.textureMultipler = 4096 / width;
+    width *= this.textureMultipler;
+    height *= this.textureMultipler;
+
     console.log("w, h", width, height, this.maxTextureSize);
     this.texture.scaleTo(width, height);
     this.drawContext.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);

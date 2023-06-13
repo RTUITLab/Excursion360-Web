@@ -18,10 +18,10 @@ import { Control } from "babylonjs-gui";
 export class CustomButton3D extends AbstractButton3D {
     /** @hidden */
     protected _currentMaterial: Material;
-    private _facadeTexture: Nullable<AdvancedDynamicTexture>;
-    private _content: Control;
-    private _contentResolution = 512;
-    private _contentScaleRatio = 2;
+    private _customFacadeTexture: Nullable<AdvancedDynamicTexture>;
+    private _customContent: Control;
+    private _customContentResolution = 512;
+    private _customContentScaleRatio = 2;
 
     protected _width: number;
     protected _height: number;
@@ -30,15 +30,15 @@ export class CustomButton3D extends AbstractButton3D {
      * Gets or sets the texture resolution used to render content (512 by default)
      */
     public get contentResolution(): int {
-        return this._contentResolution;
+        return this._customContentResolution;
     }
 
     public set contentResolution(value: int) {
-        if (this._contentResolution === value) {
+        if (this._customContentResolution === value) {
             return;
         }
 
-        this._contentResolution = value;
+        this._customContentResolution = value;
         this._resetContent();
     }
 
@@ -46,28 +46,28 @@ export class CustomButton3D extends AbstractButton3D {
      * Gets or sets the texture scale ratio used to render content (2 by default)
      */
     public get contentScaleRatio(): number {
-        return this._contentScaleRatio;
+        return this._customContentScaleRatio;
     }
 
     public set contentScaleRatio(value: number) {
-        if (this._contentScaleRatio === value) {
+        if (this._customContentScaleRatio === value) {
             return;
         }
 
-        this._contentScaleRatio = value;
+        this._customContentScaleRatio = value;
         this._resetContent();
     }
 
     protected _disposeFacadeTexture() {
-        if (this._facadeTexture) {
-            this._facadeTexture.dispose();
-            this._facadeTexture = null;
+        if (this._customFacadeTexture) {
+            this._customFacadeTexture.dispose();
+            this._customFacadeTexture = null;
         }
     }
 
     protected _resetContent() {
         this._disposeFacadeTexture();
-        this.content = this._content;
+        this.content = this._customContent;
     }
 
     /**
@@ -113,31 +113,31 @@ export class CustomButton3D extends AbstractButton3D {
      * Gets or sets the GUI 2D content used to display the button's facade
      */
     public get content(): Control {
-        return this._content;
+        return this._customContent;
     }
 
     public set content(value: Control) {
-        this._content = value;
+        this._customContent = value;
 
         if (!this._host || !this._host.utilityLayer) {
             return;
         }
-        if (!this._facadeTexture) {
-            this._facadeTexture = new AdvancedDynamicTexture("Facade",
-                this._contentResolution * this._width,
-                this._contentResolution * this._height,
+        if (!this._customFacadeTexture) {
+            this._customFacadeTexture = new AdvancedDynamicTexture("Facade",
+                this._customContentResolution * this._width,
+                this._customContentResolution * this._height,
                 this._host.utilityLayer.utilityLayerScene, true, Texture.TRILINEAR_SAMPLINGMODE);
-            this._facadeTexture.rootContainer.scaleX = this._contentScaleRatio;
-            this._facadeTexture.rootContainer.scaleY = this._contentScaleRatio;
-            this._facadeTexture.premulAlpha = true;
+            this._customFacadeTexture.rootContainer.scaleX = this._customContentScaleRatio;
+            this._customFacadeTexture.rootContainer.scaleY = this._customContentScaleRatio;
+            this._customFacadeTexture.premulAlpha = true;
         }
         else {
-            this._facadeTexture.rootContainer.clearControls();
+            this._customFacadeTexture.rootContainer.clearControls();
         }
 
-        this._facadeTexture.addControl(value);
+        this._customFacadeTexture.addControl(value);
 
-        this._applyFacade(this._facadeTexture);
+        this._applyFacade(this._customFacadeTexture);
     }
 
     /**
