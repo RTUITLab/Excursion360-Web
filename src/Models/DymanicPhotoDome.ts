@@ -10,7 +10,6 @@ export default class DynamicPhotoDome {
   private canvasWidth: number = 0;
   private canvasHeight: number = 0;
   private textureMultipler: number = 1;
-  private maxTextureSize: number = 0;
 
   private findRectangleStepW: number = 0;
   private findRectangleStepH: number = 0;
@@ -20,11 +19,9 @@ export default class DynamicPhotoDome {
   private imagePartsToLoad: CroppedImagePart[];
   private baseRoute: string;
   private loadedImageParts: Set<CroppedImagePart> = new Set();
+  private imagesInLoading: Set<HTMLImageElement> = new Set();
 
   constructor(size: number, scene: Scene) {
-    const canvas = scene.getEngine().getRenderingCanvas();
-    const gl = canvas.getContext("webgl") || canvas.getContext("webgl2");
-    this.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     this.texture = new DynamicTexture("photodome dynamic texture", { width: 0, height: 0 }, scene, false);
     this.drawContext = this.texture.getContext();
     this.photoDome = new PhotoDome("photodome", null, { resolution: 32, size }, scene);
@@ -68,11 +65,18 @@ export default class DynamicPhotoDome {
           const drawContext = this.drawContext;
           const texture = this.texture;
           const multipler = this.textureMultipler;
+          const localBaseRoute = this.baseRoute;
           image.onload = () => {
-            drawContext.drawImage(image, 0, 0, part.width, part.height, part.x * multipler, part.y * multipler, part.width * multipler, part.height * multipler);
-            texture.update(false);
+            // Загрузка изображения может длиться достаточно долго. И если мы уже переключили изображение - не нужно показывать этот фрагмент.
+            if (this.imagesInLoading.has(image)) {
+              drawContext.drawImage(image, 0, 0, part.width, part.height, part.x * multipler, part.y * multipler, part.width * multipler, part.height * multipler);
+              texture.update(false);
+            } else {
+              console.log("skip rendering", image.src);
+            }
           }
           image.src = `${this.baseRoute}/${part.route}`;
+          this.imagesInLoading.add(image);
         }
       }
     }
@@ -106,17 +110,27 @@ export default class DynamicPhotoDome {
     width *= this.textureMultipler;
     height *= this.textureMultipler;
 
-    console.log("w, h", width, height, this.maxTextureSize);
     this.texture.scaleTo(width, height);
     this.drawContext.drawImage(image, 0, 0, image.width, image.height, 0, 0, width, height);
     this.texture.update(false);
   }
 
+  public stopCurrentLoadings(): void {
+    this.imagePartsToLoad = [];
+    this.imagesInLoading.forEach(i => {
+      console.log(i.src);
+      i.src = ""; // отменяет загрузку изображения
+    });
+    this.imagesInLoading.clear();
+  }
 
   public setImageParts(baseRoute: string, newParts: CroppedImagePart[]) {
+    this.stopCurrentLoadings();
     this.baseRoute = baseRoute;
     this.imagePartsToLoad = newParts;
     this.loadedImageParts.clear();
+
+
     this.triggerFindImageParts = true;
   }
 

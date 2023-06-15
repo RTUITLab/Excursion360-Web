@@ -244,6 +244,8 @@ export class Viewer {
             this.scene.onAfterRenderObservable.add((scene, event) => this.currentImage.trackImageParts(scene))
         }
 
+        this.currentImage.stopCurrentLoadings();
+
         let imageUrl: string;
         let postAction: (image: HTMLImageElement) => void;
         if (targetPicture.croppedImageUrl) {
