@@ -101,7 +101,7 @@ export class FieldItem extends LinkToState {
             .vertex
             .reduce((prev, curr) => prev.add(curr))
             .normalize()
-            .scale(this.fieldItemInfo.distance * 1.1);
+            .scale(this.fieldItemInfo.distance * 0.9);
         backgroundPlane.position = centerPosition;
         backgroundPlane.lookAt(centerPosition.scale(1.4));
 

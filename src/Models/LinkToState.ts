@@ -101,7 +101,7 @@ export class LinkToState {
             LinkToState.linkModel = MeshBuilder.CreatePolyhedron(`link_to_state_polyhedron`,
                 {
                     custom: LinkMeshes.snubCuboctahedron,
-                    size: 0.25
+                    size: 0.3
                 }, scene).convertToFlatShadedMesh();
             LinkToState.linkModel.position.y = -100;
         }

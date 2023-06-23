@@ -166,7 +166,7 @@ export class Viewer {
         this.cleanLinks();
         await this.drawImage(targetPicture, actionBeforeChange);
         document.title = targetPicture.title || this.viewScene.title;
-        const distanceToLinks = 10;
+        const distanceToLinks = 15;
         for (const link of targetPicture.links) {
             const name = this.getName(link.id);
             const position = MathStuff.GetPositionForMarker(link.rotation, distanceToLinks);
