@@ -22,6 +22,8 @@ export interface State {
     /** Links from current state */
     links: Link[];
     /** Group links from current state */
-    groupLinks : GroupLink[];
-    fieldItems : FieldItem[];
+    groupLinks: GroupLink[];
+    fieldItems: FieldItem[];
+    /** Id of tour background audio */
+    backgroundAudioId?: string;
 }

@@ -118,7 +118,6 @@ export default class DynamicPhotoDome {
   public stopCurrentLoadings(): void {
     this.imagePartsToLoad = [];
     this.imagesInLoading.forEach(i => {
-      console.log(i.src);
       i.src = ""; // отменяет загрузку изображения
     });
     this.imagesInLoading.clear();

@@ -1,21 +1,17 @@
-import { Material, TransformNode, AssetsManager, Scene, TextureAssetTask } from "babylonjs";
-import { VideoTexture } from "babylonjs";
+import { Material, TransformNode, AssetsManager, Scene } from "babylonjs";
 import { Mesh } from "babylonjs";
 import { GUI3DManager } from "babylonjs-gui";
 import { MeshBuilder } from "babylonjs";
 import { StandardMaterial } from "babylonjs";
 import { Color3 } from "babylonjs";
-import { ActionManager } from "babylonjs";
-import { ExecuteCodeAction } from "babylonjs";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
 import { TextBlock } from "babylonjs-gui";
 import { AdvancedDynamicTexture } from "babylonjs-gui";
-import { Vector3 } from "babylonjs";
-import { Space } from "babylonjs";
 import { Sound } from "babylonjs";
 import { FieldItemAudioContent } from "../ExcursionModels/FieldItemAudioContent";
 import { Engine } from "babylonjs";
 import { FieldItemContent } from "./FieldItemContent";
+import { ExcursionConstants } from "../ExcursionConstants";
 
 
 export class AudioContent implements FieldItemContent {
@@ -25,8 +21,6 @@ export class AudioContent implements FieldItemContent {
         return AudioContent.CONTENT_TYPE;
     }
 
-    private playIcon = '\u25B6';
-    private pauseIcon = 'II';
 
     private playPauseButton: CustomHolographicButton;
     private playPauseButtonText: TextBlock;
@@ -65,7 +59,7 @@ export class AudioContent implements FieldItemContent {
         this.uiLayerPlane.isVisible = visible;
         if (!visible && this.audio) {
             this.audio && this.audio.pause();
-            this.playPauseButtonText.text = this.playIcon;
+            this.playPauseButtonText.text = ExcursionConstants.PlayIcon;
         }
     }
 
@@ -134,7 +128,7 @@ export class AudioContent implements FieldItemContent {
         }
         this.onPlay();
         this.audio.play();
-        this.playPauseButtonText.text = this.pauseIcon;
+        this.playPauseButtonText.text =  ExcursionConstants.PauseIcon;
     }
 
     public pauseAudio() {
@@ -142,7 +136,7 @@ export class AudioContent implements FieldItemContent {
             return;
         }
         this.audio.pause();
-        this.playPauseButtonText.text = this.playIcon;
+        this.playPauseButtonText.text =  ExcursionConstants.PlayIcon;
     }
 
     private toggleAudioPlay() {
@@ -159,7 +153,7 @@ export class AudioContent implements FieldItemContent {
     private createSound() {
         const audio = new Sound("audio_content", this.audioInfo.src, this.scene, () => {
             this.audio = audio;
-            this.playPauseButtonText.text = this.playIcon;
+            this.playPauseButtonText.text =  ExcursionConstants.PlayIcon;
             this.currentPositionTimer = setInterval(() => this.currentPositionText.text = this.getCurrentPositionText(), 500);
         }, {
             loop: false,

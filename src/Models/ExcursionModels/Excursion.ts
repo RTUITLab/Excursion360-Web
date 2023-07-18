@@ -1,3 +1,4 @@
+import { BackgroundAudioInfo } from "./BackgroundAudioInfo";
 import { State as State } from "./State";
 import { TableOfContentRow } from "./TableOfContentRow";
 
@@ -30,6 +31,7 @@ export interface Excursion {
      */
     states: State[];
     colorSchemes: any[];
+    backgroundAudios: BackgroundAudioInfo[];
 
     /**
      * Version of protocol

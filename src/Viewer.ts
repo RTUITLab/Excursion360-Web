@@ -15,6 +15,7 @@ import { FieldItem } from "./Models/FieldItem";
 import axios from "axios";
 import { CroppedImage } from "./Models/ExcursionModels/CroppedImage";
 import DynamicPhotoDome from "./Models/DymanicPhotoDome";
+import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 
 
 export class Viewer {
@@ -31,6 +32,7 @@ export class Viewer {
 
     private groupLinkMaterial: Material;
     private fieldItemMaterial: StandardMaterial;
+    private backgroundAudio: BackgroundAudioView;
     currentPicture: State;
 
     constructor(private configuration: Configuration) { }
@@ -40,12 +42,18 @@ export class Viewer {
     public createScene() {
         const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
         this.canvas = canvas;
-        const engine = new Engine(canvas, true);
+        const engine = new Engine(canvas, true, {
+            audioEngineOptions: {
+                audioContext: new AudioContext()
+            }
+        });
         const scene = new Scene(engine);
         this.scene = scene;
         this.assetsManager = new AssetsManager(scene);
         const guiManager = new GUI3DManager(scene);
         this.links = new LinkToStatePool(this.assetsManager, guiManager, scene);
+
+        this.backgroundAudio = new BackgroundAudioView(scene, this.configuration.sceneUrl);
 
         var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
         glMaterial.diffuseColor = Color3.Blue();
@@ -166,6 +174,10 @@ export class Viewer {
         this.cleanLinks();
         await this.drawImage(targetPicture, actionBeforeChange);
         document.title = targetPicture.title || this.viewScene.title;
+
+        const backgroundAudio = this.viewScene.backgroundAudios.find(b => b.id === targetPicture.backgroundAudioId);
+        this.backgroundAudio.setSound(backgroundAudio);
+
         const distanceToLinks = 15;
         for (const link of targetPicture.links) {
             const name = this.getName(link.id);
