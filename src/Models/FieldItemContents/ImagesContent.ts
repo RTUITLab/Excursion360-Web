@@ -147,12 +147,14 @@ export class ImagesContent implements FieldItemContent {
             } else {
                 multipler = localContentHeight / textureSize.height;
             }
+            multipler *= 1.1;
             const imagePlane = MeshBuilder.CreatePlane(`image_content_image_${url}`, {
                 width: textureSize.width * multipler,
                 height: textureSize.height * multipler
             }, this.scene);
             imagePlane.parent = this.parent;
             imagePlane.position.z = -0.1;
+            imagePlane.position.y = 0.8; // TODO: https://github.com/RTUITLab/Excursion360-Web/issues/81
             var material = new StandardMaterial("", this.scene);
             material.specularColor = Color3.Black();
             material.diffuseTexture = task.texture;
