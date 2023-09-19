@@ -128,7 +128,7 @@ export class AudioContent implements FieldItemContent {
         }
         this.onPlay();
         this.audio.play();
-        this.playPauseButtonText.text =  ExcursionConstants.PauseIcon;
+        this.playPauseButtonText.text = ExcursionConstants.PauseIcon;
     }
 
     public pauseAudio() {
@@ -136,7 +136,7 @@ export class AudioContent implements FieldItemContent {
             return;
         }
         this.audio.pause();
-        this.playPauseButtonText.text =  ExcursionConstants.PlayIcon;
+        this.playPauseButtonText.text = ExcursionConstants.PlayIcon;
     }
 
     private toggleAudioPlay() {
@@ -153,7 +153,7 @@ export class AudioContent implements FieldItemContent {
     private createSound() {
         const audio = new Sound("audio_content", this.audioInfo.src, this.scene, () => {
             this.audio = audio;
-            this.playPauseButtonText.text =  ExcursionConstants.PlayIcon;
+            this.playPauseButtonText.text = ExcursionConstants.PlayIcon;
             this.currentPositionTimer = setInterval(() => this.currentPositionText.text = this.getCurrentPositionText(), 500);
         }, {
             loop: false,
@@ -186,7 +186,7 @@ export class AudioContent implements FieldItemContent {
             return 0;
         }
 
-        let currentTime: number = this.audio['_offset'];
+        let currentTime: number = this.audio['_offset'] || 0;
 
         if (this.audio.isPlaying && Engine.audioEngine?.audioContext) {
             currentTime += Engine.audioEngine.audioContext.currentTime - this.audio['_startTime'];

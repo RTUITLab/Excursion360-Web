@@ -28,6 +28,7 @@ export class BackgroundAudioView {
 
     this.renderTexture = AdvancedDynamicTexture.CreateFullscreenUI("background audio ui");
     const button1 = Button.CreateSimpleButton("background audio control", ExcursionConstants.PlayIcon);
+    button1.isVisible = false; // Скрыта по умолчанию
     button1.width = "70px"
     button1.height = "70px";
     button1.top = "-35px";
@@ -52,10 +53,10 @@ export class BackgroundAudioView {
   }
 
   public setSound(audioInfo?: BackgroundAudioInfo): void {
+    this.controlButton.isVisible = !!audioInfo;
     if (audioInfo && audioInfo?.id === this.currentAudioPack?.id) {
       return;
     }
-
     this.currentAudioPack = audioInfo;
     this.currentIndex = -1;
 
