@@ -243,6 +243,7 @@ export class Viewer {
                 fieldItem.title,
                 fieldItemInfo,
                 async fi => fieldItems.filter(i => i !== fi).forEach(i => i.setShowContent(false)),
+                () => this.backgroundAudio.pause(),
                 material);
             fieldItems.push(createdFieldItem);
         }

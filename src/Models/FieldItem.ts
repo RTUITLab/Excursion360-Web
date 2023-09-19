@@ -37,6 +37,7 @@ export class FieldItem extends LinkToState {
         name: string,
         private fieldItemInfo: FieldItemInfo,
         private onOpen: (fi: FieldItem) => Promise<void>,
+        private onPlayMedia: () => void,
         private material: StandardMaterial,
         private assetsManager: AssetsManager,
         private gui3Dmanager: GUI3DManager,
@@ -135,7 +136,10 @@ export class FieldItem extends LinkToState {
                 backgroundPlane,
                 FieldItem.containerSize * 1.6,
                 FieldItem.containerSize,
-                () => this.audioContent && this.audioContent.pauseAudio(),
+                () => {
+                    this.onPlayMedia();
+                    this.audioContent && this.audioContent.pauseAudio();
+                },
                 this.gui3Dmanager,
                 this.assetsManager,
                 this.scene);
@@ -171,7 +175,10 @@ export class FieldItem extends LinkToState {
             const audioContent = new AudioContent(this.fieldItemInfo.audios[0], backgroundPlane,
                 FieldItem.containerSize * 1.6,
                 FieldItem.containerSize / 2,
-                () => this.videoContent && this.videoContent.pauseVideo(),
+                () => {
+                    this.onPlayMedia();
+                    this.videoContent && this.videoContent.pauseVideo();
+                },
                 this.gui3Dmanager, this.assetsManager, this.scene);
             this.contentList.push(audioContent);
         }

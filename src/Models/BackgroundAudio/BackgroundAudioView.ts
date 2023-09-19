@@ -5,7 +5,7 @@ import { ExcursionConstants } from "../ExcursionConstants";
 
 export class BackgroundAudioView {
 
-  private currentSound: Sound;
+  private currentSound: Sound | null;
   private currentAudioPack: BackgroundAudioInfo;
   private renderTexture: AdvancedDynamicTexture;
 
@@ -38,9 +38,7 @@ export class BackgroundAudioView {
       this.gestureDetected = true;
       if (this.currentSound) {
         if (this.isPlay) {
-          this.isPlay = false;
-          this.currentSound.pause();
-          this.controlButton.textBlock.text = ExcursionConstants.PlayIcon;
+          this.pause();
         } else {
           this.isPlay = true;
           this.currentSound.play();
@@ -50,6 +48,12 @@ export class BackgroundAudioView {
     });
     this.renderTexture.addControl(button1);
     this.controlButton = button1;
+  }
+
+  public pause() {
+    this.isPlay = false;
+    this.currentSound && this.currentSound.pause();
+    this.controlButton.textBlock.text = ExcursionConstants.PlayIcon;
   }
 
   public setSound(audioInfo?: BackgroundAudioInfo): void {
