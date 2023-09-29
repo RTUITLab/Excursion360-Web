@@ -17,6 +17,7 @@ import { CroppedImage } from "./Models/ExcursionModels/CroppedImage";
 import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
+import { IconBottom } from "./Models/IconBottom";
 
 
 export class Viewer {
@@ -36,6 +37,7 @@ export class Viewer {
     private backgroundAudio: BackgroundAudioView;
     currentPicture: State;
     fullScreenGUI: FullScreenGUI;
+    iconBottom: IconBottom | null = null;
 
     constructor(private configuration: Configuration) { }
 
@@ -94,6 +96,9 @@ export class Viewer {
         }
 
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
+        if (this.configuration.bottomImage) {
+            this.iconBottom = new IconBottom(scene, this.configuration.bottomImage);
+        }
         engine.loadingUIBackgroundColor = "transparent";
 
         scene.actionManager = new ActionManager(scene);
