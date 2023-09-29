@@ -16,6 +16,7 @@ import axios from "axios";
 import { CroppedImage } from "./Models/ExcursionModels/CroppedImage";
 import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
+import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
 
 
 export class Viewer {
@@ -34,6 +35,7 @@ export class Viewer {
     private fieldItemMaterial: StandardMaterial;
     private backgroundAudio: BackgroundAudioView;
     currentPicture: State;
+    fullScreenGUI: FullScreenGUI;
 
     constructor(private configuration: Configuration) { }
 
@@ -53,7 +55,8 @@ export class Viewer {
         const guiManager = new GUI3DManager(scene);
         this.links = new LinkToStatePool(this.assetsManager, guiManager, scene);
 
-        this.backgroundAudio = new BackgroundAudioView(scene, this.configuration.sceneUrl);
+        this.fullScreenGUI = new FullScreenGUI(scene);
+        this.backgroundAudio = new BackgroundAudioView(scene, this.configuration.sceneUrl, this.fullScreenGUI);
 
         var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
         glMaterial.diffuseColor = Color3.Blue();
