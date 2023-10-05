@@ -28,7 +28,7 @@ export class FullScreenGUI {
   public setPlayIconOnOlayPauseButton() {
     this.playPauseBackgroundAudioButton.textBlock.text = ExcursionConstants.PlayIcon;
   }
-  public setVisibleIconOnOlayPauseButton(isVisible: boolean) {
+  public setVisibleIconOnPlayPauseButton(isVisible: boolean) {
     this.playPauseBackgroundAudioButton.isVisible = isVisible;
   }
 }

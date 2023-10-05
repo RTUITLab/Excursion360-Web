@@ -12,7 +12,7 @@ import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
 import { IconBottom } from "./Models/IconBottom";
-import { StandardMaterial, AssetsManager, Material, Engine, Color3, ViveController, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle, Quaternion } from "@babylonjs/core/index";
+import { StandardMaterial, AssetsManager, Material, Engine, Color3, ViveController, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle, Quaternion, MeshBuilder, Mesh } from "@babylonjs/core/index";
 import { Scene } from "@babylonjs/core/scene";
 import { GUI3DManager } from "@babylonjs/gui/index";
 import { WebXRDefaultExperience } from '@babylonjs/core/index';
@@ -91,6 +91,26 @@ export class Viewer {
                 }
             }).then(xr => {
                 this.xrHelper = xr;
+                xr.input.onControllerAddedObservable.add(controller => {
+                    controller.onMotionControllerInitObservable.add(mc => {
+                        const aButton = mc.getComponent("a-button");
+                        if (aButton) {
+                            aButton.onButtonStateChangedObservable.add((e) => {
+                                if (e.pressed) {
+                                    this.backgroundAudio.togglePlayPause();
+                                }
+                            });
+                        }
+                        const bButton = mc.getComponent("b-button");
+                        if (bButton) {
+                            bButton.onButtonStateChangedObservable.add((e) => {
+                                if (e.pressed) {
+                                    this.goToImage(this.viewScene.firstStateId, undefined, true);
+                                }
+                            });
+                        }
+                    });
+                });
             }).catch(error => {
                 console.error(error);
             })

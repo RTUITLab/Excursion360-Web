@@ -33,6 +33,17 @@ export class BackgroundAudioView {
 
   }
 
+  public togglePlayPause() {
+    if (!this.currentAudioPack) {
+      return;
+    }
+    if (this.isPlay) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+
   public play() {
     this.currentAudioPack && this.currentAudioPack.play();
     this.setPlayState();
@@ -55,7 +66,7 @@ export class BackgroundAudioView {
 
 
   public setSound(audioInfo?: BackgroundAudioInfo): void {
-    this.fullStreenUI.setVisibleIconOnOlayPauseButton(!!audioInfo);
+    this.fullStreenUI.setVisibleIconOnPlayPauseButton(!!audioInfo);
     if (audioInfo && audioInfo?.id === this.currentAudioPack?.id) {
       return;
     }
