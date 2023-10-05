@@ -1,18 +1,5 @@
-import { CustomHolographicButton } from "../..//Stuff/CustomHolographicButton";
-import { Mesh } from "babylonjs";
-import { Material } from "babylonjs";
-import { VideoTexture } from "babylonjs";
-import { TextBlock } from "babylonjs-gui";
-import { TransformNode } from "babylonjs";
-import { GUI3DManager } from "babylonjs-gui";
-import { AssetsManager } from "babylonjs";
-import { Scene } from "babylonjs";
-import { MeshBuilder } from "babylonjs";
-import { AdvancedDynamicTexture } from "babylonjs-gui";
-import { ScrollViewer } from "babylonjs-gui";
-import { PointerEventTypes } from "babylonjs";
-import { PointerInfo } from "babylonjs/Events/pointerEvents";
-import { rgbdDecodePixelShader } from "babylonjs/Shaders/rgbdDecode.fragment";
+import { Mesh, TransformNode, AssetsManager, Scene, PointerInfo, PointerEventTypes, MeshBuilder } from "@babylonjs/core/index";
+import { AdvancedDynamicTexture, ScrollViewer, GUI3DManager, TextBlock, TextWrapping, Control } from "@babylonjs/gui/index";
 import { FieldItemContent } from "./FieldItemContent";
 
 export class TextContent implements FieldItemContent {
@@ -73,16 +60,16 @@ export class TextContent implements FieldItemContent {
         sv.background = "#dedede";
         texture.addControl(sv);
         var tb = new TextBlock();
-        tb.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        tb.textWrapping = TextWrapping.WordWrap;
         tb.resizeToFit = true;
         tb.paddingTop = "5%";
         tb.paddingLeft = "30px";
         tb.paddingRight = "20px"
         tb.paddingBottom = "5%";
-        tb.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        tb.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        tb.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        tb.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        tb.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        tb.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        tb.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        tb.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
         tb.color = "black";
         tb.text = this.text;
         tb.fontSize = "32px";

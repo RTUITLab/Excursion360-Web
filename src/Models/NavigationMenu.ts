@@ -1,7 +1,6 @@
+import { TransformNode, Vector3 } from "@babylonjs/core/index";
+import { GUI3DManager, TextBlock, TextWrapping } from "@babylonjs/gui/index";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton";
-import { TransformNode } from "babylonjs";
-import { GUI3DManager, TextBlock } from "babylonjs-gui";
-import { Vector3 } from "babylonjs";
 import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
 
 export class NavigationMenu {
@@ -55,15 +54,15 @@ export class NavigationMenu {
         button.linkToTransformNode(parent);
         var buttonContent = new TextBlock();
         buttonContent.text = title;
-        buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        buttonContent.textWrapping = TextWrapping.WordWrap;
         buttonContent.resizeToFit = true;
         buttonContent.color = "white";
         buttonContent.fontSize = 140;
         button.content = buttonContent;
-        button.contentScaleRatio = 1;
+
         button.isVisible = true;
         button.position.y += this.positionY
-        button.onPointerClickObservable.add(ev => {
+        button.onPointerClickObservable.add(() => {
             this.setCurrentIndex(index);
             this.selectionChanged(index);
         });

@@ -1,16 +1,11 @@
-import { int, Nullable } from "babylonjs";
-import { Color3, Vector4 } from "babylonjs";
-import { TransformNode } from "babylonjs";
-import { AbstractMesh } from "babylonjs";
-import { BoxBuilder } from "babylonjs";
-import { Material } from "babylonjs";
-import { StandardMaterial } from "babylonjs";
-import { Texture } from "babylonjs";
-import { Scene } from "babylonjs";
+import { Material, StandardMaterial, Color3, Texture, TransformNode, Vector4, BoxBuilder, AbstractMesh } from "@babylonjs/core/index";
+import { Scene } from "@babylonjs/core/scene";
+import { Nullable, int } from "@babylonjs/core/types";
+import { AbstractButton3D, AdvancedDynamicTexture, Button3D, Control } from "@babylonjs/gui/index";
 
-import { AbstractButton3D } from "babylonjs-gui";
-import { AdvancedDynamicTexture } from "babylonjs-gui";
-import { Control } from "babylonjs-gui";
+class L extends Button3D {
+    
+}
 
 /**
  * Class used to create a button in 3D
@@ -74,9 +69,8 @@ export class CustomButton3D extends AbstractButton3D {
      * Creates a new button
      * @param name defines the control name
      */
-    constructor(name?: string, width = 1, height = 1) {
+    constructor(name?: string, width = 1, height = 1) { 
         super(name);
-
         this._width = width;
         this._height = height;
         // Default animations

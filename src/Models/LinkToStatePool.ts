@@ -1,9 +1,9 @@
 import { LinkToState } from "./LinkToState";
-import { Scene, Vector3, Material, AbstractMesh, Animation, StandardMaterial, AssetsManager } from "babylonjs";
 import { GroupLink } from "./GroupLink";
-import { GUI3DManager } from "babylonjs-gui";
 import { FieldItem } from "./FieldItem";
 import { FieldItemInfo } from "./FieldItemInfo";
+import { AssetsManager, Scene, Vector3, Material, StandardMaterial, AbstractMesh, Animation } from "@babylonjs/core/index";
+import { GUI3DManager } from "@babylonjs/gui/index";
 
 // TODO reuse link objects
 export class LinkToStatePool {

@@ -1,20 +1,6 @@
+import { Mesh, Material, Texture, TextureAssetTask, TransformNode, AssetsManager, Scene, MeshBuilder, StandardMaterial, Color3, ActionManager, ExecuteCodeAction } from "@babylonjs/core/index";
+import { GUI3DManager, TextBlock, TextWrapping } from "@babylonjs/gui/index";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
-import { Scene } from "babylonjs";
-import { TransformNode } from "babylonjs";
-import { GUI3DManager } from "babylonjs-gui";
-import { TextBlock } from "babylonjs-gui";
-import { ObjectsStackPanelHelper } from "../ObjectsStackPanelHelper";
-import { AssetsManager } from "babylonjs";
-import { MeshBuilder } from "babylonjs";
-import { StandardMaterial } from "babylonjs";
-import { Color3 } from "babylonjs";
-import { ActionManager } from "babylonjs";
-import { ExecuteCodeAction } from "babylonjs";
-import { Material } from "babylonjs";
-import { Texture } from "babylonjs";
-import { TextureAssetTask } from "babylonjs/Misc/assetsManager";
-import { Mesh } from "babylonjs";
-import { Vector3 } from "babylonjs";
 import { NavigationMenu } from "../NavigationMenu";
 import { FieldItemContent } from "./FieldItemContent";
 
@@ -63,11 +49,11 @@ export class ImagesContent implements FieldItemContent {
         if (images.length > 1) {
 
             this.rightButton = this.createButton(">", contentWidth / 2.5);
-            this.rightButton.onPointerClickObservable.add(ed => {
+            this.rightButton.onPointerClickObservable.add(() => {
                 this.openPicture(this.currentImage + 1);
             });
             this.leftButton = this.createButton("<", -contentWidth / 2.5);
-            this.leftButton.onPointerClickObservable.add(ed => {
+            this.leftButton.onPointerClickObservable.add(() => {
                 this.openPicture(this.currentImage - 1);
             });
 
@@ -90,7 +76,7 @@ export class ImagesContent implements FieldItemContent {
         button.linkToTransformNode(this.parent);
         var buttonContent = new TextBlock();
         buttonContent.text = content;
-        buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        buttonContent.textWrapping = TextWrapping.WordWrap;
         buttonContent.resizeToFit = true;
         buttonContent.color = "white";
         buttonContent.fontSize = 140;
@@ -135,7 +121,7 @@ export class ImagesContent implements FieldItemContent {
     private loadPictureResources(index: number, url: string): TextureAssetTask {
         const task = this.assetsManager.addTextureTask("image task", url, null, true);
         this.assetsManager.load();
-        task.onSuccess = t => {
+        task.onSuccess = () => {
             var textureSize = task.texture.getSize();
             var maxSize = Math.max(textureSize.width, textureSize.height);
             var localContentWith = this.contentWidth / 1.5;
@@ -169,7 +155,7 @@ export class ImagesContent implements FieldItemContent {
             if (this.images.length > 1) {
 
                 imagePlane.actionManager = new ActionManager(this.scene);
-                imagePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
+                imagePlane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async () => {
                     this.openPicture(this.currentImage + 1);
                 }));
             }

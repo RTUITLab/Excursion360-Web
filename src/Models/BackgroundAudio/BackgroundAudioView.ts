@@ -1,9 +1,7 @@
-import { PointerEventTypes, Scene, Sound } from "babylonjs";
-import { AdvancedDynamicTexture, Button, Control } from "babylonjs-gui";
 import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
-import { ExcursionConstants } from "../ExcursionConstants";
 import { AudioContainer } from "./AudioContainer";
 import { FullScreenGUI } from "../ExcursionFullScreenGUI";
+import { PointerEventTypes, Scene } from "@babylonjs/core/index";
 
 export class BackgroundAudioView {
   private packs: Map<string, AudioContainer> = new Map();

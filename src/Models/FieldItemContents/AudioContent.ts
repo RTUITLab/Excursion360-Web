@@ -1,17 +1,9 @@
-import { Material, TransformNode, AssetsManager, Scene } from "babylonjs";
-import { Mesh } from "babylonjs";
-import { GUI3DManager } from "babylonjs-gui";
-import { MeshBuilder } from "babylonjs";
-import { StandardMaterial } from "babylonjs";
-import { Color3 } from "babylonjs";
-import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
-import { TextBlock } from "babylonjs-gui";
-import { AdvancedDynamicTexture } from "babylonjs-gui";
-import { Sound } from "babylonjs";
 import { FieldItemAudioContent } from "../ExcursionModels/FieldItemAudioContent";
-import { Engine } from "babylonjs";
 import { FieldItemContent } from "./FieldItemContent";
 import { ExcursionConstants } from "../ExcursionConstants";
+import { Material, Mesh, Sound, TransformNode, AssetsManager, Scene, StandardMaterial, Color3, MeshBuilder, Engine } from "@babylonjs/core/index";
+import { TextBlock, GUI3DManager, AdvancedDynamicTexture, TextWrapping } from "@babylonjs/gui/index";
+import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
 
 
 export class AudioContent implements FieldItemContent {
@@ -106,16 +98,16 @@ export class AudioContent implements FieldItemContent {
         button.linkToTransformNode(this.backgroundPlane);
         var buttonContent = new TextBlock();
         buttonContent.text = "...";
-        buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        buttonContent.textWrapping = TextWrapping.WordWrap;
         buttonContent.resizeToFit = true;
         buttonContent.color = "white";
         buttonContent.fontSize = 250;
         this.playPauseButtonText = buttonContent;
         button.content = buttonContent;
-        button.contentScaleRatio = 1;
+
         button.isVisible = true;
         // button.position.y = -0.1;
-        button.onPointerClickObservable.add(e => {
+        button.onPointerClickObservable.add(() => {
             this.toggleAudioPlay();
         })
         this.playPauseButton = button;

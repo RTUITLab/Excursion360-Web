@@ -1,13 +1,13 @@
 import { LinkToState } from "./LinkToState";
-import { Material, Vector3, Scene, Animation, TransformNode, ActionEvent, MeshBuilder, AbstractMesh } from "babylonjs";
-import { GUI3DManager, CylinderPanel, HolographicButton, StackPanel3D, TextBlock, Rectangle, AbstractButton3D, AdvancedDynamicTexture } from "babylonjs-gui";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton"
+import { AbstractMesh, Material, MeshBuilder, Scene, TransformNode, Vector3, Animation } from "@babylonjs/core/index";
+import { AdvancedDynamicTexture, GUI3DManager, TextBlock, Rectangle, TextWrapping } from "@babylonjs/gui/index";
 
 export class GroupLink extends LinkToState {
     private isOpened = false;
     private buttonsPoint: TransformNode;
 
-    private buttons: AbstractButton3D[] = [];
+    private buttons: CustomHolographicButton[] = [];
     private infoCards: { mesh: AbstractMesh, texture: AdvancedDynamicTexture }[] = [];
     itemsCount = 1;
     constructor(
@@ -54,14 +54,14 @@ export class GroupLink extends LinkToState {
         this.itemsCount++;
         var text1 = new TextBlock();
         text1.text = title;
-        text1.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        text1.textWrapping = TextWrapping.WordWrap;
         text1.resizeToFit = true;
         text1.color = "white";
         text1.fontSize = 90;
         button.content = text1;
-        button.contentScaleRatio = 1;
+
         button.isVisible = false;
-        button.onPointerClickObservable.add(d => triggered());
+        button.onPointerClickObservable.add(() => triggered());
     }
 
     createTextCard(info: string) {
@@ -75,7 +75,7 @@ export class GroupLink extends LinkToState {
         this.itemsCount++;
         var text1 = new TextBlock();
         text1.text = info;
-        text1.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        text1.textWrapping = TextWrapping.WordWrap;
         text1.resizeToFit = true;
         text1.color = "white";
         text1.fontSize = 45;

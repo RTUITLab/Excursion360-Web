@@ -1,6 +1,5 @@
-import { Scene, Sound } from "babylonjs";
 import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
-import { ExcursionConstants } from "../ExcursionConstants";
+import { Scene, Sound } from "@babylonjs/core/index";
 
 export class AudioContainer {
   private currentSound: Sound | null;

@@ -1,6 +1,5 @@
-import * as GUI from "babylonjs-gui";
-
-import { ILoadingScreen } from "babylonjs";
+import { TextBlock, AdvancedDynamicTexture } from "@babylonjs/gui/index";
+import { ILoadingScreen } from "@babylonjs/core/index";
 
 export class StateChangeLoadingScreen implements ILoadingScreen {
 
@@ -9,13 +8,13 @@ export class StateChangeLoadingScreen implements ILoadingScreen {
     public loadingUIBackgroundColor: string;
     public loadingUIText: string;
 
-    private textBlock: GUI.TextBlock;
+    private textBlock: TextBlock;
 
-    constructor(private gui: GUI.AdvancedDynamicTexture) {
+    constructor(private gui: AdvancedDynamicTexture) {
         this.displayLoadingUI = () => this.displayUIInternal();
         this.hideLoadingUI =    () => this.hideLoadingUIInternal();
 
-        this.textBlock = new GUI.TextBlock("StateChangeLoadingScreen TextBlock", "Загрузка...");
+        this.textBlock = new TextBlock("StateChangeLoadingScreen TextBlock", "Загрузка...");
         this.textBlock.isVisible = false;
         gui.addControl(this.textBlock);
     }

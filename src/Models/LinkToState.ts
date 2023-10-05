@@ -1,5 +1,5 @@
-import { TransformNode, Vector3, Scene, MeshBuilder, Material, AbstractMesh, ActionManager, ExecuteCodeAction, StandardMaterial, Color3, Animation, ActionEvent } from "babylonjs";
-import { AdvancedDynamicTexture, TextBlock, Control, Rectangle, ScrollViewer } from "babylonjs-gui";
+import { AbstractMesh, TransformNode, Vector3, Material, Scene, ActionManager, ExecuteCodeAction, MeshBuilder, Animation } from "@babylonjs/core/index";
+import { AdvancedDynamicTexture, TextBlock, Rectangle, TextWrapping, Control } from "@babylonjs/gui/index";
 import { LinkMeshes } from "../Meshes/LinkMeshes";
 
 export class LinkToState {
@@ -32,15 +32,15 @@ export class LinkToState {
         this.linkObject.position = Vector3.Zero();
         this.linkObject.material = material;
         this.linkObject.actionManager = new ActionManager(this.scene);
-        this.linkObject.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
+        this.linkObject.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async () => {
             await triggered();
         }));
         this.linkObject.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, (ev) => {
+            new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
                 this.openGuiMesh();
             }));
         this.linkObject.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, (ev) => {
+            new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
                 this.hideGuiMesh();
             }));
         this.guiMesh = MeshBuilder.CreatePlane(name, {
@@ -64,13 +64,13 @@ export class LinkToState {
         background.alpha = 0.7;
 
         const tb = new TextBlock();
-        tb.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        tb.textWrapping = TextWrapping.WordWrap;
         tb.resizeToFit = true;
         tb.color = "white";
-        tb.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        tb.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-        tb.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-        tb.textVerticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        tb.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        tb.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        tb.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        tb.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
         tb.text = name;
         tb.fontSize = "80px";
 

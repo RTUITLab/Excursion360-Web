@@ -1,5 +1,5 @@
-import { Observable, Scene } from "babylonjs";
-import { AdvancedDynamicTexture, Button, Control, Vector2WithInfo } from "babylonjs-gui";
+import { Scene, Observable } from "@babylonjs/core/index";
+import { AdvancedDynamicTexture, Button, Control, Vector2WithInfo } from "@babylonjs/gui/index";
 import { ExcursionConstants } from "./ExcursionConstants";
 
 export class FullScreenGUI {

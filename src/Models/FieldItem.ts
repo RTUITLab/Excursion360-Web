@@ -1,17 +1,14 @@
 import { LinkToState } from "./LinkToState";
 import { FieldItemInfo } from "./FieldItemInfo";
-import { Vector3, Material, Scene, Animation, AbstractMesh, MeshBuilder, Mesh, TransformNode, VertexData, ActionEvent, StandardMaterial, AssetsManager, Texture, BackgroundMaterial, Color3, ActionManager, ExecuteCodeAction } from "babylonjs";
-import { runInThisContext } from "vm";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton";
-import { GUI3DManager, TextBlock } from "babylonjs-gui";
-import { StackPanel3D } from "babylonjs-gui";
 import { ImagesContent } from "./FieldItemContents/ImagesContent";
-import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
 import { NavigationMenu } from "./NavigationMenu";
 import { VideoContent } from "./FieldItemContents/VideoContent";
 import { TextContent as TextContent } from "./FieldItemContents/TextContent";
 import { AudioContent } from "./FieldItemContents/AudioContent";
 import { FieldItemContent } from "./FieldItemContents/FieldItemContent";
+import { GUI3DManager, TextBlock, TextWrapping } from "@babylonjs/gui/index";
+import { Mesh, StandardMaterial, AssetsManager, Scene, Vector3, VertexData, MeshBuilder, ActionManager, TransformNode } from "@babylonjs/core/index";
 
 export class FieldItem extends LinkToState {
 
@@ -113,7 +110,7 @@ export class FieldItem extends LinkToState {
         const closeButton = this.createButton('X', backgroundPlane, 1, 1);
         closeButton.position.x = FieldItem.containerSize / 1.4;
         closeButton.position.y = FieldItem.containerSize / 2;
-        closeButton.onPointerClickObservable.add(e => {
+        closeButton.onPointerClickObservable.add(() => {
             this.setShowContent(false);
         });
         this.closeButton = closeButton;
@@ -202,12 +199,12 @@ export class FieldItem extends LinkToState {
         button.linkToTransformNode(parent);
         var buttonContent = new TextBlock();
         buttonContent.text = title;
-        buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        buttonContent.textWrapping = TextWrapping.WordWrap;
         buttonContent.resizeToFit = true;
         buttonContent.color = "white";
         buttonContent.fontSize = 140;
         button.content = buttonContent;
-        button.contentScaleRatio = 1;
+
         button.isVisible = true;
         button.position.y += FieldItem.containerSize / 2; // top bar
         return button;

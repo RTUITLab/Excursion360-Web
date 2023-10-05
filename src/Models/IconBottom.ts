@@ -1,5 +1,5 @@
-import { BottomImageConfiguration } from "@/Configuration/Configuration";
-import { Color3, MeshBuilder, Scene, StandardMaterial, Texture, Vector2, Vector3 } from "babylonjs";
+import { Color3, MeshBuilder, Scene, StandardMaterial, Texture } from "@babylonjs/core/index";
+import { BottomImageConfiguration } from "../Configuration/Configuration";
 
 export class IconBottom {
 

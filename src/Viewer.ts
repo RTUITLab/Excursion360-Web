@@ -1,9 +1,4 @@
-import { Engine, Scene, FreeCamera, TargetCamera, Angle } from "babylonjs";
-import { ExecuteCodeAction, ActionManager, StandardMaterial, Vector3 } from "babylonjs";
-import { Color3, Material, PointLight, AssetsManager, DefaultLoadingScreen, ViveController } from "babylonjs";
-
 import { Excursion } from "./Models/ExcursionModels/Excursion";
-import { GUI3DManager } from "babylonjs-gui";
 import { Configuration } from "./Configuration/Configuration";
 import { MathStuff } from "./Stuff/MathStuff";
 import { LinkToStatePool } from "./Models/LinkToStatePool";
@@ -12,13 +7,14 @@ import { State } from "./Models/ExcursionModels/State";
 import { GroupLink } from "./Models/GroupLink";
 import { FieldItemInfo } from "./Models/FieldItemInfo";
 import { FieldItem } from "./Models/FieldItem";
-import axios from "axios";
 import { CroppedImage } from "./Models/ExcursionModels/CroppedImage";
 import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
 import { IconBottom } from "./Models/IconBottom";
-
+import { StandardMaterial, AssetsManager, Material, Engine, Color3, ViveController, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle } from "@babylonjs/core/index";
+import { Scene } from "@babylonjs/core/scene";
+import { GUI3DManager } from "@babylonjs/gui/index";
 
 export class Viewer {
 
@@ -273,7 +269,7 @@ export class Viewer {
             const imageRoot = this.configuration.sceneUrl + targetPicture.croppedImageUrl;
 
             const metaInfoLocation = imageRoot + "/meta.json";
-            const meta = (await axios.get<CroppedImage>(metaInfoLocation)).data;
+            const meta = await (await fetch(metaInfoLocation)).json() as CroppedImage;
 
             imageUrl = imageRoot + "/" + meta.lowQualityImage.route;
 

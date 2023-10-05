@@ -1,5 +1,4 @@
-import { TransformNode } from "babylonjs";
-import { Vector3 } from "babylonjs";
+import { Vector3 } from "@babylonjs/core/index";
 
 interface ItemWithPosition {
     position: Vector3;

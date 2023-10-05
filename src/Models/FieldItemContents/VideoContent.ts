@@ -1,14 +1,6 @@
-import { Material, TransformNode, AssetsManager, Scene, TextureAssetTask } from "babylonjs";
-import { VideoTexture } from "babylonjs";
-import { Mesh } from "babylonjs";
-import { GUI3DManager } from "babylonjs-gui";
-import { MeshBuilder } from "babylonjs";
-import { StandardMaterial } from "babylonjs";
-import { Color3 } from "babylonjs";
-import { ActionManager } from "babylonjs";
-import { ExecuteCodeAction } from "babylonjs";
+import { Mesh, Material, VideoTexture, TransformNode, AssetsManager, Scene, MeshBuilder, StandardMaterial, Color3, ActionManager, ExecuteCodeAction } from "@babylonjs/core/index";
+import { TextBlock, GUI3DManager, TextWrapping } from "@babylonjs/gui/index";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
-import { TextBlock } from "babylonjs-gui";
 import { FieldItemContent } from "./FieldItemContent";
 
 export class VideoContent implements FieldItemContent {
@@ -79,7 +71,7 @@ export class VideoContent implements FieldItemContent {
         plane.isVisible = true;
 
         plane.actionManager = new ActionManager(this.scene);
-        plane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async (ev) => {
+        plane.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async () => {
             this.toggleVideoPlay();
         }));
 
@@ -94,16 +86,16 @@ export class VideoContent implements FieldItemContent {
         button.linkToTransformNode(this.parent);
         var buttonContent = new TextBlock();
         buttonContent.text = this.playIcon;
-        buttonContent.textWrapping = BABYLON.GUI.TextWrapping.WordWrap;
+        buttonContent.textWrapping = TextWrapping.WordWrap;
         buttonContent.resizeToFit = true;
         buttonContent.color = "white";
         buttonContent.fontSize = 250;
         this.playPauseButtonText = buttonContent;
         button.content = buttonContent;
-        button.contentScaleRatio = 1;
+
         button.isVisible = true;
         button.position.x += this.contentWidth / 2.4;
-        button.onPointerClickObservable.add(e => {
+        button.onPointerClickObservable.add(() => {
             this.toggleVideoPlay();
         })
         return button;

@@ -1,22 +1,13 @@
-
-import { Nullable, Color4 } from "babylonjs";
-import { Observer } from "babylonjs";
-import { Color3, Vector3 } from "babylonjs";
-import { StandardMaterial } from "babylonjs";
-import { TransformNode } from "babylonjs";
-import { Mesh } from "babylonjs";
-import { PlaneBuilder } from "babylonjs";
-import { BoxBuilder } from "babylonjs";
-import { FadeInOutBehavior } from "babylonjs";
-import { Scene } from "babylonjs";
-import { FluentMaterial, TextBlock, AdvancedDynamicTexture, Control3D, StackPanel, Image } from "babylonjs-gui";
-import { CustomButton3D } from "./CustomButton3D";
+import { Mesh, StandardMaterial, Observer, Vector3, FadeInOutBehavior, CreatePlane, Color3, IsDocumentAvailable, TransformNode, CreateBox, Material, BaseTexture } from "@babylonjs/core/index";
+import { Scene } from "@babylonjs/core/scene";
+import { Nullable } from "@babylonjs/core/types";
+import { Button3D, FluentMaterial, TextBlock, AdvancedDynamicTexture, Control3D, StackPanel, Image } from "@babylonjs/gui/index";
 
 
 /**
  * Class used to create a holographic button in 3D
  */
-export class CustomHolographicButton extends CustomButton3D {
+export class CustomHolographicButton extends Button3D {
     private _backPlate: Mesh;
     private _textPlate: Mesh;
     private _frontPlate: Mesh;
@@ -27,7 +18,6 @@ export class CustomHolographicButton extends CustomButton3D {
     private _backMaterial: FluentMaterial;
     private _plateMaterial: StandardMaterial;
     private _pickedPointObserver: Nullable<Observer<Nullable<Vector3>>>;
-
 
     // Tooltip
     private _tooltipFade: Nullable<FadeInOutBehavior>;
@@ -53,6 +43,22 @@ export class CustomHolographicButton extends CustomButton3D {
     }
 
     /**
+     * Rendering ground id of all the mesh in the button
+     */
+    public set renderingGroupId(id: number) {
+        this._backPlate.renderingGroupId = id;
+        this._textPlate.renderingGroupId = id;
+        this._frontPlate.renderingGroupId = id;
+
+        if (this._tooltipMesh) {
+            this._tooltipMesh.renderingGroupId = id;
+        }
+    }
+    public get renderingGroupId(): number {
+        return this._backPlate.renderingGroupId;
+    }
+
+    /**
      * Text to be displayed on the tooltip shown when hovering on the button. When set to null tooltip is disabled. (Default: null)
      */
     public set tooltipText(text: Nullable<string>) {
@@ -61,18 +67,18 @@ export class CustomHolographicButton extends CustomButton3D {
             return;
         }
         if (!this._tooltipFade) {
+            const rightHandedScene = this._backPlate._scene.useRightHandedSystem;
             // Create tooltip with mesh and text
-            this._tooltipMesh = PlaneBuilder.CreatePlane("", { size: 1 }, this._backPlate._scene);
-            var tooltipBackground = PlaneBuilder.CreatePlane("", { size: 1, sideOrientation: Mesh.DOUBLESIDE }, this._backPlate._scene);
-            var mat = new StandardMaterial("", this._backPlate._scene);
+            this._tooltipMesh = CreatePlane("", { size: 1 }, this._backPlate._scene);
+            const tooltipBackground = CreatePlane("", { size: 1, sideOrientation: Mesh.DOUBLESIDE }, this._backPlate._scene);
+            const mat = new StandardMaterial("", this._backPlate._scene);
             mat.diffuseColor = Color3.FromHexString("#212121");
             tooltipBackground.material = mat;
             tooltipBackground.isPickable = false;
             this._tooltipMesh.addChild(tooltipBackground);
-            tooltipBackground.position.z = 0.05;
+            tooltipBackground.position = Vector3.Forward(rightHandedScene).scale(0.05);
             this._tooltipMesh.scaling.y = 1 / 3;
-            this._tooltipMesh.position.y = 0.7;
-            this._tooltipMesh.position.z = -0.15;
+            this._tooltipMesh.position = Vector3.Up().scale(0.7).add(Vector3.Forward(rightHandedScene).scale(-0.15));
             this._tooltipMesh.isPickable = false;
             this._tooltipMesh.parent = this._backPlate;
 
@@ -174,9 +180,10 @@ export class CustomHolographicButton extends CustomButton3D {
     /**
      * Creates a new button
      * @param name defines the control name
+     * @param shareMaterials
      */
     constructor(name?: string, width = 1, height = 1, shareMaterials = true) {
-        super(name, width, height);
+        super(name, { width: width, height: height });
         this._shareMaterials = shareMaterials;
 
         // Default animations
@@ -201,21 +208,24 @@ export class CustomHolographicButton extends CustomButton3D {
 
     private _rebuildContent(): void {
         this._disposeFacadeTexture();
-        let panel = new StackPanel();
+
+        const panel = new StackPanel();
         panel.isVertical = true;
 
-        if (this._imageUrl) {
-            let image = new Image();
-            image.source = this._imageUrl;
-            image.paddingTop = "40px";
-            image.height = "180px";
-            image.width = "100px";
-            image.paddingBottom = "40px";
-            panel.addControl(image);
+        if (IsDocumentAvailable() && !!document.createElement) {
+            if (this._imageUrl) {
+                const image = new Image();
+                image.source = this._imageUrl;
+                image.paddingTop = "40px";
+                image.height = "180px";
+                image.width = "100px";
+                image.paddingBottom = "40px";
+                panel.addControl(image);
+            }
         }
 
         if (this._text) {
-            let text = new TextBlock();
+            const text = new TextBlock();
             text.text = this._text;
             text.color = "white";
             text.height = "30px";
@@ -230,40 +240,51 @@ export class CustomHolographicButton extends CustomButton3D {
 
     // Mesh association
     protected _createNode(scene: Scene): TransformNode {
-        this._backPlate = BoxBuilder.CreateBox(this.name + "BackMesh", {
-            width: this._width,
-            height: this._height,
-            depth: 0.08
-        }, scene);
+        this._backPlate = CreateBox(
+            this.name + "BackMesh",
+            {
+                width: this._options.width,
+                height: this._options.height,
+                depth: 0.08,
+            },
+            scene
+        );
 
-        this._frontPlate = BoxBuilder.CreateBox(this.name + "FrontMesh", {
-            width: this._width,
-            height: this._height,
-            depth: 0.08
-        }, scene);
+        this._frontPlate = CreateBox(
+            this.name + "FrontMesh",
+            {
+                width: this._options.width,
+                height: this._options.height,
+                depth: 0.08,
+            },
+            scene
+        );
 
         this._frontPlate.parent = this._backPlate;
-        this._frontPlate.position.z = -0.08;
+        this._frontPlate.position = Vector3.Forward(scene.useRightHandedSystem).scale(-0.08);
         this._frontPlate.isPickable = false;
         this._frontPlate.setEnabled(false);
 
         this._textPlate = <Mesh>super._createNode(scene);
         this._textPlate.parent = this._backPlate;
-        this._textPlate.position.z = -0.08;
+        this._textPlate.position = Vector3.Forward(scene.useRightHandedSystem).scale(-0.08);
         this._textPlate.isPickable = false;
 
         return this._backPlate;
     }
 
     protected _applyFacade(facadeTexture: AdvancedDynamicTexture) {
-        this._plateMaterial.emissiveTexture = facadeTexture;
-        this._plateMaterial.opacityTexture = facadeTexture;
+        facadeTexture.scaleTo(this._options.width * this.contentResolution, this._options.height * this.contentResolution);
+        facadeTexture._rootContainer.scaleX = 1;
+        facadeTexture._rootContainer.scaleY = 1;
+        this._plateMaterial.emissiveTexture = facadeTexture as unknown as BaseTexture;
+        this._plateMaterial.opacityTexture = facadeTexture as unknown as BaseTexture;
     }
 
     private _createBackMaterial(mesh: Mesh) {
         this._backMaterial = new FluentMaterial(this.name + "Back Material", mesh.getScene());
         this._backMaterial.renderHoverLight = true;
-        this._pickedPointObserver = this._host.onPickedPointChangedObservable.add((pickedPoint) => {
+        this._pickedPointObserver = this._host.onPickedPointChangedObservable.add((pickedPoint: Vector3) => {
             if (pickedPoint) {
                 this._backMaterial.hoverPosition = pickedPoint;
                 this._backMaterial.hoverColor.a = 1.0;
@@ -276,7 +297,7 @@ export class CustomHolographicButton extends CustomButton3D {
     private _createFrontMaterial(mesh: Mesh) {
         this._frontMaterial = new FluentMaterial(this.name + "Front Material", mesh.getScene());
         this._frontMaterial.innerGlowColorIntensity = 0; // No inner glow
-        this._frontMaterial.alpha = 0.5; // Additive
+        (this._frontMaterial as unknown as Material).alpha = 0.5; // Additive
         this._frontMaterial.renderBorders = true;
     }
 
@@ -308,8 +329,8 @@ export class CustomHolographicButton extends CustomButton3D {
         }
 
         this._createPlateMaterial(mesh);
-        this._backPlate.material = this._backMaterial;
-        this._frontPlate.material = this._frontMaterial;
+        this._backPlate.material = this._backMaterial as unknown as Material;
+        this._frontPlate.material = this._frontMaterial as unknown as Material;
         this._textPlate.material = this._plateMaterial;
 
         this._rebuildContent();
