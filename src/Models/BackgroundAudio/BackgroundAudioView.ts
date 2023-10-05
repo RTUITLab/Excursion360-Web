@@ -18,16 +18,16 @@ export class BackgroundAudioView {
           this.gestureDetected = true;
         }, 300);
       }
-      fullStreenUI.onPlayPauseBackgroundAudioClickObservable.add(() => {
-        this.gestureDetected = true;
-        if (this.currentAudioPack) {
-          if (this.isPlay) {
-            this.pause();
-          } else {
-            this.play();
-          }
+    });
+    fullStreenUI.onPlayPauseBackgroundAudioClickObservable.add(() => {
+      this.gestureDetected = true;
+      if (this.currentAudioPack) {
+        if (this.isPlay) {
+          this.pause();
+        } else {
+          this.play();
         }
-      });
+      }
     });
 
 
