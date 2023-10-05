@@ -59,7 +59,7 @@ export class Viewer {
         const guiManager = new GUI3DManager(scene);
         this.links = new LinkToStatePool(this.assetsManager, guiManager, scene);
 
-        this.fullScreenGUI = new FullScreenGUI(scene);
+        this.fullScreenGUI = new FullScreenGUI(scene, () => this.goToFirstState());
         this.backgroundAudio = new BackgroundAudioView(scene, this.configuration.sceneUrl, this.fullScreenGUI);
 
         var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
@@ -105,7 +105,7 @@ export class Viewer {
                         if (bButton) {
                             bButton.onButtonStateChangedObservable.add((e) => {
                                 if (e.pressed) {
-                                    this.goToImage(this.viewScene.firstStateId, undefined, true);
+                                    this.goToFirstState();
                                 }
                             });
                         }
@@ -162,6 +162,12 @@ export class Viewer {
         });
     }
 
+    private goToFirstState() {
+        this.goToImage(this.viewScene.firstStateId, () => {
+            this.rotateCamToAngle(180); // TODO: Временное решение, у каждой сцены должен быть прописан угол поворота для корректного открытия
+        }, true);
+    }
+
     public async show(scene: Excursion) {
         this.viewScene = scene;
         for (const material of this.linkSphereMaterials) {
@@ -204,6 +210,9 @@ export class Viewer {
         this.currentPicture = targetPicture;
         this.cleanLinks();
         await this.drawImage(targetPicture, actionBeforeChange);
+
+        this.fullScreenGUI.setFastReturnToFirstStateVisible((id !== this.viewScene.firstStateId) && this.viewScene.fastReturnToFirstStateEnabled);
+
         document.title = targetPicture.title || this.viewScene.title;
 
         const backgroundAudio = this.viewScene.backgroundAudios.find(b => b.id === targetPicture.backgroundAudioId);

@@ -1,6 +1,5 @@
 import { BackgroundAudioInfo } from "./BackgroundAudioInfo";
 import { State as State } from "./State";
-import { TableOfContentRow } from "./TableOfContentRow";
 
 /**
  * Excursion object, present start point and all states
@@ -26,6 +25,10 @@ export interface Excursion {
      * Id of first state to show
      */
     firstStateId: string;
+    /**
+     * Fast return to first state button enabled
+     */
+    fastReturnToFirstStateEnabled: boolean;
     /**
      * All states in excursion
      */
