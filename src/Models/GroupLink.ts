@@ -57,7 +57,7 @@ export class GroupLink extends LinkToState {
         text1.textWrapping = TextWrapping.WordWrap;
         text1.resizeToFit = true;
         text1.color = "white";
-        text1.fontSize = 90;
+        text1.fontSize = 140;
         button.content = text1;
 
         button.isVisible = false;

@@ -12,7 +12,7 @@ import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
 import { IconBottom } from "./Models/IconBottom";
-import { StandardMaterial, AssetsManager, Material, Engine, Color3, ViveController, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle } from "@babylonjs/core/index";
+import { StandardMaterial, AssetsManager, Material, Engine, Color3, ViveController, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle, Quaternion } from "@babylonjs/core/index";
 import { Scene } from "@babylonjs/core/scene";
 import { GUI3DManager } from "@babylonjs/gui/index";
 import { WebXRDefaultExperience } from '@babylonjs/core/index';
@@ -38,6 +38,8 @@ export class Viewer {
     currentPicture: State;
     fullScreenGUI: FullScreenGUI;
     iconBottom: IconBottom | null = null;
+    xrHelper: WebXRDefaultExperience;
+    freeCamera: FreeCamera;
 
     constructor(private configuration: Configuration) { }
 
@@ -76,15 +78,21 @@ export class Viewer {
             this.goToImage(this.currentPicture.id, () => { }, false);
         });
 
-        var camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
+        const camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
         camera.attachControl(canvas, true);
+
+        this.freeCamera = camera;
 
         try {
             WebXRDefaultExperience.CreateAsync(scene, {
-                disableTeleportation: true,
+                disableTeleportation: false,
                 inputOptions: {
                     disableOnlineControllerRepository: false,
                 }
+            }).then(xr => {
+                this.xrHelper = xr;
+            }).catch(error => {
+                console.error(error);
             })
         } catch (error) {
             console.error(error);
@@ -158,12 +166,13 @@ export class Viewer {
         await this.goToImage(targetId, null, true);
     }
 
-    public rotateCameraToQuaternion(rotation: any): void {
-        const targetPosition = MathStuff.GetPositionForMarker(rotation, 100);
-        const targetCamera = this.scene.activeCamera as TargetCamera;
-        targetCamera.setTarget(targetPosition);
+    private rotateCamToAngle(angle: number) {
+        const yAngle = Angle.FromDegrees(angle).radians() + Math.PI;;
+        this.freeCamera.rotation.y = yAngle;
+        this.xrHelper && this.xrHelper.input.xrSessionManager.runInXRFrame(() => {
+            this.xrHelper.input.xrCamera.setTransformationFromNonVRCamera(this.freeCamera);
+        })
     }
-
 
     private async goToImage(id: string, actionBeforeChange: () => void = null, forceReload = false) {
 
@@ -190,8 +199,7 @@ export class Viewer {
                 let rotateCam = () => { };
                 if (link.rotationAfterStepAngleOverridden) {
                     rotateCam = () => {
-                        var targetCamera = this.scene.activeCamera as TargetCamera;
-                        targetCamera.rotation.y = Angle.FromDegrees(link.rotationAfterStepAngle).radians() + Math.PI;
+                        this.rotateCamToAngle(link.rotationAfterStepAngle);
                     }
                 }
                 return this.goToImage(link.id, rotateCam);
@@ -220,8 +228,7 @@ export class Viewer {
                     var overridePair = groupLink.groupStateRotationOverrides.find(p => p.stateId == selectedId);
                     if (overridePair) {
                         rotateCam = () => {
-                            var targetCamera = this.scene.activeCamera as TargetCamera;
-                            targetCamera.rotation.y = Angle.FromDegrees(overridePair.rotationAfterStepAngle).radians() + Math.PI;
+                            this.rotateCamToAngle(overridePair.rotationAfterStepAngle);
                         };
                     }
                     return this.goToImage(selectedId, rotateCam);

@@ -45,8 +45,6 @@ export class AudioContainer {
   }
 
   private playSong(id: string, url: string): Sound {
-    console.log("playSong");
-
     const newSound = new Sound(`background_audio_content_${id}`, url, this.scene, async () => {
       if (this.currentSound && this.currentSound != newSound) {
         this.currentSound.stop();

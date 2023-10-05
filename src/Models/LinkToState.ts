@@ -32,9 +32,10 @@ export class LinkToState {
         this.linkObject.position = Vector3.Zero();
         this.linkObject.material = material;
         this.linkObject.actionManager = new ActionManager(this.scene);
-        this.linkObject.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPickTrigger, async () => {
-            await triggered();
-        }));
+        this.linkObject.actionManager.registerAction(
+            new ExecuteCodeAction(ActionManager.OnPickTrigger, async () => {
+                await triggered();
+            }));
         this.linkObject.actionManager.registerAction(
             new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
                 this.openGuiMesh();
