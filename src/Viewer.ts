@@ -104,7 +104,7 @@ export class Viewer {
                         const bButton = mc.getComponent("b-button");
                         if (bButton) {
                             bButton.onButtonStateChangedObservable.add((e) => {
-                                if (e.pressed) {
+                                if (e.pressed && this.viewScene.fastReturnToFirstStateEnabled) {
                                     this.goToFirstState();
                                 }
                             });
