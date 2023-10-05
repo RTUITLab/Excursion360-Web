@@ -85,10 +85,29 @@ export class BackgroundAudioView {
           () => {
             return this.gestureDetected
           },
-          (isPlay) => isPlay ? this.setPlayState() : this.setPauseState(),
-          () => {
-            return this.isPlay;
-          });
+          (container, isPlay) => {
+            if (container.id === this.currentAudioPack.id) {
+              if (isPlay) {
+                for (const ac of this.packs.values()) {
+                  if (ac.id !== container.id) {
+                    ac.pause();
+                  }
+                }
+                this.setPlayState();
+              } else {
+                for (const ac of this.packs.values()) {
+                  ac.pause();
+                }
+                this.setPlayState();
+              }
+            } else {
+              if (isPlay) {
+                container.pause();
+              }
+            }
+            return isPlay ? this.setPlayState() : this.setPauseState();
+          }
+        );
         this.packs.set(audioInfo.id, this.currentAudioPack);
       }
       this.isPlay = true;

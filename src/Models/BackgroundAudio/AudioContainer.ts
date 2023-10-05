@@ -5,15 +5,14 @@ export class AudioContainer {
   private currentSound: Sound | null;
   private currentIndex: number = -1;
 
-  private isPlay: boolean = false;
+  private localState: boolean = false;
 
   constructor(
     private info: BackgroundAudioInfo,
     private scene: Scene,
     private sceneUrl: string,
     private isGestureDetected: () => boolean,
-    private isPlayChange: (isPlay: boolean) => void,
-    private isParentPlay: () => boolean) {
+    private isPlayChange: (container: AudioContainer, isPlay: boolean) => void) {
   }
 
   public get id(): string {
@@ -25,7 +24,7 @@ export class AudioContainer {
       if (!this.currentSound.isPlaying) {
         this.currentSound.play();
       }
-      this.isPlay = true;
+      this.localState = true;
     } else {
       this.playNext(true);
     }
@@ -35,13 +34,13 @@ export class AudioContainer {
     if (this.currentSound) {
       this.currentSound.pause();
     }
-    this.isPlay = false;
+    this.localState = false;
   }
   public stop() {
     if (this.currentSound) {
       this.currentSound.stop();
     }
-    this.isPlay = false;
+    this.localState = false;
   }
 
   private playSong(id: string, url: string): Sound {
@@ -53,12 +52,12 @@ export class AudioContainer {
       this.currentSound = newSound;
       const playAfterResume = () => {
         setTimeout(async () => {
-          if (this.isGestureDetected() && this.isParentPlay()) {
+          if (this.isGestureDetected()) {
             await this.scene.getEngine().getAudioContext().resume();
             this.play();
           }
           if (newSound.isPlaying) {
-            this.isPlayChange(true);
+            this.isPlayChange(this, true);
           } else {
             playAfterResume();
           }
@@ -66,7 +65,7 @@ export class AudioContainer {
       }
       playAfterResume();
       newSound.onEndedObservable.add(() => {
-        if (this.isPlay) {
+        if (this.localState) {
           this.playNext(false);
         }
       });
@@ -92,7 +91,7 @@ export class AudioContainer {
       this.playSong(this.info.id, this.sceneUrl + this.info.audios[targetIndex]);
     } else {
       if (!this.info.loopAudios && !force) {
-        this.isPlayChange(false);
+        this.isPlayChange(this, false);
         return;
       }
       targetIndex = this.currentIndex = 0;
