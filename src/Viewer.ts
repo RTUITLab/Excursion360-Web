@@ -15,6 +15,10 @@ import { IconBottom } from "./Models/IconBottom";
 import { StandardMaterial, AssetsManager, Material, Engine, Color3, ViveController, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle } from "@babylonjs/core/index";
 import { Scene } from "@babylonjs/core/scene";
 import { GUI3DManager } from "@babylonjs/gui/index";
+import { WebXRDefaultExperience } from '@babylonjs/core/index';
+
+import '@babylonjs/loaders/glTF'
+
 
 export class Viewer {
 
@@ -72,25 +76,19 @@ export class Viewer {
             this.goToImage(this.currentPicture.id, () => { }, false);
         });
 
-        const supportsVR = 'getVRDisplays' in navigator;
         var camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
         camera.attachControl(canvas, true);
-        if (supportsVR) {
-            navigator.getVRDisplays().then(function (displays) {
-                const vrHelper = scene.createDefaultVRExperience({
-                    controllerMeshes: true,
-                    rayLength: 500
-                });
 
-                vrHelper.enableInteractions();
-                vrHelper.displayGaze = true;
-                vrHelper.deviceOrientationCamera.position = Vector3.Zero();
-                vrHelper.webVRCamera.position = Vector3.Zero();
-                vrHelper.vrDeviceOrientationCamera.position = Vector3.Zero();
-                camera.dispose();
-            });
+        try {
+            WebXRDefaultExperience.CreateAsync(scene, {
+                disableTeleportation: true,
+                inputOptions: {
+                    disableOnlineControllerRepository: false,
+                }
+            })
+        } catch (error) {
+            console.error(error);
         }
-
         DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
         if (this.configuration.bottomImage) {
             this.iconBottom = new IconBottom(scene, this.configuration.bottomImage);

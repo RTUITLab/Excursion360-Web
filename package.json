@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Viewer for 360 excursion",
     "scripts": {
-        "start": "webpack-dev-server --mode=development",
+        "start": "webpack-dev-server --mode=development --https",
         "build": "webpack --mode=production",
         "devBuild": "webpack --mode=development"
     },
@@ -13,6 +13,7 @@
         "@babylonjs/core": "^6.22.1",
         "@babylonjs/gui": "^6.22.1",
         "@babylonjs/inspector": "^6.22.1",
+        "@babylonjs/loaders": "^6.22.1",
         "@babylonjs/materials": "^6.22.1",
         "axios": "^0.21.1",
         "bowser": "^2.11.0"

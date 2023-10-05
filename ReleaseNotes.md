@@ -1,6 +1,7 @@
 * `0.9.15`
-  * Babylon.JS обновлен до 6.22.1, используются ES6 модули для работы [Tree Shaking](https://doc.babylonjs.com/setup/frameworkPackages/es6Support)
-  * Вместо axios используется fetch
+  * Babylon.JS обновлен до 6.22.1, используются ES6 модули для работы [Tree Shaking](https://doc.babylonjs.com/setup/frameworkPackages/es6Support).
+  * Вместо axios используется fetch.
+  * Используется WebXR вместо WebVR, корректно подтягивает модель Pico 4.
 * `0.9.14`
   * Добавлено отображение изображения в нижней части сцены, для сокрытия штатива.
 * `0.9.13`

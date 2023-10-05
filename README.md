@@ -26,10 +26,10 @@ NEED_DEBUG_LAYER=[false|true]
 ```
 * Run command ```npm install``` in project folder
 * Run command ```npm start``` in project folder
-* Open in browser [localhost:8088](http://localhost:8088/)
+* Open in browser [https://localhost:8088](https://localhost:8088/), https is required for correct work WebXR.
 
 
 ## Tips
 
-* Use `devdata` directory to place excursion build(already gitignore).
-* Folder `devdata/excursion` already configured as root for [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer).
+* Use `build` directory to place excursion build(already gitignore).
+* Fill `sceneUrl` of `build/config.json` to folder name of excursion.
