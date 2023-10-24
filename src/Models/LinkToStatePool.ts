@@ -4,6 +4,7 @@ import { FieldItem } from "./FieldItem";
 import { FieldItemInfo } from "./FieldItemInfo";
 import { AssetsManager, Scene, Vector3, Material, StandardMaterial, AbstractMesh, Animation } from "@babylonjs/core/index";
 import { GUI3DManager } from "@babylonjs/gui/index";
+import { GroupConnectionViewMode } from "./ExcursionModels/GroupLink";
 
 // TODO reuse link objects
 export class LinkToStatePool {
@@ -52,6 +53,7 @@ export class LinkToStatePool {
 
     public getGroupLink(
         name: string,
+        viewMode: GroupConnectionViewMode,
         states: { title: string, id: string }[],
         infos: string[],
         position: Vector3,
@@ -59,7 +61,7 @@ export class LinkToStatePool {
         material: Material,
         clickSphere: (gl: GroupLink) => Promise<void>,
         goToSceneTriggered: (id: string) => Promise<void>): GroupLink {
-        const link = new GroupLink(name, states, infos, position, minimizing, material, clickSphere, goToSceneTriggered, this.linkAnimation, this.guiManager, this.scene);
+        const link = new GroupLink(name, viewMode, states, infos, position, minimizing, material, clickSphere, goToSceneTriggered, this.linkAnimation, this.guiManager, this.scene);
         this.links.push(link);
         return link;
     }

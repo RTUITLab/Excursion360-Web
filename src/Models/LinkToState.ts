@@ -6,7 +6,7 @@ export class LinkToState {
     private static linkModel: AbstractMesh;
 
     protected center: TransformNode;
-    protected linkObject: AbstractMesh;
+    protected linkObject: AbstractMesh | null;
     protected guiMesh: AbstractMesh;
     private guiTexture: AdvancedDynamicTexture;
     private textBlock: TextBlock;
@@ -18,7 +18,7 @@ export class LinkToState {
         triggered: () => Promise<void>,
         animation: Animation,
         protected scene: Scene,
-        linkMeshCreating?: (parent: TransformNode) => AbstractMesh,
+        linkMeshCreating?: (parent: TransformNode) => AbstractMesh | null,
         minimizing: { scale: number } = { scale: 1 }) {
         this.center = new TransformNode(name, scene);
         this.center.position = position;
@@ -29,21 +29,23 @@ export class LinkToState {
         else {
             this.linkObject = this.createLinkObject(`l${name}_polyhedron`, this.center, scene);
         }
-        this.linkObject.position = Vector3.Zero();
-        this.linkObject.material = material;
-        this.linkObject.actionManager = new ActionManager(this.scene);
-        this.linkObject.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnPickTrigger, async () => {
-                await triggered();
-            }));
-        this.linkObject.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
-                this.openGuiMesh();
-            }));
-        this.linkObject.actionManager.registerAction(
-            new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
-                this.hideGuiMesh();
-            }));
+        if (this.linkObject) {
+            this.linkObject.position = Vector3.Zero();
+            this.linkObject.material = material;
+            this.linkObject.actionManager = new ActionManager(this.scene);
+            this.linkObject.actionManager.registerAction(
+                new ExecuteCodeAction(ActionManager.OnPickTrigger, async () => {
+                    await triggered();
+                }));
+            this.linkObject.actionManager.registerAction(
+                new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, () => {
+                    this.openGuiMesh();
+                }));
+            this.linkObject.actionManager.registerAction(
+                new ExecuteCodeAction(ActionManager.OnPointerOutTrigger, () => {
+                    this.hideGuiMesh();
+                }));
+        }
         this.guiMesh = MeshBuilder.CreatePlane(name, {
             width: 7 / minimizing.scale,
             height: 2 / minimizing.scale
@@ -78,23 +80,23 @@ export class LinkToState {
         this.guiTexture.addControl(background);
 
         background.addControl(tb);
-        if (animation) {
+        if (animation && this.linkObject) {
             this.linkObject.animations.push(animation);
             scene.beginAnimation(this.linkObject, 0, 60, true);
         }
     }
 
     public rotate(axis: Vector3, angle: number): void {
-        this.linkObject.rotate(axis, angle);
+        this.linkObject && this.linkObject.rotate(axis, angle);
     }
 
     public dispose(): void {
         this.guiMesh.material.dispose();
         this.center.dispose();
-        this.guiTexture.dispose();
+        this.linkObject && this.guiTexture.dispose();
     }
     public isLinkMesh(mesh: AbstractMesh): boolean {
-        return this.linkObject == mesh;
+        return this.linkObject && this.linkObject == mesh;
     }
 
     protected createLinkObject(name: string, parent: TransformNode, scene: Scene): AbstractMesh {

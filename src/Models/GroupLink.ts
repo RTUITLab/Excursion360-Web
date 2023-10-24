@@ -2,6 +2,7 @@ import { LinkToState } from "./LinkToState";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton"
 import { AbstractMesh, Material, MeshBuilder, Scene, TransformNode, Vector3, Animation } from "@babylonjs/core/index";
 import { AdvancedDynamicTexture, GUI3DManager, TextBlock, Rectangle, TextWrapping } from "@babylonjs/gui/index";
+import { GroupConnectionViewMode } from "./ExcursionModels/GroupLink";
 
 export class GroupLink extends LinkToState {
     private isOpened = false;
@@ -12,6 +13,7 @@ export class GroupLink extends LinkToState {
     itemsCount = 1;
     constructor(
         public name: string,
+        private viewMode: GroupConnectionViewMode,
         states: { title: string, id: string }[],
         infos: string[],
         position: Vector3,
@@ -30,7 +32,9 @@ export class GroupLink extends LinkToState {
             () => this.triggerAction(),
             animation,
             scene,
-            null,
+            viewMode == GroupConnectionViewMode.AlwaysShowOnlyButtons
+                ? (() => null)
+                : null,
             minimizing);
         this.buttonsPoint = new TransformNode("buttons point", scene);
         this.buttonsPoint.parent = this.center;
@@ -40,6 +44,9 @@ export class GroupLink extends LinkToState {
         }
         for (const info of infos) {
             this.createTextCard(info);
+        }
+        if (viewMode == GroupConnectionViewMode.AlwaysShowOnlyButtons) {
+            this.openLinks();
         }
     }
 
@@ -101,6 +108,9 @@ export class GroupLink extends LinkToState {
     }
 
     public closeLinks() {
+        if (this.viewMode == GroupConnectionViewMode.AlwaysShowOnlyButtons) {
+            return;
+        }
         this.setLinksOpened(false);
         this.hideGuiMesh();
     }

@@ -5,6 +5,8 @@ import { StateItem } from "./StateItem";
 export interface GroupLink extends StateItem {
     /** Title of link */
     title: string;
+    /** how to render */
+    viewMode: GroupConnectionViewMode;
     /** Ids of connected states */
     stateIds: string[];
     /** Overrides of state step angles */
@@ -15,4 +17,10 @@ export interface GroupLink extends StateItem {
      * Minimize modifier for label
      */
     minimizeScale: number;
+}
+
+export enum GroupConnectionViewMode
+{
+    ShowByClickOnItem = 0,
+    AlwaysShowOnlyButtons = 1,
 }

@@ -12,7 +12,7 @@ import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
 import { IconBottom } from "./Models/IconBottom";
-import { StandardMaterial, AssetsManager, Material, Engine, Color3, ViveController, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle, Quaternion, MeshBuilder, Mesh } from "@babylonjs/core/index";
+import { StandardMaterial, AssetsManager, Material, Engine, Color3, FreeCamera, Vector3, DefaultLoadingScreen, ActionManager, ExecuteCodeAction, PointLight, TargetCamera, Angle, Quaternion, MeshBuilder, Mesh } from "@babylonjs/core/index";
 import { Scene } from "@babylonjs/core/scene";
 import { GUI3DManager } from "@babylonjs/gui/index";
 import { WebXRDefaultExperience } from '@babylonjs/core/index';
@@ -73,7 +73,6 @@ export class Viewer {
         fiMaterial.emissiveColor = Color3.White();
         this.fieldItemMaterial = fiMaterial;
 
-        ViveController.MODEL_BASE_URL = "models/vive/";
         window.addEventListener('hashchange', () => {
             this.goToImage(this.currentPicture.id, () => { }, false);
         });
@@ -243,8 +242,8 @@ export class Viewer {
             const position = MathStuff.GetPositionForMarker(groupLink.rotation, distanceToLinks);
             const material = this.groupLinkMaterial;
 
-            const linkToState = this.links.getGroupLink(name,
-                groupLink.stateIds.map(stateId => { return { id: stateId, title: this.getName(stateId) } }),
+            const linkToState = this.links.getGroupLink(name, 
+                groupLink.viewMode, groupLink.stateIds.map(stateId => { return { id: stateId, title: this.getName(stateId) } }),
                 groupLink.infos,
                 position,
                 { scale: groupLink.minimizeScale },
