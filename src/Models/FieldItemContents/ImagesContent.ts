@@ -122,10 +122,9 @@ export class ImagesContent implements FieldItemContent {
         const task = this.assetsManager.addTextureTask("image task", url, null, true);
         this.assetsManager.load();
         task.onSuccess = () => {
-            var textureSize = task.texture.getSize();
-            var maxSize = Math.max(textureSize.width, textureSize.height);
-            var localContentWith = this.contentWidth / 1.5;
-            var localContentHeight = this.contentHeight / 1.3;
+            const textureSize = task.texture.getSize();
+            const localContentWith = this.contentWidth / 1.5;
+            const localContentHeight = this.contentHeight / 1.3;
 
             let multipler: number = 1;
             if (textureSize.width > textureSize.height) { // horizontal
@@ -141,7 +140,7 @@ export class ImagesContent implements FieldItemContent {
             imagePlane.parent = this.parent;
             imagePlane.position.z = -0.1;
             imagePlane.position.y = 0.8; // TODO: https://github.com/RTUITLab/Excursion360-Web/issues/81
-            var material = new StandardMaterial("", this.scene);
+            const material = new StandardMaterial("", this.scene);
             material.specularColor = Color3.Black();
             material.diffuseTexture = task.texture;
 
