@@ -19,7 +19,7 @@ export class LinkToState {
         animation: Animation,
         protected scene: Scene,
         linkMeshCreating?: (parent: TransformNode) => AbstractMesh | null,
-        minimizing: { scale: number } = { scale: 1 }) {
+        positionDetails: { scale: number, titleYPosition: number } = { scale: 1, titleYPosition: 2 }) {
         this.center = new TransformNode(name, scene);
         this.center.position = position;
 
@@ -47,20 +47,20 @@ export class LinkToState {
                 }));
         }
         this.guiMesh = MeshBuilder.CreatePlane(name, {
-            width: 7 / minimizing.scale,
-            height: 2 / minimizing.scale
+            width: 7 / positionDetails.scale,
+            height: 2 / positionDetails.scale
         }, scene);
         this.guiMesh.parent = this.center;
         this.guiMesh.lookAt(this.center.position.scale(1.1));
-        this.guiMesh.position.y += 2;
+        this.guiMesh.position.y += positionDetails.titleYPosition;
         this.guiMesh.isVisible = false;
         this.guiMesh.isPickable = false;
 
         const pixelsToOne = 512 / 2;
 
         this.guiTexture = AdvancedDynamicTexture.CreateForMesh(this.guiMesh,
-            7 * pixelsToOne / minimizing.scale,
-            2 * pixelsToOne / minimizing.scale);
+            7 * pixelsToOne / positionDetails.scale,
+            2 * pixelsToOne / positionDetails.scale);
 
         const background = new Rectangle("link text rectangle");
         background.background = "silver";

@@ -300,7 +300,10 @@ export class Viewer {
         }),
         groupLink.infos,
         position,
-        { scale: groupLink.minimizeScale },
+        {
+          scale: groupLink.minimizeScale,
+          titleYPosition: groupLink.titleYPosition,
+        },
         material,
         async (gl) => {
           groupLinks.filter((l) => l !== gl).forEach((l) => l.closeLinks());

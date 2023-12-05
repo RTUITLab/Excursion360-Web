@@ -17,6 +17,10 @@ export interface GroupLink extends StateItem {
      * Minimize modifier for label
      */
     minimizeScale: number;
+    /**
+     * Позиция заголовка для группы объектов
+     */
+    titleYPosition: number;
 }
 
 export enum GroupConnectionViewMode
