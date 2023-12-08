@@ -6,11 +6,10 @@ import { PointerEventTypes, Scene } from "@babylonjs/core/index";
 export class BackgroundAudioView {
   private packs: Map<string, AudioContainer> = new Map();
   private currentAudioPack: AudioContainer | null = null;
-  private currentAudioTime: number = 0;
   private isPlay: boolean = true;
   private gestureDetected: boolean;
   private timer: null | {start: number, end: number, functionStart: () => void, functionEnd: () => void}
-
+  private timerItWorked: boolean = false;
 
   constructor(private scene: Scene, private sceneUrl: string, private fullStreenUI: FullScreenGUI) {
     scene.onPointerObservable.add((d, s) => {
@@ -49,21 +48,21 @@ export class BackgroundAudioView {
     if (this.isPlay)
     {
       setTimeout(() => {
-        this.currentAudioTime++;
-        if (this.currentAudioTime === this.timer.start)
+        if (this.currentAudioPack.getCurrentTime() >= this.timer.start && this.currentAudioPack.getCurrentTime() <= this.timer.end && this.timerItWorked === false)
         {
+          this.timerItWorked = true;
           this.timer.functionStart();
           this.functionTimer();
         }
-        else if(this.currentAudioTime === this.timer.end)
+        else if(this.currentAudioPack.getCurrentTime() > this.timer.end && this.timerItWorked === true)
         {
+          this.timerItWorked = false;
           this.timer.functionEnd();
           this.functionTimer();
         }
         else
         {
           this.functionTimer();
-          console.log(this.currentAudioTime);
         }
       }, 20);
     }
@@ -148,7 +147,6 @@ export class BackgroundAudioView {
         this.packs.set(audioInfo.id, this.currentAudioPack);
       }
       this.isPlay = true;
-      this.currentAudioTime = 0;
       this.currentAudioPack.playNext(false);
     } else {
       if (this.currentAudioPack) {

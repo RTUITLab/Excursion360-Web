@@ -19,6 +19,10 @@ export class AudioContainer {
     return this.info.id;
   }
 
+  public getCurrentTime(): number {
+    return this.currentSound.currentTime;
+  }
+
   public play() {
     if (this.currentSound) {
       if (!this.currentSound.isPlaying) {
