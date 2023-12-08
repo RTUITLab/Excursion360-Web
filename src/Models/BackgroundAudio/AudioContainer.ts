@@ -4,7 +4,7 @@ import { Scene, Sound } from "@babylonjs/core/index";
 export class AudioContainer {
   private currentSound: Sound | null;
   private currentIndex: number = -1;
-
+  private timerItWorked: boolean = false;
   private localState: boolean = false;
 
   constructor(
@@ -17,6 +17,16 @@ export class AudioContainer {
 
   public get id(): string {
     return this.info.id;
+  }
+
+  public getTimerItWorked(): boolean
+  {
+    return this.timerItWorked;
+  }
+
+  public setTimerItWorked(timerItWorked: boolean): void
+  {
+    this.timerItWorked = timerItWorked;
   }
 
   public getCurrentTime(): number {

@@ -9,7 +9,6 @@ export class BackgroundAudioView {
   private isPlay: boolean = true;
   private gestureDetected: boolean;
   private timer: null | {start: number, end: number, functionStart: () => void, functionEnd: () => void}
-  private timerItWorked: boolean = false;
 
   constructor(private scene: Scene, private sceneUrl: string, private fullStreenUI: FullScreenGUI) {
     scene.onPointerObservable.add((d, s) => {
@@ -48,15 +47,15 @@ export class BackgroundAudioView {
     if (this.isPlay)
     {
       setTimeout(() => {
-        if (this.currentAudioPack.getCurrentTime() >= this.timer.start && this.currentAudioPack.getCurrentTime() <= this.timer.end && this.timerItWorked === false)
+        if (this.currentAudioPack.getCurrentTime() >= this.timer.start && this.currentAudioPack.getCurrentTime() <= this.timer.end && this.currentAudioPack.getTimerItWorked() === false)
         {
-          this.timerItWorked = true;
+          this.currentAudioPack.setTimerItWorked(true);
           this.timer.functionStart();
           this.functionTimer();
         }
-        else if(this.currentAudioPack.getCurrentTime() > this.timer.end && this.timerItWorked === true)
+        else if(this.currentAudioPack.getCurrentTime() > this.timer.end && this.currentAudioPack.getTimerItWorked() === true)
         {
-          this.timerItWorked = false;
+          this.currentAudioPack.setTimerItWorked(false);
           this.timer.functionEnd();
           this.functionTimer();
         }
