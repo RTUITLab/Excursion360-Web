@@ -259,7 +259,21 @@ export class Viewer {
     const backgroundAudio = this.viewScene.backgroundAudios.find(
       (b) => b.id === targetPicture.backgroundAudioId
     );
-    this.backgroundAudio.setSound(backgroundAudio);
+    this.backgroundAudio.setSound(backgroundAudio, backgroundAudio.timer ? {start: backgroundAudio.timer.start, end: backgroundAudio.timer.end, functionStart: async () => {console.log("start"); const loadImage = new ImageContentItem(
+        {
+          "orientation": {
+            "x": -0.3654876947402954,
+            "y": 0.9199443459510803,
+            "z": 0.0,
+            "w": 0.14184878766536714
+          },
+          "contentType": 1,
+          "multipler": 0.001500000013038516,
+          "image": this.configuration.sceneUrl + "content_item_23664.jpg"
+        },
+        this.assetsManager,
+        this.scene
+      ); this.imageContents.push(loadImage); await this.assetsManager.loadAsync();}, functionEnd: async () => {console.log("end"); this.imageContents[1].dispose(); await this.assetsManager.loadAsync();}} : undefined);
 
     const distanceToLinks = 15;
     for (const link of targetPicture.links) {

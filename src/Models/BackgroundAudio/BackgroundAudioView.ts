@@ -6,9 +6,10 @@ import { PointerEventTypes, Scene } from "@babylonjs/core/index";
 export class BackgroundAudioView {
   private packs: Map<string, AudioContainer> = new Map();
   private currentAudioPack: AudioContainer | null = null;
-
+  private currentAudioTime: number = 0;
   private isPlay: boolean = true;
   private gestureDetected: boolean;
+  private timer: null | {start: number, end: number, functionStart: () => void, functionEnd: () => void}
 
 
   constructor(private scene: Scene, private sceneUrl: string, private fullStreenUI: FullScreenGUI) {
@@ -44,6 +45,50 @@ export class BackgroundAudioView {
     }
   }
 
+  private async functionTimer(){
+    if (this.isPlay)
+    {
+      setTimeout(() => {
+        this.currentAudioTime++;
+        if (this.currentAudioTime === this.timer.start)
+        {
+          this.timer.functionStart();
+          this.functionTimer();
+        }
+        else if(this.currentAudioTime === this.timer.end)
+        {
+          this.timer.functionEnd();
+          this.functionTimer();
+        }
+        else
+        {
+          this.functionTimer();
+        }
+      }, 20);
+    }
+  }
+
+  private async functionImage()
+  {
+    if (this.isPlay)
+    {
+      if (this.currentAudioTime === this.timer.start)
+      {
+        this.timer.functionStart();
+        this.functionImage();
+      }
+      else if(this.currentAudioTime === this.timer.end)
+      {
+        this.timer.functionEnd();
+        this.functionImage();
+      }
+      else
+      {
+        this.functionImage();
+      }
+    }
+  }
+
   public play() {
     this.currentAudioPack && this.currentAudioPack.play();
     this.setPlayState();
@@ -51,6 +96,10 @@ export class BackgroundAudioView {
 
   private setPlayState() {
     this.isPlay = true;
+    if (this.timer !== null)
+    {
+      this.functionTimer();
+    }
     this.fullStreenUI.setPauseIconOnOlayPauseButton();
   }
 
@@ -65,7 +114,7 @@ export class BackgroundAudioView {
   }
 
 
-  public setSound(audioInfo?: BackgroundAudioInfo): void {
+  public setSound(audioInfo?: BackgroundAudioInfo, timer?: {start: number, end: number, functionStart: () => void, functionEnd: () => void}): void {
     this.fullStreenUI.setVisibleIconOnPlayPauseButton(!!audioInfo);
     if (audioInfo && audioInfo?.id === this.currentAudioPack?.id) {
       return;
@@ -74,6 +123,14 @@ export class BackgroundAudioView {
     if (audioInfo) {
       if (this.currentAudioPack) {
         this.currentAudioPack.stop();
+      }
+      if (timer)
+      {
+        this.timer = timer;
+      }
+      else
+      {
+        this.timer = null;
       }
       if (this.packs.has(audioInfo.id)) {
         this.currentAudioPack = this.packs.get(audioInfo.id);
