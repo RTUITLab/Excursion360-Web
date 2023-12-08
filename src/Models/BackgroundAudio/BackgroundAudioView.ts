@@ -63,29 +63,9 @@ export class BackgroundAudioView {
         else
         {
           this.functionTimer();
+          console.log(this.currentAudioTime);
         }
       }, 20);
-    }
-  }
-
-  private async functionImage()
-  {
-    if (this.isPlay)
-    {
-      if (this.currentAudioTime === this.timer.start)
-      {
-        this.timer.functionStart();
-        this.functionImage();
-      }
-      else if(this.currentAudioTime === this.timer.end)
-      {
-        this.timer.functionEnd();
-        this.functionImage();
-      }
-      else
-      {
-        this.functionImage();
-      }
     }
   }
 
@@ -168,6 +148,7 @@ export class BackgroundAudioView {
         this.packs.set(audioInfo.id, this.currentAudioPack);
       }
       this.isPlay = true;
+      this.currentAudioTime = 0;
       this.currentAudioPack.playNext(false);
     } else {
       if (this.currentAudioPack) {
