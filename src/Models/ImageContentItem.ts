@@ -13,19 +13,21 @@ import { ContentItemModel } from "./ExcursionModels/ContentItemModel";
 const distanceToContent = 20;
 
 export class ImageContentItem {
-  private imagePlane?: Mesh;
-
+  private _imagePlane?: Mesh;
+  public get imagePlane(): Mesh | null {
+    return this._imagePlane || null;
+  }
   constructor(
     private contentItemInfo: ContentItemModel,
     private assetsManager: AssetsManager,
-    private scene: Scene
+    private scene: Scene,
+    private startVisibility = 1,
+    private onImageLoad: () => void = () => {}
   ) {
-    console.log(contentItemInfo);
     const position = MathStuff.GetPositionForMarker(
       contentItemInfo.orientation,
       distanceToContent
     );
-    console.log(position);
 
     this.createContent(position);
   }
@@ -38,7 +40,7 @@ export class ImageContentItem {
     );
     task.onSuccess = () => {
       var textureSize = task.texture.getSize();
-      this.imagePlane = MeshBuilder.CreatePlane(
+      this._imagePlane = MeshBuilder.CreatePlane(
         `image_content_image_${this.contentItemInfo.image}`,
         {
           width: textureSize.width * this.contentItemInfo.multipler,
@@ -46,19 +48,21 @@ export class ImageContentItem {
         },
         this.scene
       );
+      this._imagePlane.visibility = this.startVisibility;
       const imageMaterial = new StandardMaterial("", this.scene);
       imageMaterial.specularColor = Color3.Black();
       imageMaterial.diffuseTexture = task.texture;
-      this.imagePlane.material = imageMaterial;
-      this.imagePlane.position = position;
-      this.imagePlane.lookAt(position.scale(1.1));
+      this._imagePlane.material = imageMaterial;
+      this._imagePlane.position = position;
+      this._imagePlane.lookAt(position.scale(1.1));
+      this.onImageLoad();
     };
   }
 
   public dispose() {
-    if (this.imagePlane) {
-      this.imagePlane.dispose();
-      this.imagePlane.material.dispose();
+    if (this._imagePlane) {
+      this._imagePlane.dispose();
+      this._imagePlane.material.dispose();
     }
   }
 }

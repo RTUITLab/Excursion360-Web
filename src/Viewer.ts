@@ -24,11 +24,7 @@ import {
   ActionManager,
   ExecuteCodeAction,
   PointLight,
-  TargetCamera,
   Angle,
-  Quaternion,
-  MeshBuilder,
-  Mesh,
 } from "@babylonjs/core/index";
 import { Scene } from "@babylonjs/core/scene";
 import { GUI3DManager } from "@babylonjs/gui/index";
@@ -37,11 +33,8 @@ import { WebXRDefaultExperience } from "@babylonjs/core/index";
 import "@babylonjs/loaders/glTF";
 import { ImageContentItem } from "./Models/ImageContentItem";
 import { ContentItemType } from "./Models/ExcursionModels/ContentItemModel";
-import {
-  IBackgroundAudioEventTrigger,
-  IntervalBackgroundAudioEventTrigger,
-} from "./Models/BackgroundAudio/IBackgroundAudioEventTrigger";
 import { Inspector } from "@babylonjs/inspector";
+import { TempTimerLogic } from "./tempTimerLogic";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
@@ -264,30 +257,13 @@ export class Viewer {
     const backgroundAudio = this.viewScene.backgroundAudios.find(
       (b) => b.id === targetPicture.backgroundAudioId
     );
-    let triggerForBackgroundAudio: IBackgroundAudioEventTrigger = null;
-    if (backgroundAudio?.tempTimer) {
-      let imageToShow: ImageContentItem | null = null;
-      triggerForBackgroundAudio = new IntervalBackgroundAudioEventTrigger(
-        backgroundAudio.tempTimer.start,
-        backgroundAudio.tempTimer.end,
-        async () => {
-          imageToShow = new ImageContentItem(
-            {
-              ...backgroundAudio.tempTimer.content,
-              image:
-                this.configuration.sceneUrl +
-                backgroundAudio.tempTimer.content.image,
-            },
-            this.assetsManager,
-            this.scene
-          );
-          await this.assetsManager.loadAsync();
-        },
-        async () => {
-          imageToShow.dispose();
-        }
-      );
-    }
+    const triggerForBackgroundAudio = TempTimerLogic.handleTempTimer(
+      backgroundAudio,
+      this.configuration.sceneUrl,
+      this.assetsManager,
+      this.scene
+    );
+
     this.backgroundAudio.setSound(backgroundAudio, triggerForBackgroundAudio);
 
     const distanceToLinks = 15;
