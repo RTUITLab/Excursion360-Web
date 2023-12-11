@@ -12,29 +12,29 @@ import DynamicPhotoDome from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
 import { IconBottom } from "./Models/IconBottom";
-import {
-  StandardMaterial,
-  AssetsManager,
-  Material,
-  Engine,
-  Color3,
-  FreeCamera,
-  Vector3,
-  DefaultLoadingScreen,
-  ActionManager,
-  ExecuteCodeAction,
-  PointLight,
-  Angle,
-} from "@babylonjs/core/index";
 import { Scene } from "@babylonjs/core/scene";
-import { GUI3DManager } from "@babylonjs/gui/index";
-import { WebXRDefaultExperience } from "@babylonjs/core/index";
-
-import "@babylonjs/loaders/glTF";
+import { WebXRDefaultExperience } from "@babylonjs/core/XR/webXRDefaultExperience";
+import { Engine } from "@babylonjs/core/Engines/engine";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Material } from "@babylonjs/core/Materials/material";
+import { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
+import { FreeCamera } from "@babylonjs/core/Cameras/freeCamera";
 import { ImageContentItem } from "./Models/ImageContentItem";
 import { ContentItemType } from "./Models/ExcursionModels/ContentItemModel";
-import { Inspector } from "@babylonjs/inspector";
 import { TempTimerLogic } from "./TempTimerLogic";
+import { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { ActionManager } from "@babylonjs/core/Actions/actionManager";
+import { DefaultLoadingScreen } from "@babylonjs/core/Loading/loadingScreen";
+import { PointLight } from "@babylonjs/core/Lights/pointLight";
+import { Angle } from "@babylonjs/core/Maths/math.path";
+
+// Необходимые импорты для корректной работы. Еще не все подтягивается через tree-shake
+import "@babylonjs/loaders/glTF";
+import "@babylonjs/core/Audio/audioSceneComponent";
+import "@babylonjs/core/Animations/animatable";
+
 
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
@@ -150,27 +150,9 @@ export class Viewer {
     scene.actionManager = new ActionManager(scene);
 
     if (BuildConfiguration.NeedDebugLayer) {
-      console.log("deep debug");
-      if (sessionStorage.getItem("show_debug_layer")) {
-        Inspector.Show(scene, {});
-      }
-      scene.actionManager.registerAction(
-        new ExecuteCodeAction(
-          {
-            trigger: ActionManager.OnKeyUpTrigger,
-            parameter: "r",
-          },
-          () => {
-            if (Inspector.IsVisible) {
-              Inspector.Hide();
-              sessionStorage.removeItem("show_debug_layer");
-            } else {
-              Inspector.Show(scene, {});
-              sessionStorage.setItem("show_debug_layer", "yes");
-            }
-          }
-        )
-      );
+      import("./InspectorLogic").then((module) => {
+        module.InspectorLogic.registerInspector(scene);
+      });
     } else {
       scene.activeCamera.inputs.remove(
         scene.activeCamera.inputs.attached["keyboard"]

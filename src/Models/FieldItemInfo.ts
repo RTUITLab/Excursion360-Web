@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core/index";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { FieldItemAudioContent } from "./ExcursionModels/FieldItemAudioContent";
 
 export class FieldItemInfo {

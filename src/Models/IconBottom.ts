@@ -1,5 +1,9 @@
-import { Color3, MeshBuilder, Scene, StandardMaterial, Texture } from "@babylonjs/core/index";
+import { Scene } from "@babylonjs/core/scene";
 import { BottomImageConfiguration } from "../Configuration/Configuration";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Texture } from "@babylonjs/core/Materials/Textures/texture";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
 
 export class IconBottom {
 

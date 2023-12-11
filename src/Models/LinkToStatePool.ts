@@ -2,17 +2,15 @@ import { LinkToState } from "./LinkToState";
 import { GroupLink } from "./GroupLink";
 import { FieldItem } from "./FieldItem";
 import { FieldItemInfo } from "./FieldItemInfo";
-import {
-  AssetsManager,
-  Scene,
-  Vector3,
-  Material,
-  StandardMaterial,
-  AbstractMesh,
-  Animation,
-} from "@babylonjs/core/index";
-import { GUI3DManager } from "@babylonjs/gui/index";
 import { GroupConnectionViewMode } from "./ExcursionModels/GroupLink";
+import { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
+import { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
+import { Scene } from "@babylonjs/core/scene";
+import { Animation } from "@babylonjs/core/Animations/animation";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Material } from "@babylonjs/core/Materials/material";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 
 // TODO reuse link objects
 export class LinkToStatePool {

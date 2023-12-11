@@ -1,6 +1,17 @@
-import { AbstractMesh, TransformNode, Vector3, Material, Scene, ActionManager, ExecuteCodeAction, MeshBuilder, Animation } from "@babylonjs/core/index";
-import { AdvancedDynamicTexture, TextBlock, Rectangle, TextWrapping, Control } from "@babylonjs/gui/index";
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
 import { LinkMeshes } from "../Meshes/LinkMeshes";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
+import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Material } from "@babylonjs/core/Materials/material";
+import { Scene } from "@babylonjs/core/scene";
+import { ActionManager } from "@babylonjs/core/Actions/actionManager";
+import { ExecuteCodeAction } from "@babylonjs/core/Actions/directActions";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { Rectangle } from "@babylonjs/gui/2D/controls/rectangle";
+import { Control } from "@babylonjs/gui/2D/controls/control";
+import { Animation } from "@babylonjs/core/Animations/animation";
 
 export class LinkToState {
     private static linkModel: AbstractMesh;

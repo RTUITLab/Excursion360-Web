@@ -6,7 +6,6 @@ const Dotenv = require("dotenv-webpack");
 module.exports = function (env, argv) {
   return {
     target: "web",
-    devtool: "source-map",
     context: path.resolve(__dirname, "src"),
     entry: path.join(__dirname, "src/index.ts"),
     output: {
@@ -15,7 +14,7 @@ module.exports = function (env, argv) {
     },
     resolve: {
       extensions: [".ts", ".js"],
-      modules: ["node_modules", "../shared"]
+      modules: ["node_modules"]
     },
     module: {
       rules: [
@@ -36,7 +35,8 @@ module.exports = function (env, argv) {
     devServer: {
       static: path.join(__dirname, "build"),
       host: "0.0.0.0",
-      port: 8088
+      port: 8088,
+      https: true,
     }
   };
 }

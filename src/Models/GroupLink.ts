@@ -1,22 +1,17 @@
 import { LinkToState } from "./LinkToState";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton";
-import {
-  AbstractMesh,
-  Material,
-  MeshBuilder,
-  Scene,
-  TransformNode,
-  Vector3,
-  Animation,
-} from "@babylonjs/core/index";
-import {
-  AdvancedDynamicTexture,
-  GUI3DManager,
-  TextBlock,
-  Rectangle,
-  TextWrapping,
-} from "@babylonjs/gui/index";
 import { GroupConnectionViewMode } from "./ExcursionModels/GroupLink";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { AbstractMesh } from "@babylonjs/core/Meshes/abstractMesh";
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { Material } from "@babylonjs/core/Materials/material";
+import { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
+import { Scene } from "@babylonjs/core/scene";
+import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { Rectangle } from "@babylonjs/gui/2D/controls/rectangle";
+import { Animation } from "@babylonjs/core/Animations/animation";
 
 export class GroupLink extends LinkToState {
   private isOpened = false;

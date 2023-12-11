@@ -1,5 +1,10 @@
-import { DynamicTexture, ICanvasRenderingContext, PhotoDome, Scene, Quaternion, PickingInfo } from "@babylonjs/core/index";
+import { DynamicTexture } from "@babylonjs/core/Materials/Textures/dynamicTexture";
 import { CroppedImagePart } from "./ExcursionModels/CroppedImagePart";
+import { ICanvasRenderingContext } from "@babylonjs/core/Engines/ICanvas";
+import { PhotoDome } from "@babylonjs/core/Helpers/photoDome";
+import { Scene } from "@babylonjs/core/scene";
+import { Quaternion } from "@babylonjs/core/Maths/math.vector";
+import { PickingInfo } from "@babylonjs/core/Collisions/pickingInfo";
 export default class DynamicPhotoDome {
 
   private texture: DynamicTexture;

@@ -1,5 +1,6 @@
+import { Sound } from "@babylonjs/core/Audio/sound";
 import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
-import { Scene, Sound } from "@babylonjs/core/index";
+import { Scene } from "@babylonjs/core/scene";
 
 export class AudioContainer {
   private currentSound: Sound | null;
@@ -12,20 +13,18 @@ export class AudioContainer {
     private scene: Scene,
     private sceneUrl: string,
     private isGestureDetected: () => boolean,
-    private isPlayChange: (container: AudioContainer, isPlay: boolean) => void) {
-  }
+    private isPlayChange: (container: AudioContainer, isPlay: boolean) => void
+  ) {}
 
   public get id(): string {
     return this.info.id;
   }
 
-  public getTimerItWorked(): boolean
-  {
+  public getTimerItWorked(): boolean {
     return this.timerItWorked;
   }
 
-  public setTimerItWorked(timerItWorked: boolean): void
-  {
+  public setTimerItWorked(timerItWorked: boolean): void {
     this.timerItWorked = timerItWorked;
   }
 
@@ -58,58 +57,69 @@ export class AudioContainer {
   }
 
   private playSong(id: string, url: string): Sound {
-    const newSound = new Sound(`background_audio_content_${id}`, url, this.scene, async () => {
-      if (this.currentSound && this.currentSound != newSound) {
-        this.currentSound.stop();
-        this.currentSound.dispose();
-      }
-      this.currentSound = newSound;
-      const playAfterResume = () => {
-        setTimeout(async () => {
-          if (this.isGestureDetected()) {
-            await this.scene.getEngine().getAudioContext().resume();
-            this.play();
-          }
-          if (newSound.isPlaying) {
-            this.isPlayChange(this, true);
-          } else {
-            playAfterResume();
-          }
-        }, 500);
-      }
-      playAfterResume();
-      newSound.onEndedObservable.add(() => {
-        if (this.localState) {
-          this.playNext(false);
+    const newSound = new Sound(
+      `background_audio_content_${id}`,
+      url,
+      this.scene,
+      async () => {
+        if (this.currentSound && this.currentSound != newSound) {
+          this.currentSound.stop();
+          this.currentSound.dispose();
         }
-      });
-    }, {
-      loop: false,
-      autoplay: false
-    });
+        this.currentSound = newSound;
+        const playAfterResume = () => {
+          setTimeout(async () => {
+            if (this.isGestureDetected()) {
+              await this.scene.getEngine().getAudioContext().resume();
+              this.play();
+            }
+            if (newSound.isPlaying) {
+              this.isPlayChange(this, true);
+            } else {
+              playAfterResume();
+            }
+          }, 500);
+        };
+        playAfterResume();
+        newSound.onEndedObservable.add(() => {
+          if (this.localState) {
+            this.playNext(false);
+          }
+        });
+      },
+      {
+        loop: false,
+        autoplay: false,
+      }
+    );
     return newSound;
   }
   /**
    * Запуск следующей композиции
-   * @param force 
-   * @returns 
+   * @param force
+   * @returns
    */
   public playNext(force: boolean): void {
-
     if (this.currentSound) {
       this.currentSound.dispose();
       this.currentSound = null;
     }
     let targetIndex = ++this.currentIndex;
     if (targetIndex < this.info.audios.length) {
-      this.playSong(this.info.id, this.sceneUrl + this.info.audios[targetIndex]);
+      this.playSong(
+        this.info.id,
+        this.sceneUrl + this.info.audios[targetIndex]
+      );
     } else {
       if (!this.info.loopAudios && !force) {
         this.isPlayChange(this, false);
         return;
       }
       targetIndex = this.currentIndex = 0;
-      this.playSong(this.info.id, this.sceneUrl + this.info.audios[targetIndex]);
+      this.playSong(
+        this.info.id,
+        this.sceneUrl + this.info.audios[targetIndex]
+      );
     }
   }
 

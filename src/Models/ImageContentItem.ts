@@ -1,14 +1,12 @@
-import {
-  Mesh,
-  StandardMaterial,
-  AssetsManager,
-  Scene,
-  Vector3,
-  MeshBuilder,
-  Color3,
-} from "@babylonjs/core/index";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { MathStuff } from "../../src/Stuff/MathStuff";
 import { ContentItemModel } from "./ExcursionModels/ContentItemModel";
+import { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
+import { Scene } from "@babylonjs/core/scene";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
 
 const distanceToContent = 20;
 

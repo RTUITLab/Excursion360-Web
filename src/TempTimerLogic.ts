@@ -1,15 +1,13 @@
+import { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
 import {
   IBackgroundAudioEventTrigger,
   IntervalBackgroundAudioEventTrigger,
 } from "./Models/BackgroundAudio/IBackgroundAudioEventTrigger";
 import { BackgroundAudioInfo } from "./Models/ExcursionModels/BackgroundAudioInfo";
 import { ImageContentItem } from "./Models/ImageContentItem";
-import {
-  Animation,
-  AssetsManager,
-  IAnimationKey,
-  Scene,
-} from "@babylonjs/core/index";
+import { Scene } from "@babylonjs/core/scene";
+import { Animation } from "@babylonjs/core/Animations/animation";
+import { IAnimationKey } from "@babylonjs/core/Animations/animationKey";
 
 /**
  * Временная обработка логики показа фотографии только на определенный момент времени воспроизводимого аудио-сопровождения

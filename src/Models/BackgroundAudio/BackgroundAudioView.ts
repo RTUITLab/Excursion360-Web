@@ -1,8 +1,9 @@
 import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
 import { AudioContainer } from "./AudioContainer";
 import { FullScreenGUI } from "../ExcursionFullScreenGUI";
-import { PointerEventTypes, Scene } from "@babylonjs/core/index";
 import { IBackgroundAudioEventTrigger } from "./IBackgroundAudioEventTrigger";
+import { Scene } from "@babylonjs/core/scene";
+import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
 
 /**
  * Компонент фонового аудио, отвечает за воспроизведение и логику его работы

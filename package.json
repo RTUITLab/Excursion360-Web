@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Viewer for 360 excursion",
     "scripts": {
-        "start": "webpack-dev-server --mode=development --https",
+        "start": "webpack-dev-server --mode=development",
         "build": "webpack --mode=production",
         "devBuild": "webpack --mode=development"
     },

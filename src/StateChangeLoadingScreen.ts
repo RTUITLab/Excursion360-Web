@@ -1,5 +1,6 @@
-import { TextBlock, AdvancedDynamicTexture } from "@babylonjs/gui/index";
-import { ILoadingScreen } from "@babylonjs/core/index";
+import { ILoadingScreen } from "@babylonjs/core/Loading/loadingScreen";
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
+import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 
 export class StateChangeLoadingScreen implements ILoadingScreen {
 

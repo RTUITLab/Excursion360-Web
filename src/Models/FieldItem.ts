@@ -7,8 +7,17 @@ import { VideoContent } from "./FieldItemContents/VideoContent";
 import { TextContent as TextContent } from "./FieldItemContents/TextContent";
 import { AudioContent } from "./FieldItemContents/AudioContent";
 import { FieldItemContent } from "./FieldItemContents/FieldItemContent";
-import { GUI3DManager, TextBlock, TextWrapping } from "@babylonjs/gui/index";
-import { Mesh, StandardMaterial, AssetsManager, Scene, Vector3, VertexData, MeshBuilder, ActionManager, TransformNode } from "@babylonjs/core/index";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
+import { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
+import { Scene } from "@babylonjs/core/scene";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { VertexData } from "@babylonjs/core/Meshes/mesh.vertexData";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { ActionManager } from "@babylonjs/core/Actions/actionManager";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
 
 export class FieldItem extends LinkToState {
 

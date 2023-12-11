@@ -1,25 +1,19 @@
 import { FieldItemAudioContent } from "../ExcursionModels/FieldItemAudioContent";
 import { FieldItemContent } from "./FieldItemContent";
 import { ExcursionConstants } from "../ExcursionConstants";
-import {
-  Material,
-  Mesh,
-  Sound,
-  TransformNode,
-  AssetsManager,
-  Scene,
-  StandardMaterial,
-  Color3,
-  MeshBuilder,
-  Engine,
-} from "@babylonjs/core/index";
-import {
-  TextBlock,
-  GUI3DManager,
-  AdvancedDynamicTexture,
-  TextWrapping,
-} from "@babylonjs/gui/index";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
+import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
+import { Material } from "@babylonjs/core/Materials/material";
+import { Mesh } from "@babylonjs/core/Meshes/mesh";
+import { Sound } from "@babylonjs/core/Audio/sound";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
+import { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
+import { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
+import { Scene } from "@babylonjs/core/scene";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { Color3 } from "@babylonjs/core/Maths/math.color";
+import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
+import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 
 export class AudioContent implements FieldItemContent {
   static readonly CONTENT_TYPE: string = "audio";
@@ -74,7 +68,7 @@ export class AudioContent implements FieldItemContent {
   }
 
   createAudioContentPlane() {
-    var backgroundPlane = MeshBuilder.CreatePlane("audio-content-plane", {
+    var backgroundPlane = CreatePlane("audio-content-plane", {
       width: 2,
       height: 2,
     });

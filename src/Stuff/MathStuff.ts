@@ -1,4 +1,4 @@
-import { Vector3 } from "@babylonjs/core/index";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 
 export class MathStuff {
     /**
