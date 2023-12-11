@@ -28,4 +28,6 @@ export interface State {
   contentItems: ContentItemModel[];
   /** Id of tour background audio */
   backgroundAudioId?: string;
+  /** Угол, на который нужно повернуть камеру, если к этому состоянию перешли по ссылке */
+  ifFirstStateRotationAngle?: number;
 }

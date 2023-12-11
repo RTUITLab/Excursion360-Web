@@ -35,7 +35,6 @@ import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Audio/audioSceneComponent";
 import "@babylonjs/core/Animations/animatable";
 
-
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
   private scene: Scene;
@@ -44,7 +43,7 @@ export class Viewer {
   private links: LinkToStatePool;
 
   private linkSphereMaterials: StandardMaterial[] = [];
-  /** Врвменный список контента изображений, не вынесен в отдельный класс из-за спешки */
+  /** Временный список контента изображений, не вынесен в отдельный класс из-за спешки */
   private imageContents: ImageContentItem[] = [];
   private assetsManager: AssetsManager;
 
@@ -93,8 +92,11 @@ export class Viewer {
     fiMaterial.emissiveColor = Color3.White();
     this.fieldItemMaterial = fiMaterial;
 
-    window.addEventListener("hashchange", () => {
-      this.goToImage(this.currentPicture.id, () => {}, false);
+    window.addEventListener("hashchange", async () => {
+      const targetId = this.getIdFromHash();
+      if (targetId) {
+        await this.goToImage(targetId, () => {}, false);
+      }
     });
 
     const camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
@@ -173,13 +175,19 @@ export class Viewer {
   private goToFirstState() {
     this.goToImage(
       this.viewScene.firstStateId,
-      () => {
-        this.rotateCamToAngle(180); // TODO: Временное решение, у каждой сцены должен быть прописан угол поворота для корректного открытия
+      (targetState) => {
+        this.rotateCamToAngle(targetState.ifFirstStateRotationAngle || 0);
       },
       true
     );
   }
-
+  private getIdFromHash(): string | null {
+    const tryId = location.hash.substring(1);
+    if (this.viewScene.states.some((p) => p.id === tryId)) {
+      return tryId;
+    }
+    return null;
+  }
   public async show(scene: Excursion) {
     this.viewScene = scene;
     for (const material of this.linkSphereMaterials) {
@@ -195,13 +203,14 @@ export class Viewer {
       this.linkSphereMaterials.push(newMaterial);
     }
 
-    let targetId = this.viewScene.firstStateId;
-    const tryId = location.hash.substr(1);
-    if (this.viewScene.states.some((p) => p.id === tryId)) {
-      targetId = tryId;
-    }
-
-    await this.goToImage(targetId, null, true);
+    const targetId = this.getIdFromHash() || this.viewScene.firstStateId;
+    await this.goToImage(
+      targetId,
+      (targetState) => {
+        this.rotateCamToAngle(targetState.ifFirstStateRotationAngle || 0);
+      },
+      true
+    );
   }
 
   private rotateCamToAngle(angle: number) {
@@ -217,7 +226,7 @@ export class Viewer {
 
   private async goToImage(
     id: string,
-    actionBeforeChange: () => void = null,
+    actionBeforeChange: (targetState: State) => void = null,
     forceReload = false
   ) {
     if (!forceReload && this.currentPicture && this.currentPicture.id == id) {
@@ -227,7 +236,10 @@ export class Viewer {
     const targetPicture = this.viewScene.states.find((p) => p.id === id);
     this.currentPicture = targetPicture;
     this.cleanLinks();
-    await this.drawImage(targetPicture, actionBeforeChange);
+    await this.drawImage(
+      targetPicture,
+      () => actionBeforeChange && actionBeforeChange(targetPicture)
+    );
 
     this.fullScreenGUI.setFastReturnToFirstStateVisible(
       id !== this.viewScene.firstStateId &&
