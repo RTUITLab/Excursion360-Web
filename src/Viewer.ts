@@ -34,7 +34,7 @@ import "@babylonjs/loaders/glTF";
 import { ImageContentItem } from "./Models/ImageContentItem";
 import { ContentItemType } from "./Models/ExcursionModels/ContentItemModel";
 import { Inspector } from "@babylonjs/inspector";
-import { TempTimerLogic } from "./tempTimerLogic";
+import { TempTimerLogic } from "./TempTimerLogic";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
