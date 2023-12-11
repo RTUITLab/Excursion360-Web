@@ -37,6 +37,11 @@ import { WebXRDefaultExperience } from "@babylonjs/core/index";
 import "@babylonjs/loaders/glTF";
 import { ImageContentItem } from "./Models/ImageContentItem";
 import { ContentItemType } from "./Models/ExcursionModels/ContentItemModel";
+import {
+  IBackgroundAudioEventTrigger,
+  IntervalBackgroundAudioEventTrigger,
+} from "./Models/BackgroundAudio/IBackgroundAudioEventTrigger";
+import { Inspector } from "@babylonjs/inspector";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
@@ -154,7 +159,7 @@ export class Viewer {
     if (BuildConfiguration.NeedDebugLayer) {
       console.log("deep debug");
       if (sessionStorage.getItem("show_debug_layer")) {
-        scene.debugLayer.show();
+        Inspector.Show(scene, {});
       }
       scene.actionManager.registerAction(
         new ExecuteCodeAction(
@@ -163,11 +168,11 @@ export class Viewer {
             parameter: "r",
           },
           () => {
-            if (scene.debugLayer.isVisible()) {
-              scene.debugLayer.hide();
+            if (Inspector.IsVisible) {
+              Inspector.Hide();
               sessionStorage.removeItem("show_debug_layer");
             } else {
-              scene.debugLayer.show();
+              Inspector.Show(scene, {});
               sessionStorage.setItem("show_debug_layer", "yes");
             }
           }
@@ -259,21 +264,31 @@ export class Viewer {
     const backgroundAudio = this.viewScene.backgroundAudios.find(
       (b) => b.id === targetPicture.backgroundAudioId
     );
-    this.backgroundAudio.setSound(backgroundAudio, backgroundAudio.timer ? {start: backgroundAudio.timer.start, end: backgroundAudio.timer.end, functionStart: async () => {console.log("start"); const loadImage = new ImageContentItem(
-        {
-          "orientation": {
-            "x": -0.3654876947402954,
-            "y": 0.9199443459510803,
-            "z": 0.0,
-            "w": 0.14184878766536714
-          },
-          "contentType": 1,
-          "multipler": 0.001500000013038516,
-          "image": this.configuration.sceneUrl + "content_item_23664.jpg"
+    let triggerForBackgroundAudio: IBackgroundAudioEventTrigger = null;
+    if (backgroundAudio?.tempTimer) {
+      let imageToShow: ImageContentItem | null = null;
+      triggerForBackgroundAudio = new IntervalBackgroundAudioEventTrigger(
+        backgroundAudio.tempTimer.start,
+        backgroundAudio.tempTimer.end,
+        async () => {
+          imageToShow = new ImageContentItem(
+            {
+              ...backgroundAudio.tempTimer.content,
+              image:
+                this.configuration.sceneUrl +
+                backgroundAudio.tempTimer.content.image,
+            },
+            this.assetsManager,
+            this.scene
+          );
+          await this.assetsManager.loadAsync();
         },
-        this.assetsManager,
-        this.scene
-      ); this.imageContents.push(loadImage); await this.assetsManager.loadAsync();}, functionEnd: async () => {console.log("end"); this.imageContents[1].dispose(); await this.assetsManager.loadAsync();}} : undefined);
+        async () => {
+          imageToShow.dispose();
+        }
+      );
+    }
+    this.backgroundAudio.setSound(backgroundAudio, triggerForBackgroundAudio);
 
     const distanceToLinks = 15;
     for (const link of targetPicture.links) {

@@ -2,15 +2,25 @@ import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
 import { AudioContainer } from "./AudioContainer";
 import { FullScreenGUI } from "../ExcursionFullScreenGUI";
 import { PointerEventTypes, Scene } from "@babylonjs/core/index";
+import { IBackgroundAudioEventTrigger } from "./IBackgroundAudioEventTrigger";
 
+/**
+ * Компонент фонового аудио, отвечает за воспроизведение и логику его работы
+ * TODO: dispose и высвобождение ресурсов
+ */
 export class BackgroundAudioView {
   private packs: Map<string, AudioContainer> = new Map();
   private currentAudioPack: AudioContainer | null = null;
   private isPlay: boolean = true;
   private gestureDetected: boolean;
-  private timer: null | {start: number, end: number, functionStart: () => void, functionEnd: () => void}
+  private eventTrigger: IBackgroundAudioEventTrigger | null = null;
+  private triggerInterval: any;
 
-  constructor(private scene: Scene, private sceneUrl: string, private fullStreenUI: FullScreenGUI) {
+  constructor(
+    private scene: Scene,
+    private sceneUrl: string,
+    private fullStreenUI: FullScreenGUI
+  ) {
     scene.onPointerObservable.add((d, s) => {
       if (!this.gestureDetected && d.type == PointerEventTypes.POINTERDOWN) {
         setTimeout(() => {
@@ -28,8 +38,17 @@ export class BackgroundAudioView {
         }
       }
     });
-
-
+    this.triggerInterval = setInterval(async () => {
+      if (!this.eventTrigger) {
+        return;
+      }
+      if (!this.currentAudioPack) {
+        return;
+      }
+      await this.eventTrigger.audioPositionChanged(
+        this.currentAudioPack.getCurrentTime()
+      );
+    }, 200);
   }
 
   public togglePlayPause() {
@@ -43,30 +62,6 @@ export class BackgroundAudioView {
     }
   }
 
-  private async functionTimer(){
-    if (this.isPlay)
-    {
-      setTimeout(() => {
-        if (this.currentAudioPack.getCurrentTime() >= this.timer.start && this.currentAudioPack.getCurrentTime() <= this.timer.end && this.currentAudioPack.getTimerItWorked() === false)
-        {
-          this.currentAudioPack.setTimerItWorked(true);
-          this.timer.functionStart();
-          this.functionTimer();
-        }
-        else if(this.currentAudioPack.getCurrentTime() > this.timer.end && this.currentAudioPack.getTimerItWorked() === true)
-        {
-          this.currentAudioPack.setTimerItWorked(false);
-          this.timer.functionEnd();
-          this.functionTimer();
-        }
-        else
-        {
-          this.functionTimer();
-        }
-      }, 20);
-    }
-  }
-
   public play() {
     this.currentAudioPack && this.currentAudioPack.play();
     this.setPlayState();
@@ -74,10 +69,6 @@ export class BackgroundAudioView {
 
   private setPlayState() {
     this.isPlay = true;
-    if (this.timer !== null)
-    {
-      this.functionTimer();
-    }
     this.fullStreenUI.setPauseIconOnOlayPauseButton();
   }
 
@@ -91,8 +82,10 @@ export class BackgroundAudioView {
     this.fullStreenUI.setPlayIconOnOlayPauseButton();
   }
 
-
-  public setSound(audioInfo?: BackgroundAudioInfo, timer?: {start: number, end: number, functionStart: () => void, functionEnd: () => void}): void {
+  public setSound(
+    audioInfo: BackgroundAudioInfo | null,
+    trigger: IBackgroundAudioEventTrigger | null
+  ): void {
     this.fullStreenUI.setVisibleIconOnPlayPauseButton(!!audioInfo);
     if (audioInfo && audioInfo?.id === this.currentAudioPack?.id) {
       return;
@@ -102,14 +95,7 @@ export class BackgroundAudioView {
       if (this.currentAudioPack) {
         this.currentAudioPack.stop();
       }
-      if (timer)
-      {
-        this.timer = timer;
-      }
-      else
-      {
-        this.timer = null;
-      }
+      this.eventTrigger = trigger || null;
       if (this.packs.has(audioInfo.id)) {
         this.currentAudioPack = this.packs.get(audioInfo.id);
       } else {
@@ -118,7 +104,7 @@ export class BackgroundAudioView {
           this.scene,
           this.sceneUrl,
           () => {
-            return this.gestureDetected
+            return this.gestureDetected;
           },
           (container, isPlay) => {
             if (container.id === this.currentAudioPack.id) {

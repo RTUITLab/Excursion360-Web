@@ -30,7 +30,7 @@ export class AudioContainer {
   }
 
   public getCurrentTime(): number {
-    return this.currentSound.currentTime;
+    return this.currentSound?.currentTime || 0;
   }
 
   public play() {
