@@ -181,10 +181,12 @@ export class AudioContent implements FieldItemContent {
       this.audioInfo.duration
     )}`;
   }
-
+  private addLeadingZeroLessThanTen(value: number): string {
+    return value < 10 ? `0${value}` : value.toString();
+  }
   private durationView(time: number) {
     const targetTime = Math.round(time);
-    let view = `${targetTime % 60}`;
+    let view = `${this.addLeadingZeroLessThanTen(targetTime % 60)}`;
     let minutes = Math.floor(targetTime / 60);
     view = `${minutes % 60}:${view}`;
     if (!minutes) {
@@ -194,7 +196,7 @@ export class AudioContent implements FieldItemContent {
     if (!hours) {
       return view;
     }
-    view = `${hours}:${view}`;
+    view = `${this.addLeadingZeroLessThanTen(hours)}:${view}`;
   }
 
   private getCurrentPosition(): number {
