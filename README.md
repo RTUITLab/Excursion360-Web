@@ -1,35 +1,34 @@
-# Web viewer for 360 images
-[![Build Status](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_apis/build/status/Excursion360-Web?branchName=master)](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_build/latest?definitionId=147&branchName=master)
+# Инструмент для отображения экскурсий в формате 360
+[![Build Status](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_apis/build/status/RTUITLab.Excursion360-Web?branchName=master)](https://dev.azure.com/rtuitlab/RTU%20IT%20Lab/_build/latest?definitionId=203&branchName=master)
 
-# Archived until the next sprint
+## Как начать работу
 
-## How to start
+* Установить Node.JS(гарантированно работает на версии 20.7.0), npm
 
-* Install Node.JS, npm
-
-* Install packages
+* Установить зависимости
 ```bash
 npm i
 ```
 
-* Create file ```.env.local```
+* Создать файл ```.env.local```
 ```env
-CONFIG_FILE_PATH=path to configuration file, config.json by default
-NEED_DEBUG_LAYER=[false|true]
+CONFIG_FILE_PATH=путь к файлу конфигурации, config.json по умолчанию
+NEED_DEBUG_LAYER=[false|true] нужна ли логика отображения инспектора
 ```
-* Create file ```build/config.json```
+* Создать файл `build/config.json`, на него как раз ссылались в файле выше
 ```json
 {
-    "sceneUrl": "URL of excursion folder",
-    "logoUrl": "LOGO for state change"
+    "sceneUrl": "веб адрес размещенной экскурсии",
+    "logoUrl": "Путь к логотипу, который будет показан при загрузке ресурсов"
 }
 ```
-* Run command ```npm install``` in project folder
-* Run command ```npm start``` in project folder
-* Open in browser [https://localhost:8088](https://localhost:8088/), https is required for correct work WebXR.
+* Запустите проект
+```bash
+npm start
+```
+* Перейдите по ссылке [https://localhost:8088](https://localhost:8088/), https необходим для корректной работы WebXR.
 
 
-## Tips
+## Советы
 
-* Use `build` directory to place excursion build(already gitignore).
-* Fill `sceneUrl` of `build/config.json` to folder name of excursion.
+* Используйте папку `build` для размешения сборки экскурсии при отладке(её содержимое уже в gitignore). Так, можно положить сборку в папку `build/excursion` и в поле `sceneUrl` файла `build/config.json` указать просто `excursion`.

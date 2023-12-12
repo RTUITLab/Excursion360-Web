@@ -56,7 +56,7 @@ export class Viewer {
   xrHelper: WebXRDefaultExperience;
   freeCamera: FreeCamera;
 
-  constructor(private configuration: Configuration) {}
+  constructor(private configuration: Configuration) { }
 
   private backgroundRadius = 500;
 
@@ -95,7 +95,9 @@ export class Viewer {
     window.addEventListener("hashchange", async () => {
       const targetId = this.getIdFromHash();
       if (targetId) {
-        await this.goToImage(targetId, () => {}, false);
+        await this.goToImage(targetId, (targetState) => {
+          this.rotateCamToAngle(targetState.ifFirstStateRotationAngle || 0);
+        }, false);
       }
     });
 
@@ -243,7 +245,7 @@ export class Viewer {
 
     this.fullScreenGUI.setFastReturnToFirstStateVisible(
       id !== this.viewScene.firstStateId &&
-        this.viewScene.fastReturnToFirstStateEnabled
+      this.viewScene.fastReturnToFirstStateEnabled
     );
 
     document.title = targetPicture.title || this.viewScene.title;
@@ -270,7 +272,7 @@ export class Viewer {
       const material = this.linkSphereMaterials[link.colorScheme];
 
       const linkToState = this.links.getLink(name, position, material, () => {
-        let rotateCam = () => {};
+        let rotateCam = () => { };
         if (link.rotationAfterStepAngleOverridden) {
           rotateCam = () => {
             this.rotateCamToAngle(link.rotationAfterStepAngle);
@@ -308,7 +310,7 @@ export class Viewer {
           groupLinks.filter((l) => l !== gl).forEach((l) => l.closeLinks());
         },
         async (selectedId) => {
-          let rotateCam = () => {};
+          let rotateCam = () => { };
           var overridePair = groupLink.groupStateRotationOverrides.find(
             (p) => p.stateId == selectedId
           );
