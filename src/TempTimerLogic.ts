@@ -1,9 +1,13 @@
 import { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
 import {
+  ArrayTrigger,
   IBackgroundAudioEventTrigger,
   IntervalBackgroundAudioEventTrigger,
 } from "./Models/BackgroundAudio/IBackgroundAudioEventTrigger";
-import { BackgroundAudioInfo } from "./Models/ExcursionModels/BackgroundAudioInfo";
+import {
+  BackgroundAudioInfo,
+  TempTimer,
+} from "./Models/ExcursionModels/BackgroundAudioInfo";
 import { ImageContentItem } from "./Models/ImageContentItem";
 import { Scene } from "@babylonjs/core/scene";
 import { Animation } from "@babylonjs/core/Animations/animation";
@@ -18,13 +22,36 @@ export class TempTimerLogic {
     backgroundAudio: BackgroundAudioInfo,
     sceneUrl: string,
     assetsManager: AssetsManager,
-    scene: Scene
+    scene: Scene,
+    onContentCreated: (content: ImageContentItem) => void
   ): IBackgroundAudioEventTrigger | null {
-    if (!backgroundAudio.tempTimer) {
-      return;
+    if (!backgroundAudio.tempTimers?.length) {
+      return null;
     }
+    const arr = [];
+    for (const tempTimer of backgroundAudio.tempTimers) {
+      arr.push(
+        this.handleOneImage(
+          sceneUrl,
+          tempTimer,
+          assetsManager,
+          scene,
+          onContentCreated
+        )
+      );
+    }
+    return new ArrayTrigger(arr);
+  }
+
+  private static handleOneImage(
+    sceneUrl: string,
+    tempTimer: TempTimer,
+    assetsManager: AssetsManager,
+    scene: Scene,
+    onContentCreated: (content: ImageContentItem) => void
+  ): IBackgroundAudioEventTrigger {
     let imageToShow: ImageContentItem | null = null;
-    const imageLink = sceneUrl + backgroundAudio.tempTimer.content.image;
+    const imageLink = sceneUrl + tempTimer.content.image;
 
     // предзагружаем изображение, чтобы оно показывалось моментально
     const preloadLink = window.document.createElement("link");
@@ -54,12 +81,12 @@ export class TempTimerLogic {
     showAnimation.setKeys(frames);
 
     return new IntervalBackgroundAudioEventTrigger(
-      backgroundAudio.tempTimer.start,
-      backgroundAudio.tempTimer.end,
+      tempTimer.start,
+      tempTimer.end,
       async () => {
         imageToShow = new ImageContentItem(
           {
-            ...backgroundAudio.tempTimer.content,
+            ...tempTimer.content,
             image: imageLink,
           },
           assetsManager,
@@ -71,6 +98,7 @@ export class TempTimerLogic {
           }
         );
         await assetsManager.loadAsync();
+        onContentCreated(imageToShow);
       },
       async () => {
         scene.beginAnimation(imageToShow!.imagePlane, frameRate, 0, true);
