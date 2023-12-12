@@ -136,6 +136,14 @@ export class Viewer {
                   }
                 });
               }
+              const xButton = mc.getComponent("x-button");
+              if (xButton) {
+                xButton.onButtonStateChangedObservable.add((e) => {
+                  if (e.pressed) {
+                    window?.history?.back();
+                  }
+                });
+              }
             });
           });
         })

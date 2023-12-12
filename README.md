@@ -28,6 +28,13 @@ npm start
 ```
 * Перейдите по ссылке [https://localhost:8088](https://localhost:8088/), https необходим для корректной работы WebXR.
 
+## VR
+Проверена работа в:
+* Pico 4
+### Управление
+* `a-button`: остановка/воспроизведение фоновой музыки
+* `b-button`: возврат к первой сцене экскурсии, если включен флаг `fastReturnToFirstStateEnabled`
+* `x-button`: выполнение `window.history.back()` для возврата к прошлой сцене
 
 ## Советы
 
