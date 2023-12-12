@@ -12,6 +12,7 @@ import { ImageContentItem } from "./Models/ImageContentItem";
 import { Scene } from "@babylonjs/core/scene";
 import { Animation } from "@babylonjs/core/Animations/animation";
 import { IAnimationKey } from "@babylonjs/core/Animations/animationKey";
+import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
 
 /**
  * Временная обработка логики показа фотографии только на определенный момент времени воспроизводимого аудио-сопровождения
@@ -23,6 +24,7 @@ export class TempTimerLogic {
     sceneUrl: string,
     assetsManager: AssetsManager,
     scene: Scene,
+    prefetchResourcesManager: PrefetchResourcesManager,
     onContentCreated: (content: ImageContentItem) => void
   ): IBackgroundAudioEventTrigger | null {
     if (!backgroundAudio.tempTimers?.length) {
@@ -36,6 +38,7 @@ export class TempTimerLogic {
           tempTimer,
           assetsManager,
           scene,
+          prefetchResourcesManager,
           onContentCreated
         )
       );
@@ -48,17 +51,14 @@ export class TempTimerLogic {
     tempTimer: TempTimer,
     assetsManager: AssetsManager,
     scene: Scene,
+    prefetchResourcesManager: PrefetchResourcesManager,
     onContentCreated: (content: ImageContentItem) => void
   ): IBackgroundAudioEventTrigger {
     let imageToShow: ImageContentItem | null = null;
     const imageLink = sceneUrl + tempTimer.content.image;
 
     // предзагружаем изображение, чтобы оно показывалось моментально
-    const preloadLink = window.document.createElement("link");
-    preloadLink["rel"] = "prefetch";
-    preloadLink["as"] = "fetch";
-    preloadLink["href"] = imageLink;
-    window.document.body.appendChild(preloadLink);
+    prefetchResourcesManager.addResource(imageLink);
 
     const frameRate = 10;
     // анимация изменения видимости с 0 до 1

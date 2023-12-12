@@ -34,6 +34,7 @@ import { Angle } from "@babylonjs/core/Maths/math.path";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Audio/audioSceneComponent";
 import "@babylonjs/core/Animations/animatable";
+import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
@@ -50,6 +51,8 @@ export class Viewer {
   private groupLinkMaterial: Material;
   private fieldItemMaterial: StandardMaterial;
   private backgroundAudio: BackgroundAudioView;
+  private prefetchResourcesManager: PrefetchResourcesManager =
+    new PrefetchResourcesManager();
   currentPicture: State;
   fullScreenGUI: FullScreenGUI;
   iconBottom: IconBottom | null = null;
@@ -249,7 +252,8 @@ export class Viewer {
     location.hash = id;
     const targetPicture = this.viewScene.states.find((p) => p.id === id);
     this.currentPicture = targetPicture;
-    this.cleanLinks();
+    this.cleanResources();
+    this.prefetchAudio(targetPicture);
     await this.drawImage(
       targetPicture,
       () => actionBeforeChange && actionBeforeChange(targetPicture)
@@ -270,6 +274,7 @@ export class Viewer {
       this.configuration.sceneUrl,
       this.assetsManager,
       this.scene,
+      this.prefetchResourcesManager,
       (content) => this.imageContents.push(content)
     );
     this.backgroundAudio.setSound(backgroundAudio, triggerForBackgroundAudio);
@@ -381,6 +386,39 @@ export class Viewer {
     }
     await this.assetsManager.loadAsync();
   }
+  private prefetchAudio(state: State) {
+    this.loadAudioForState(state);
+    state.links.forEach((l) =>
+      this.loadAudioForState(this.viewScene.states.find((s) => s.id === l.id))
+    );
+    state.groupLinks.forEach((gl) =>
+      gl.stateIds.forEach((stateId) =>
+        this.loadAudioForState(
+          this.viewScene.states.find((s) => s.id === stateId)
+        )
+      )
+    );
+  }
+
+  private loadAudioForState(state?: State) {
+    if (!state) {
+      return;
+    }
+    const audios =
+      this.viewScene.backgroundAudios.find(
+        (b) => b.id === state.backgroundAudioId
+      )?.audios || [];
+    audios.forEach((a) =>
+      this.prefetchResourcesManager.addResource(this.configuration.sceneUrl + a)
+    );
+    state.fieldItems.forEach((fi) =>
+      fi.audios.forEach((a) =>
+        this.prefetchResourcesManager.addResource(
+          this.configuration.sceneUrl + a.src
+        )
+      )
+    );
+  }
 
   private async drawImage(
     targetPicture: State,
@@ -447,12 +485,13 @@ export class Viewer {
     await promise;
   }
 
-  private cleanLinks() {
+  private cleanResources() {
     this.links.clean();
     this.imageContents.forEach((imageContent) => {
       imageContent.dispose();
     });
     this.imageContents = [];
+    this.prefetchResourcesManager.clear();
   }
 
   private getName(id: string): string {
