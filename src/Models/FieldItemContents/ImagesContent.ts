@@ -56,7 +56,7 @@ export class ImagesContent implements FieldItemContent {
     private parent: TransformNode,
     private contentWidth: number,
     private contentHeight: number,
-    private gui3Dmanager: GUI3DManager,
+    private gui3DManager: GUI3DManager,
     private assetsManager: AssetsManager,
     private scene: Scene
   ) {
@@ -71,12 +71,12 @@ export class ImagesContent implements FieldItemContent {
       });
 
       this.imageButtons = new NavigationMenu(
-        images.map((image, i) => i.toString()),
+        images.map((_, i) => (i + 1).toString()),
         contentWidth,
         -contentHeight / 2,
         parent,
-        gui3Dmanager,
-        (i) => ({ width: 1, height: 1 }),
+        gui3DManager,
+        (_) => ({ width: 1, height: 1 }),
         async (i) => {
           this.openPicture(i);
         }
@@ -96,7 +96,7 @@ export class ImagesContent implements FieldItemContent {
       1,
       1
     );
-    this.gui3Dmanager.addControl(button);
+    this.gui3DManager.addControl(button);
     button.linkToTransformNode(this.parent);
     var buttonContent = new TextBlock();
     buttonContent.text = content;
@@ -165,7 +165,6 @@ export class ImagesContent implements FieldItemContent {
       } else {
         multipler = localContentHeight / textureSize.height;
       }
-      multipler *= 1.1;
       const imagePlane = CreatePlane(
         `image_content_image_${url}`,
         {
