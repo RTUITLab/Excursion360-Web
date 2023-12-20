@@ -37,8 +37,6 @@ export class BackgroundAudioView {
         this.fullScreenUI.setVisibleIconOnPlayPauseButton(false);
         return;
       }
-      console.log("wtf", this.currentAudioPack);
-
       this.fullScreenUI.setVisibleIconOnPlayPauseButton(true);
       if (this.currentAudioPack.isPlaying()) {
         this.fullScreenUI.setPauseIconOnPlayPauseButton();
