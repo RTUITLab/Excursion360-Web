@@ -110,6 +110,8 @@ export class Viewer {
     });
 
     const camera = new FreeCamera("camera1", new Vector3(0, 0, 0), scene);
+    // Для имитации поведения, как будто хватаем за панораму и тянем. 10К выбрано эмпирически
+    camera.angularSensibility = -10000;
     camera.attachControl(canvas, true);
 
     this.freeCamera = camera;
