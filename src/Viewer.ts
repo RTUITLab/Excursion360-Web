@@ -84,6 +84,11 @@ export class Viewer {
       this.configuration.sceneUrl,
       this.fullScreenGUI
     );
+    // по умолчанию на android аудио не ставится на паузу при блокировке телефона
+    window.addEventListener("blur", () => {
+      this.backgroundAudio.pause();
+      this.links.pauseAllAudios();
+    });
 
     var glMaterial = new StandardMaterial("groupLinkMaterial", scene);
     glMaterial.diffuseColor = Color3.Blue();

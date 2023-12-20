@@ -117,6 +117,14 @@ export class LinkToStatePool {
     return link;
   }
 
+  public pauseAllAudios(): void {
+    for (const link of this.links) {
+      if (link instanceof FieldItem) {
+        link.pauseAudio();
+      }
+    }
+  }
+
   public clean(): void {
     for (const link of this.links) {
       link.dispose();
