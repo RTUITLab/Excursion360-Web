@@ -2,6 +2,7 @@ import { FieldItemAudioContent } from "../ExcursionModels/FieldItemAudioContent"
 import { FieldItemContent } from "./FieldItemContent";
 import { ExcursionConstants } from "../ExcursionConstants";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
+import { PlayAudioHelper } from "../../WorkWithAudio/PlayAudioHelper";
 import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
 import { Material } from "@babylonjs/core/Materials/material";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
@@ -133,8 +134,12 @@ export class AudioContent implements FieldItemContent {
       return;
     }
     this.onPlay();
-    this.audio.play();
-    this.playPauseButtonText.text = ExcursionConstants.PauseIcon;
+    PlayAudioHelper.playSound(this.audio, {
+      forceShowModal: true,
+      playSuccess: () => {
+        this.playPauseButtonText.text = ExcursionConstants.PauseIcon;
+      },
+    });
   }
 
   public pauseAudio() {

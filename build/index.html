@@ -26,6 +26,24 @@
         height: 100%;
         touch-action: none;
       }
+      #approveAudioDialog {
+        height: 50dvh;
+        width: 50dvw;
+      }
+      #approveAudioDialog h1 {
+        font-size: 50px;
+      }
+      #approveAudioButton {
+        font-size: 50px;
+      }
+      #cancelAudioButton {
+        font-size: 50px;
+      }
+      ::backdrop {
+        backdrop-filter: blur(4px) contrast(50%);
+        -webkit-backdrop-filter: blur(4px) contrast(50%);
+        opacity: 0.75;
+      }
     </style>
     <script src="client.js"></script>
   </head>
@@ -33,5 +51,36 @@
   <body>
     <canvas id="renderCanvas"></canvas>
     <div id="prefetchLinks" style="display: none"></div>
+    <dialog id="approveAudioDialog">
+      <h1>Хотите ли вы прослушать аудио сопровождение?</h1>
+      <form method="dialog">
+        <button id="approveAudioButton">Да</button>
+        <button id="cancelAudioButton">Нет</button>
+      </form>
+    </dialog>
+    <script>
+      const dialog = document.querySelector("#approveAudioDialog");
+      const approveButton = document.querySelector("#approveAudioButton");
+      const cancelButton = document.querySelector("#cancelAudioButton");
+      window.showApproveAudioModal = (approveCallback, cancelCallback) => {
+        approveButton.addEventListener(
+          "click",
+          () => {
+            approveCallback();
+            dialog.close();
+          },
+          { once: true }
+        );
+        cancelButton.addEventListener(
+          "click",
+          () => {
+            cancelCallback();
+            dialog.close();
+          },
+          { once: true }
+        );
+        dialog.showModal();
+      };
+    </script>
   </body>
 </html>

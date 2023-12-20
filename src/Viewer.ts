@@ -37,6 +37,7 @@ import "@babylonjs/core/Culling/ray"; // нужно для работы клик
 
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
 import { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
+import { PlayAudioHelper } from "./WorkWithAudio/PlayAudioHelper";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
@@ -74,9 +75,7 @@ export class Viewer {
         audioContext: new AudioContext(),
       },
     });
-    Engine.audioEngine.onAudioLockedObservable.add(() => {
-      console.log("locked! we can show button!");
-    })
+    PlayAudioHelper.subscribeToAudioLockEvent();
     const scene = new Scene(engine);
     this.scene = scene;
     this.assetsManager = new AssetsManager(scene);

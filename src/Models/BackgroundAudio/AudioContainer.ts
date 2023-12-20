@@ -1,7 +1,7 @@
 import { Sound } from "@babylonjs/core/Audio/sound";
-import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
 import { Scene } from "@babylonjs/core/scene";
-import { Engine } from "@babylonjs/core/Engines/engine";
+import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
+import { PlayAudioHelper } from "../..//WorkWithAudio/PlayAudioHelper";
 
 export class AudioContainer {
   private sounds: Sound[];
@@ -56,8 +56,9 @@ export class AudioContainer {
   }
 
   public play() {
-    if (this.currentSound?.isPaused) {
-      this.currentSound.play();
+    console.log(this.currentSound);
+    if (this.currentSound?.isReady()) {
+      PlayAudioHelper.playSound(this.currentSound, { forceShowModal: true });
       // Если не на паузе и не проигрывается одновременно - значит аудио кончилось
     } else if (!this.currentSound?.isPaused && !this.currentSound?.isPlaying) {
       this.playNext(true);
@@ -84,16 +85,9 @@ export class AudioContainer {
         if (!this.needToPlayThatSound(index)) {
           return;
         }
-        if (Engine.audioEngine.unlocked) {
-          newSound.play();
-        } else {
-          Engine.audioEngine.onAudioUnlockedObservable.addOnce(() => {
-            if (!this.needToPlayThatSound(index)) {
-              return;
-            }
-            newSound.play();
-          });
-        }
+        PlayAudioHelper.playSound(newSound, {
+          ensureToPlay: () => this.needToPlayThatSound(index),
+        });
         newSound.onEndedObservable.add(() => {
           if (this.needToPlayThatContainer(this)) {
             this.playNext(false);
@@ -117,13 +111,13 @@ export class AudioContainer {
     this.currentSound?.pause();
     this.currentIndex++;
     if (this.currentSound) {
-      this.currentSound?.play();
+      PlayAudioHelper.playSound(this.currentSound);
       return;
     }
     this.currentIndex = 0;
     const needPlayByStart = this.info.loopAudios || forcePlayByStart;
     if (needPlayByStart) {
-      this.currentSound?.play();
+      PlayAudioHelper.playSound(this.currentSound);
     }
   }
 
