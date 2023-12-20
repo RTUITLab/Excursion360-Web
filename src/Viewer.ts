@@ -33,6 +33,8 @@ import { Angle } from "@babylonjs/core/Maths/math.path";
 import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Audio/audioSceneComponent";
 import "@babylonjs/core/Animations/animatable";
+import "@babylonjs/core/Culling/ray"; // нужно для работы кликов на iOS
+
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
 import { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 
