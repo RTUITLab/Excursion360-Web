@@ -1,20 +1,33 @@
 import { Sound } from "@babylonjs/core/Audio/sound";
 import { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
 import { Scene } from "@babylonjs/core/scene";
+import { Engine } from "@babylonjs/core/Engines/engine";
 
 export class AudioContainer {
-  private currentSound: Sound | null;
+  private sounds: Sound[];
   private currentIndex: number = -1;
   private timerItWorked: boolean = false;
-  private localState: boolean = false;
+
+  private get currentSound(): Sound | null {
+    if (this.currentIndex === -1) {
+      return null;
+    }
+    if (this.currentIndex >= this.sounds.length) {
+      return null;
+    }
+    return this.sounds[this.currentIndex];
+  }
 
   constructor(
     private info: BackgroundAudioInfo,
     private scene: Scene,
-    private sceneUrl: string,
-    private isGestureDetected: () => boolean,
-    private isPlayChange: (container: AudioContainer, isPlay: boolean) => void
-  ) {}
+    private needToPlayThatContainer: (container: AudioContainer) => boolean,
+    sceneUrl: string
+  ) {
+    this.sounds = info.audios.map((s, i) =>
+      this.createSound(this.info.id, sceneUrl + s, i)
+    );
+  }
 
   public get id(): string {
     return this.info.id;
@@ -22,6 +35,16 @@ export class AudioContainer {
 
   public getTimerItWorked(): boolean {
     return this.timerItWorked;
+  }
+
+  public isLoading(): boolean {
+    return !this.currentSound?.isReady();
+  }
+  public isPlaying(): boolean {
+    return this.currentSound?.isPlaying === true;
+  }
+  public isCanPlay(): boolean {
+    return !this.isPlaying() && !this.isLoading();
   }
 
   public setTimerItWorked(timerItWorked: boolean): void {
@@ -33,56 +56,46 @@ export class AudioContainer {
   }
 
   public play() {
-    if (this.currentSound) {
-      if (!this.currentSound.isPlaying) {
-        this.currentSound.play();
-      }
-      this.localState = true;
-    } else {
+    if (this.currentSound?.isPaused) {
+      this.currentSound.play();
+      // Если не на паузе и не проигрывается одновременно - значит аудио кончилось
+    } else if (!this.currentSound?.isPaused && !this.currentSound?.isPlaying) {
       this.playNext(true);
     }
   }
 
   public pause() {
-    if (this.currentSound) {
-      this.currentSound.pause();
-    }
-    this.localState = false;
+    this.currentSound?.pause();
   }
   public stop() {
-    if (this.currentSound) {
-      this.currentSound.stop();
-    }
-    this.localState = false;
+    this.currentSound?.stop();
   }
 
-  private playSong(id: string, url: string): Sound {
+  private needToPlayThatSound(index: number): boolean {
+    return this.needToPlayThatContainer(this) && this.currentIndex === index;
+  }
+
+  private createSound(id: string, url: string, index: number): Sound {
     const newSound = new Sound(
-      `background_audio_content_${id}`,
+      `background_audio_content_${id}_${index}`,
       url,
       this.scene,
       async () => {
-        if (this.currentSound && this.currentSound != newSound) {
-          this.currentSound.stop();
-          this.currentSound.dispose();
+        if (!this.needToPlayThatSound(index)) {
+          return;
         }
-        this.currentSound = newSound;
-        const playAfterResume = () => {
-          setTimeout(async () => {
-            if (this.isGestureDetected()) {
-              await this.scene.getEngine().getAudioContext().resume();
-              this.play();
+        if (Engine.audioEngine.unlocked) {
+          newSound.play();
+        } else {
+          Engine.audioEngine.onAudioUnlockedObservable.addOnce(() => {
+            if (!this.needToPlayThatSound(index)) {
+              return;
             }
-            if (newSound.isPlaying) {
-              this.isPlayChange(this, true);
-            } else {
-              playAfterResume();
-            }
-          }, 500);
-        };
-        playAfterResume();
+            newSound.play();
+          });
+        }
         newSound.onEndedObservable.add(() => {
-          if (this.localState) {
+          if (this.needToPlayThatContainer(this)) {
             this.playNext(false);
           }
         });
@@ -94,38 +107,29 @@ export class AudioContainer {
     );
     return newSound;
   }
+
   /**
    * Запуск следующей композиции
-   * @param force
+   * @param forcePlayByStart
    * @returns
    */
-  public playNext(force: boolean): void {
+  public playNext(forcePlayByStart: boolean): void {
+    this.currentSound?.pause();
+    this.currentIndex++;
     if (this.currentSound) {
-      this.currentSound.dispose();
-      this.currentSound = null;
+      this.currentSound?.play();
+      return;
     }
-    let targetIndex = ++this.currentIndex;
-    if (targetIndex < this.info.audios.length) {
-      this.playSong(
-        this.info.id,
-        this.sceneUrl + this.info.audios[targetIndex]
-      );
-    } else {
-      if (!this.info.loopAudios && !force) {
-        this.isPlayChange(this, false);
-        return;
-      }
-      targetIndex = this.currentIndex = 0;
-      this.playSong(
-        this.info.id,
-        this.sceneUrl + this.info.audios[targetIndex]
-      );
+    this.currentIndex = 0;
+    const needPlayByStart = this.info.loopAudios || forcePlayByStart;
+    if (needPlayByStart) {
+      this.currentSound?.play();
     }
   }
 
   public dispose() {
-    if (this.currentSound) {
-      this.currentSound.dispose();
+    for (const sound of this.sounds) {
+      sound.dispose();
     }
   }
 }

@@ -3,7 +3,6 @@ import { AudioContainer } from "./AudioContainer";
 import { FullScreenGUI } from "../ExcursionFullScreenGUI";
 import { IBackgroundAudioEventTrigger } from "./IBackgroundAudioEventTrigger";
 import { Scene } from "@babylonjs/core/scene";
-import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
 
 /**
  * Компонент фонового аудио, отвечает за воспроизведение и логику его работы
@@ -12,25 +11,19 @@ import { PointerEventTypes } from "@babylonjs/core/Events/pointerEvents";
 export class BackgroundAudioView {
   private packs: Map<string, AudioContainer> = new Map();
   private currentAudioPack: AudioContainer | null = null;
-  private isPlay: boolean = true;
-  private gestureDetected: boolean;
   private eventTrigger: IBackgroundAudioEventTrigger | null = null;
   private triggerInterval: any;
+
+  private get isPlay(): boolean {
+    return this.currentAudioPack?.isPlaying() === true;
+  }
 
   constructor(
     private scene: Scene,
     private sceneUrl: string,
-    private fullStreenUI: FullScreenGUI
+    private fullScreenUI: FullScreenGUI
   ) {
-    scene.onPointerObservable.add((d, s) => {
-      if (!this.gestureDetected && d.type == PointerEventTypes.POINTERDOWN) {
-        setTimeout(() => {
-          this.gestureDetected = true;
-        }, 300);
-      }
-    });
-    fullStreenUI.onPlayPauseBackgroundAudioClickObservable.add(() => {
-      this.gestureDetected = true;
+    fullScreenUI.onPlayPauseBackgroundAudioClickObservable.add(() => {
       if (this.currentAudioPack) {
         if (this.isPlay) {
           this.pause();
@@ -40,10 +33,19 @@ export class BackgroundAudioView {
       }
     });
     this.triggerInterval = setInterval(async () => {
-      if (!this.eventTrigger) {
+      if (!this.currentAudioPack || this.currentAudioPack.isLoading()) {
+        this.fullScreenUI.setVisibleIconOnPlayPauseButton(false);
         return;
       }
-      if (!this.currentAudioPack) {
+      console.log("wtf", this.currentAudioPack);
+
+      this.fullScreenUI.setVisibleIconOnPlayPauseButton(true);
+      if (this.currentAudioPack.isPlaying()) {
+        this.fullScreenUI.setPauseIconOnPlayPauseButton();
+      } else if (this.currentAudioPack.isCanPlay()) {
+        this.fullScreenUI.setPlayIconOnPlayPauseButton();
+      }
+      if (!this.eventTrigger) {
         return;
       }
       await this.eventTrigger.audioPositionChanged(
@@ -65,29 +67,16 @@ export class BackgroundAudioView {
 
   public play() {
     this.currentAudioPack && this.currentAudioPack.play();
-    this.setPlayState();
-  }
-
-  private setPlayState() {
-    this.isPlay = true;
-    this.fullStreenUI.setPauseIconOnOlayPauseButton();
   }
 
   public pause() {
     this.currentAudioPack && this.currentAudioPack.pause();
-    this.setPauseState();
-  }
-
-  private setPauseState() {
-    this.isPlay = false;
-    this.fullStreenUI.setPlayIconOnOlayPauseButton();
   }
 
   public setSound(
     audioInfo: BackgroundAudioInfo | null,
     trigger: IBackgroundAudioEventTrigger | null
   ): void {
-    this.fullStreenUI.setVisibleIconOnPlayPauseButton(!!audioInfo);
     if (audioInfo && audioInfo?.id === this.currentAudioPack?.id) {
       return;
     }
@@ -103,36 +92,11 @@ export class BackgroundAudioView {
         this.currentAudioPack = new AudioContainer(
           audioInfo,
           this.scene,
-          this.sceneUrl,
-          () => {
-            return this.gestureDetected;
-          },
-          (container, isPlay) => {
-            if (container.id === this.currentAudioPack.id) {
-              if (isPlay) {
-                for (const ac of this.packs.values()) {
-                  if (ac.id !== container.id) {
-                    ac.pause();
-                  }
-                }
-                this.setPlayState();
-              } else {
-                for (const ac of this.packs.values()) {
-                  ac.pause();
-                }
-                this.setPlayState();
-              }
-            } else {
-              if (isPlay) {
-                container.pause();
-              }
-            }
-            return isPlay ? this.setPlayState() : this.setPauseState();
-          }
+          (container) => this.currentAudioPack.id === container.id,
+          this.sceneUrl
         );
         this.packs.set(audioInfo.id, this.currentAudioPack);
       }
-      this.isPlay = true;
       this.currentAudioPack.playNext(false);
     } else {
       if (this.currentAudioPack) {

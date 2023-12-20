@@ -52,18 +52,18 @@ export class FullScreenGUI {
   public get onPlayPauseBackgroundAudioClickObservable(): Observable<Vector2WithInfo> {
     return this.playPauseBackgroundAudioButton.onPointerClickObservable;
   }
-  public setPauseIconOnOlayPauseButton() {
+  public setPauseIconOnPlayPauseButton() {
     this.playPauseBackgroundAudioButton.textBlock.text =
       ExcursionConstants.PauseIcon;
   }
-  public setPlayIconOnOlayPauseButton() {
+  public setPlayIconOnPlayPauseButton() {
     this.playPauseBackgroundAudioButton.textBlock.text =
       ExcursionConstants.PlayIcon;
   }
+
   public setVisibleIconOnPlayPauseButton(isVisible: boolean) {
     this.playPauseBackgroundAudioButton.isVisible = isVisible;
   }
-
   public setFastReturnToFirstStateVisible(isVisible: boolean) {
     this.fastReturnToFirstStateButton.isVisible = isVisible;
   }

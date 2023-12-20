@@ -74,6 +74,9 @@ export class Viewer {
         audioContext: new AudioContext(),
       },
     });
+    Engine.audioEngine.onAudioLockedObservable.add(() => {
+      console.log("locked! we can show button!");
+    })
     const scene = new Scene(engine);
     this.scene = scene;
     this.assetsManager = new AssetsManager(scene);
