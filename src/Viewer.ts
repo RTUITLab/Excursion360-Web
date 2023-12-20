@@ -8,12 +8,11 @@ import { GroupLink } from "./Models/GroupLink";
 import { FieldItemInfo } from "./Models/FieldItemInfo";
 import { FieldItem } from "./Models/FieldItem";
 import { CroppedImage } from "./Models/ExcursionModels/CroppedImage";
-import DynamicPhotoDome from "./Models/DymanicPhotoDome";
+import { DynamicPhotoDome } from "./Models/DymanicPhotoDome";
 import { BackgroundAudioView } from "./Models/BackgroundAudio/BackgroundAudioView";
 import { FullScreenGUI } from "./Models/ExcursionFullScreenGUI";
 import { IconBottom } from "./Models/IconBottom";
 import { Scene } from "@babylonjs/core/scene";
-import { WebXRDefaultExperience } from "@babylonjs/core/XR/webXRDefaultExperience";
 import { Engine } from "@babylonjs/core/Engines/engine";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Material } from "@babylonjs/core/Materials/material";
@@ -35,6 +34,7 @@ import "@babylonjs/loaders/glTF";
 import "@babylonjs/core/Audio/audioSceneComponent";
 import "@babylonjs/core/Animations/animatable";
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
+import { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome = null;
@@ -56,7 +56,8 @@ export class Viewer {
   currentPicture: State;
   fullScreenGUI: FullScreenGUI;
   iconBottom: IconBottom | null = null;
-  xrHelper: WebXRDefaultExperience;
+  xrHelper: WebXRInterface;
+
   freeCamera: FreeCamera;
 
   constructor(private configuration: Configuration) {}
@@ -113,53 +114,24 @@ export class Viewer {
 
     this.freeCamera = camera;
 
-    try {
-      WebXRDefaultExperience.CreateAsync(scene, {
-        disableTeleportation: false,
-        inputOptions: {
-          disableOnlineControllerRepository: false,
-        },
-      })
-        .then((xr) => {
-          this.xrHelper = xr;
-          xr.input.onControllerAddedObservable.add((controller) => {
-            controller.onMotionControllerInitObservable.add((mc) => {
-              const aButton = mc.getComponent("a-button");
-              if (aButton) {
-                aButton.onButtonStateChangedObservable.add((e) => {
-                  if (e.pressed) {
-                    this.backgroundAudio.togglePlayPause();
-                  }
-                });
-              }
-              const bButton = mc.getComponent("b-button");
-              if (bButton) {
-                bButton.onButtonStateChangedObservable.add((e) => {
-                  if (
-                    e.pressed &&
-                    this.viewScene.fastReturnToFirstStateEnabled
-                  ) {
-                    this.goToFirstState();
-                  }
-                });
-              }
-              const xButton = mc.getComponent("x-button");
-              if (xButton) {
-                xButton.onButtonStateChangedObservable.add((e) => {
-                  if (e.pressed) {
-                    window?.history?.back();
-                  }
-                });
-              }
-            });
-          });
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    } catch (error) {
-      console.error(error);
+    if ("xr" in window.navigator) {
+      import("./AsyncModules/WebXRLogic").then((module) => {
+        module.WebXRLogic.CreateXR(scene, {
+          aButtonPressed: () => {
+            this.backgroundAudio.togglePlayPause();
+          },
+          bButtonPressed: () => {
+            if (this.viewScene.fastReturnToFirstStateEnabled) {
+              this.goToFirstState();
+            }
+          },
+          xButtonPressed: () => {
+            window?.history?.back();
+          },
+        }).then((xr) => (this.xrHelper = xr));
+      });
     }
+
     DefaultLoadingScreen.DefaultLogoUrl = this.configuration.logoUrl;
     if (this.configuration.bottomImage) {
       this.iconBottom = new IconBottom(scene, this.configuration.bottomImage);
@@ -169,7 +141,7 @@ export class Viewer {
     scene.actionManager = new ActionManager(scene);
 
     if (BuildConfiguration.NeedDebugLayer) {
-      import("./InspectorLogic").then((module) => {
+      import("./AsyncModules/InspectorLogic").then((module) => {
         module.InspectorLogic.registerInspector(scene);
       });
     } else {
@@ -233,12 +205,7 @@ export class Viewer {
   private rotateCamToAngle(angle: number) {
     const yAngle = Angle.FromDegrees(angle).radians() + Math.PI;
     this.freeCamera.rotation.y = yAngle;
-    this.xrHelper &&
-      this.xrHelper.input.xrSessionManager.runInXRFrame(() => {
-        this.xrHelper.input.xrCamera.setTransformationFromNonVRCamera(
-          this.freeCamera
-        );
-      });
+    this.xrHelper?.rotateXrCameraFromPlainCamera(this.freeCamera);
   }
 
   private async goToImage(
