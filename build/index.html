@@ -27,23 +27,78 @@
         touch-action: none;
       }
       #approveAudioDialog {
-        height: 50dvh;
-        width: 50dvw;
+        max-height: 90dvh;
+        max-width: 50dvw;
+        min-height: 100px;
+        min-width: 300px;
+        padding: 24px;
+        box-sizing: border-box;
+        background-color: rgb(84, 95, 106);
+        border: none;
       }
+
+      #approveAudioDialog button {
+        background: none;
+        border-radius: 0;
+        color: white;
+        border: 1px solid grey;
+        height: 52px;
+
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 300;
+        font-size: 24px;
+        cursor: pointer;
+
+        padding: 0;
+        margin: 0;
+
+        flex: 1;
+      }
+
+      #approveAudioDialog button:hover {
+        background-color: rgb(101, 114, 127);
+        border: 1px solid white;
+      }
+
+      #approveAudioDialog button:focus {
+        outline: none;
+      }
+
       #approveAudioDialog h1 {
-        font-size: 50px;
+        font-size: 32px;
+        color: white;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 300;
       }
-      #approveAudioButton {
-        font-size: 50px;
+
+      #approveAudioDialog form {
+        display: flex;
+        flex-direction: row;
+        gap: 24px;
       }
-      #cancelAudioButton {
-        font-size: 50px;
-      }
+
       ::backdrop {
         backdrop-filter: blur(4px) contrast(50%);
         -webkit-backdrop-filter: blur(4px) contrast(50%);
         opacity: 0.75;
       }
+
+      @media screen and (max-width: 600px) {
+        #approveAudioDialog form {
+          gap: 10px;
+        }
+
+        #approveAudioDialog h1 {
+          font-size: 22px;
+        }
+
+        #approveAudioDialog button {
+          font-size: 16px;
+          height: 44px;
+        }
+      }
+
+      
     </style>
     <script src="client.js"></script>
   </head>
