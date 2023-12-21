@@ -40,7 +40,7 @@ import { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 import { PlayAudioHelper } from "./WorkWithAudio/PlayAudioHelper";
 
 export class Viewer {
-  private currentImage: DynamicPhotoDome = null;
+  private currentImage: DynamicPhotoDome | null = null;
   private scene: Scene;
   private canvas: HTMLCanvasElement;
   private viewScene: Excursion;
@@ -168,7 +168,7 @@ export class Viewer {
     });
     window.addEventListener("resize", () => {
       engine.resize();
-      this.currentImage.setCanvasSize(canvas.width, canvas.height);
+      this.currentImage?.setCanvasSize(canvas.width, canvas.height);
     });
   }
 

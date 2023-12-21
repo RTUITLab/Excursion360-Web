@@ -30,6 +30,7 @@ export class AudioContent implements FieldItemContent {
 
   private static backgroundMaterial: Material;
   private backgroundPlane: Mesh;
+  private backgroundPlaneTexture: AdvancedDynamicTexture;
   private audio: Sound;
   private uiLayerPlane: Mesh;
 
@@ -82,7 +83,7 @@ export class AudioContent implements FieldItemContent {
     uiLayerPlane.position.z = backgroundPlane.position.z + 0.01;
 
     const texture = AdvancedDynamicTexture.CreateForMesh(backgroundPlane);
-
+    this.backgroundPlaneTexture = texture;
     const headerBlock = new TextBlock();
     headerBlock.text = "Аудио";
     headerBlock.color = "white";
@@ -212,6 +213,7 @@ export class AudioContent implements FieldItemContent {
     this.playPauseButton.dispose();
     this.uiLayerPlane.dispose();
     this.backgroundPlane.dispose();
+    this.backgroundPlaneTexture.dispose();
     this.audio && this.audio.dispose();
     this.currentPositionTimer && clearInterval(this.currentPositionTimer);
   }
