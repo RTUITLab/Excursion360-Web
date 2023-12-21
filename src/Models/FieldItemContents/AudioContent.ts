@@ -134,7 +134,7 @@ export class AudioContent implements FieldItemContent {
       return;
     }
     this.onPlay();
-    PlayAudioHelper.playSound(this.audio, {
+    PlayAudioHelper.playSound(this.audio, this.scene, {
       forceShowModal: true,
       playSuccess: () => {
         this.playPauseButtonText.text = ExcursionConstants.PauseIcon;

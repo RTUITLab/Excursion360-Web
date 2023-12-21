@@ -56,9 +56,10 @@ export class AudioContainer {
   }
 
   public play() {
-    console.log(this.currentSound);
     if (this.currentSound?.isReady()) {
-      PlayAudioHelper.playSound(this.currentSound, { forceShowModal: true });
+      PlayAudioHelper.playSound(this.currentSound, this.scene, {
+        forceShowModal: true,
+      });
       // Если не на паузе и не проигрывается одновременно - значит аудио кончилось
     } else if (!this.currentSound?.isPaused && !this.currentSound?.isPlaying) {
       this.playNext(true);
@@ -85,7 +86,7 @@ export class AudioContainer {
         if (!this.needToPlayThatSound(index)) {
           return;
         }
-        PlayAudioHelper.playSound(newSound, {
+        PlayAudioHelper.playSound(newSound, this.scene, {
           ensureToPlay: () => this.needToPlayThatSound(index),
         });
         newSound.onEndedObservable.add(() => {
@@ -111,13 +112,13 @@ export class AudioContainer {
     this.currentSound?.pause();
     this.currentIndex++;
     if (this.currentSound) {
-      PlayAudioHelper.playSound(this.currentSound);
+      PlayAudioHelper.playSound(this.currentSound, this.scene);
       return;
     }
     this.currentIndex = 0;
     const needPlayByStart = this.info.loopAudios || forcePlayByStart;
     if (needPlayByStart) {
-      PlayAudioHelper.playSound(this.currentSound);
+      PlayAudioHelper.playSound(this.currentSound, this.scene);
     }
   }
 
