@@ -20,14 +20,14 @@ import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
  */
 export class TempTimerLogic {
   public static handleTempTimer(
-    backgroundAudio: BackgroundAudioInfo,
+    backgroundAudio: BackgroundAudioInfo | undefined,
     sceneUrl: string,
     assetsManager: AssetsManager,
     scene: Scene,
     prefetchResourcesManager: PrefetchResourcesManager,
     onContentCreated: (content: ImageContentItem) => void
   ): IBackgroundAudioEventTrigger | null {
-    if (!backgroundAudio.tempTimers?.length) {
+    if (!backgroundAudio?.tempTimers?.length) {
       return null;
     }
     const arr = [];
