@@ -61,7 +61,7 @@ const loadPreloadImages = async () => {
       throw new Error(`Response status is ${response.status}`);
     }
     const jsonResponse = await response.json() as PreloadResources;
-    const markappToAdd = jsonResponse.images.reduce((markup, url) => `${markup}\n<link rel="preload" as="image" href="${url}">`, '');
+    const markappToAdd = jsonResponse.images.reduce((markup, url) => `${markup}\n<link rel="preload" as="image" href="${url}" crossOrigin="anonymous">`, '');
     document.head.innerHTML += markappToAdd;
   } catch (error) {
     console.warn("Can't load preload images", error);
