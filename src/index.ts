@@ -53,3 +53,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert(`Can't load excursion from ${configuration.sceneUrl}`);
   }
 });
+
+const loadPreloadImages = async () => {
+  try {
+    const response = await fetch("/eapi/preload.json");
+    if (response.status != 200) {
+      throw new Error(`Response status is ${response.status}`);
+    }
+    const jsonResponse = await response.json() as PreloadResources;
+    const markappToAdd = jsonResponse.images.reduce((markup, url) => `${markup}\n<link rel="preload" as="image" href="${url}">`, '');
+    document.head.innerHTML += markappToAdd;
+  } catch (error) {
+    console.warn("Can't load preload images", error);
+  }
+};
+loadPreloadImages();
+interface PreloadResources {
+  images: string[];
+}
