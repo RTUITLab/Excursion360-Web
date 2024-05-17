@@ -2,6 +2,7 @@ import { WebXRDefaultExperience } from "@babylonjs/core/XR/webXRDefaultExperienc
 import { WebXRInterface } from "./AsyncModuleInterfaces";
 import { Scene } from "@babylonjs/core/scene";
 import { Camera } from "@babylonjs/core/Cameras/camera";
+import { WebXRHTCViveMotionController } from "@babylonjs/core";
 
 export class WebXRLogic {
   public static async CreateXR(
@@ -13,10 +14,13 @@ export class WebXRLogic {
     }
   ): Promise<WebXRInterface | null> {
     try {
+      // WebXRHTCViveMotionController.MODEL_BASE_URL = "/xrmodels/vive/";
+      // WebXRHTCViveMotionController.MODEL_FILENAME = "none.glb";
       const xr = await WebXRDefaultExperience.CreateAsync(scene, {
         disableTeleportation: false,
         inputOptions: {
           disableOnlineControllerRepository: false,
+          customControllersRepositoryURL: "/xrrepo"
         },
       });
 
