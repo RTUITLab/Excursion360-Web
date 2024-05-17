@@ -128,15 +128,15 @@ export class Viewer {
     if ("xr" in window.navigator) {
       import("./AsyncModules/WebXRLogic").then((module) => {
         module.WebXRLogic.CreateXR(scene, {
-          aButtonPressed: () => {
+          audioButtonPressed: () => {
             this.backgroundAudio.togglePlayPause();
           },
-          bButtonPressed: () => {
+          goFirstStateButtonPressed: () => {
             if (this.viewScene.fastReturnToFirstStateEnabled) {
               this.goToFirstState();
             }
           },
-          xButtonPressed: () => {
+          historyBackButtonPressed: () => {
             window?.history?.back();
           },
         }).then((xr) => (this.xrHelper = xr));

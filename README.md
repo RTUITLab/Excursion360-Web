@@ -32,8 +32,8 @@ npm start
 Проверена работа в:
 * Pico 4
 ### Управление
-* `a-button`: остановка/воспроизведение фоновой музыки
-* `b-button`: возврат к первой сцене экскурсии, если включен флаг `fastReturnToFirstStateEnabled`
+* `a-button`/`xr-standard-squeeze`(хватание): остановка/воспроизведение фоновой музыки
+* `b-button`/`xr-standard-touchpad`(тачпад): возврат к первой сцене экскурсии, если включен флаг `fastReturnToFirstStateEnabled`
 * `x-button`: выполнение `window.history.back()` для возврата к прошлой сцене
 
 ## Советы

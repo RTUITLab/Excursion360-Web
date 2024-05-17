@@ -7,9 +7,9 @@ export class WebXRLogic {
   public static async CreateXR(
     scene: Scene,
     callbacks: {
-      aButtonPressed: () => void;
-      bButtonPressed: () => void;
-      xButtonPressed: () => void;
+      audioButtonPressed: () => void;
+      goFirstStateButtonPressed: () => void;
+      historyBackButtonPressed: () => void;
     }
   ): Promise<WebXRInterface | null> {
     try {
@@ -25,24 +25,41 @@ export class WebXRLogic {
           const aButton = mc.getComponent("a-button");
           if (aButton) {
             aButton.onButtonStateChangedObservable.add((e) => {
-              if (e.pressed) {
-                callbacks.aButtonPressed();
+              if (e.hasChanges && e.pressed) {
+                callbacks.audioButtonPressed();
+              }
+            });
+          }
+          const squeezeButton = mc.getComponent("xr-standard-squeeze");
+          if (squeezeButton) {
+            squeezeButton.onButtonStateChangedObservable.add((e) => {
+              if (e.hasChanges && e.pressed) {
+                callbacks.audioButtonPressed();
+              }
+            });
+          }
+
+          const touchpadButton = mc.getComponent("xr-standard-touchpad");
+          if (touchpadButton) {
+            touchpadButton.onButtonStateChangedObservable.add((e) => {
+              if (e.hasChanges && e.pressed) {
+                callbacks.goFirstStateButtonPressed();
               }
             });
           }
           const bButton = mc.getComponent("b-button");
           if (bButton) {
             bButton.onButtonStateChangedObservable.add((e) => {
-              if (e.pressed) {
-                callbacks.bButtonPressed();
+              if (e.hasChanges && e.pressed) {
+                callbacks.goFirstStateButtonPressed();
               }
             });
           }
           const xButton = mc.getComponent("x-button");
           if (xButton) {
             xButton.onButtonStateChangedObservable.add((e) => {
-              if (e.pressed) {
-                callbacks.xButtonPressed();
+              if (e.hasChanges && e.pressed) {
+                callbacks.historyBackButtonPressed();
               }
             });
           }
