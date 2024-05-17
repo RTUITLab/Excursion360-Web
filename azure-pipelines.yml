@@ -13,7 +13,7 @@ variables:
   isPreview: $[contains(variables['Build.SourceBranch'], 'preview')]
 
 steps:
-- checkout:
+- checkout: 'self'
   lfs: true
 - task: NodeTool@0
   inputs:
