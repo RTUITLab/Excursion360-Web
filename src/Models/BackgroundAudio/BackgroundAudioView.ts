@@ -95,7 +95,6 @@ export class BackgroundAudioView {
         );
         this.packs.set(audioInfo.id, this.currentAudioPack);
       }
-      this.currentAudioPack.playNext(false);
     } else {
       if (this.currentAudioPack) {
         this.currentAudioPack.stop();

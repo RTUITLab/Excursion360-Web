@@ -5,11 +5,11 @@ import { PlayAudioHelper } from "../..//WorkWithAudio/PlayAudioHelper";
 
 export class AudioContainer {
   private sounds: Sound[];
-  private currentIndex: number = -1;
+  private currentIndex: number = 0;
   private timerItWorked: boolean = false;
 
   private get currentSound(): Sound | null {
-    if (this.currentIndex === -1) {
+    if (this.currentIndex < 0) {
       return null;
     }
     if (this.currentIndex >= this.sounds.length) {
@@ -86,9 +86,6 @@ export class AudioContainer {
         if (!this.needToPlayThatSound(index)) {
           return;
         }
-        PlayAudioHelper.playSound(newSound, this.scene, {
-          ensureToPlay: () => this.needToPlayThatSound(index),
-        });
         newSound.onEndedObservable.add(() => {
           if (this.needToPlayThatContainer(this)) {
             this.playNext(false);
