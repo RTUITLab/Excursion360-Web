@@ -140,7 +140,7 @@ export class Viewer {
 
     if ("xr" in window.navigator) {
       import("./AsyncModules/WebXRLogic").then((module) => {
-        module.WebXRLogic.CreateXR(scene, {
+        module.WebXRLogic.CreateXR(scene, this.configuration.forceInputProfileWebXr, {
           audioButtonPressed: () => {
             this.backgroundAudio.togglePlayPause();
           },

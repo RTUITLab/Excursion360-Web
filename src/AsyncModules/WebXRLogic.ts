@@ -2,11 +2,11 @@ import { WebXRDefaultExperience } from "@babylonjs/core/XR/webXRDefaultExperienc
 import { WebXRInterface } from "./AsyncModuleInterfaces";
 import { Scene } from "@babylonjs/core/scene";
 import { Camera } from "@babylonjs/core/Cameras/camera";
-import { WebXRHTCViveMotionController } from "@babylonjs/core";
 
 export class WebXRLogic {
   public static async CreateXR(
     scene: Scene,
+    forceInputProfileWebXr: string | null,
     callbacks: {
       audioButtonPressed: () => void;
       goFirstStateButtonPressed: () => void;
@@ -20,7 +20,8 @@ export class WebXRLogic {
         disableTeleportation: false,
         inputOptions: {
           disableOnlineControllerRepository: false,
-          customControllersRepositoryURL: "/xrrepo"
+          customControllersRepositoryURL: "/xrrepo",
+          forceInputProfile: forceInputProfileWebXr || undefined
         },
       });
 
