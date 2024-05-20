@@ -38,6 +38,7 @@ import "@babylonjs/core/Culling/ray"; // нужно для работы клик
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
 import { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 import { PlayAudioHelper } from "./WorkWithAudio/PlayAudioHelper";
+import { KeyboardEventTypes } from "@babylonjs/core";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome | null = null;
@@ -88,6 +89,18 @@ export class Viewer {
       this.configuration.sceneUrl,
       this.fullScreenGUI
     );
+    scene.onKeyboardObservable.add((ev) => {
+      //если нажали пробел
+      if (ev.type === KeyboardEventTypes.KEYDOWN && ev.event.key == " ") {
+        if (ev.event.shiftKey) {
+          if (this.viewScene.fastReturnToFirstStateEnabled) {
+            this.goToFirstState();
+          }
+        } else {
+          this.backgroundAudio.togglePlayPause();
+        }
+      }
+    });
     // по умолчанию на android аудио не ставится на паузу при блокировке телефона
     window.addEventListener("blur", () => {
       this.backgroundAudio.pause();
