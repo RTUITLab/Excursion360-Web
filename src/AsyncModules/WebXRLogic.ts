@@ -37,7 +37,7 @@ export class WebXRLogic {
           const squeezeButton = mc.getComponent("xr-standard-squeeze");
           if (squeezeButton) {
             squeezeButton.onButtonStateChangedObservable.add((e) => {
-              if (e.hasChanges && e.pressed) {
+              if (e.hasChanges && e.pressed && e.value === 1) {
                 callbacks.audioButtonPressed();
               }
             });
