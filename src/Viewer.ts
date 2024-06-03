@@ -144,7 +144,7 @@ export class Viewer {
     // Для имитации поведения, как будто хватаем за панораму и тянем. 10К выбрано эмпирически
     camera.angularSensibility = -10000;
     camera.attachControl(canvas, true);
-
+    camera.inputs.addGamepad();
     this.freeCamera = camera;
 
     if ("xr" in window.navigator) {
