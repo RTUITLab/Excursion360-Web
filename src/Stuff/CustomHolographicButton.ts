@@ -304,8 +304,8 @@ export class CustomHolographicButton extends Button3D {
 
   protected _applyFacade(facadeTexture: AdvancedDynamicTexture) {
     facadeTexture.scaleTo(
-      this._options.width * this.contentResolution,
-      this._options.height * this.contentResolution
+      this._options.width * (typeof (this.contentResolution) === "number" ? this.contentResolution : this.contentResolution.width),
+      this._options.height * (typeof (this.contentResolution) === "number" ? this.contentResolution : this.contentResolution.height)
     );
     facadeTexture._rootContainer.scaleX = 1;
     facadeTexture._rootContainer.scaleY = 1;
