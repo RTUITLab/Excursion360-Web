@@ -10,11 +10,11 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@babylonjs/core": "^7.8.0",
-        "@babylonjs/gui": "^7.8.0",
-        "@babylonjs/inspector": "^7.8.0",
-        "@babylonjs/loaders": "^7.8.0",
-        "@babylonjs/materials": "^7.8.0",
+        "@babylonjs/core": "^7.27.0",
+        "@babylonjs/gui": "^7.27.0",
+        "@babylonjs/inspector": "^7.27.0",
+        "@babylonjs/loaders": "^7.27.0",
+        "@babylonjs/materials": "^7.27.0",
         "bowser": "^2.11.0"
     },
     "devDependencies": {
