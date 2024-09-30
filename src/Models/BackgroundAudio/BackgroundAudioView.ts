@@ -64,7 +64,7 @@ export class BackgroundAudioView {
   }
 
   public play() {
-    this.currentAudioPack && this.currentAudioPack.play();
+    this.currentAudioPack && this.currentAudioPack.play(true);
   }
 
   public pause() {
@@ -97,7 +97,7 @@ export class BackgroundAudioView {
         this.currentAudioPack = new AudioContainer(
           audioInfo,
           this.scene,
-          (container) => this.currentAudioPack.id === container.id,
+          (container) => this.currentAudioPack?.id === container.id,
           this.sceneUrl
         );
         this.packs.set(audioInfo.id, this.currentAudioPack);

@@ -55,10 +55,11 @@ export class AudioContainer {
     return this.currentSound?.currentTime || 0;
   }
 
-  public play() {
+  public play(forceUnlock: boolean = false) {
     if (this.currentSound?.isReady()) {
       PlayAudioHelper.playSound(this.currentSound, this.scene, {
         forceShowModal: true,
+        forceUnlock: forceUnlock
       });
       // Если не на паузе и не проигрывается одновременно - значит аудио кончилось
     } else if (!this.currentSound?.isPaused && !this.currentSound?.isPlaying) {

@@ -34,8 +34,10 @@ export class PlayAudioHelper {
     options?: {
       /** Функция проверки, нужно ли еще запускать это аудио на момент подтверждения работы аудио */
       ensureToPlay?: () => boolean;
-      /** Если передано - модальное окно с запросом разрешения покажется если аудио контекст заблокирован */
+      /** Если передано true - модальное окно с запросом разрешения покажется если аудио контекст заблокирован */
       forceShowModal?: boolean;
+      /** Если передано true - будет выполнена попытка разблокировать аудио в процессе обработки заблокированного состояния*/
+      forceUnlock?: boolean;
       playSuccess?: () => void;
     }
   ) {
@@ -80,6 +82,10 @@ export class PlayAudioHelper {
       );
       this.showModalAlreadyOpened = true;
     };
+
+    if (options.forceUnlock){
+      Engine.audioEngine.unlock();
+    }
 
     // Сначала пытаемся обработать просто жест
     if (!this.gestureDetected) {
