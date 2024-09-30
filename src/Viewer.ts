@@ -269,15 +269,21 @@ export class Viewer {
     const backgroundAudio = this.viewScene.backgroundAudios.find(
       (b) => b.id === targetPicture.backgroundAudioId
     );
-    const triggerForBackgroundAudio = TempTimerLogic.handleTempTimer(
-      backgroundAudio,
-      this.configuration.sceneUrl,
-      this.assetsManager,
-      this.scene,
-      this.prefetchResourcesManager,
-      (content) => this.imageContents.push(content)
-    );
-    this.backgroundAudio.setSound(backgroundAudio, triggerForBackgroundAudio);
+    if (backgroundAudio) {
+
+      const triggerForBackgroundAudio = TempTimerLogic.handleTempTimer(
+        backgroundAudio,
+        this.configuration.sceneUrl,
+        this.assetsManager,
+        this.scene,
+        this.prefetchResourcesManager,
+        (content) => this.imageContents.push(content)
+      );
+      this.backgroundAudio.setSound(backgroundAudio, triggerForBackgroundAudio);
+    }
+    else {
+      this.backgroundAudio.clearSound();
+    }
 
     const distanceToLinks = 15;
     for (const link of targetPicture.links) {

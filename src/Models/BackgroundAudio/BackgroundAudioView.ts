@@ -71,6 +71,13 @@ export class BackgroundAudioView {
     this.currentAudioPack && this.currentAudioPack.pause();
   }
 
+  public clearSound() {
+    if (this.currentAudioPack) {
+      this.currentAudioPack.stop();
+    }
+    this.currentAudioPack = null;
+  }
+
   public setSound(
     audioInfo: BackgroundAudioInfo | null,
     trigger: IBackgroundAudioEventTrigger | null
