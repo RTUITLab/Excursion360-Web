@@ -19,15 +19,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   viewer.createScene();
   (document as any).viewer = viewer;
   try {
-    const tourResonses = await fetch(configuration.sceneUrl + "tour.json");
-    if (tourResonses.status !== 200) {
+    if (!configuration.sceneUrl.endsWith("/")) {
+      configuration.sceneUrl += '/';
+    }
+    const tourResponse = await fetch(configuration.sceneUrl + "tour.json");
+    if (tourResponse.status !== 200) {
       console.warn("Can't get scene description");
       return;
     }
-    const excursion = (await (
-      await fetch(configuration.sceneUrl + "tour.json")
-    ).json()) as Excursion;
-
+    const excursion = (await tourResponse.json()) as Excursion;
     if (!excursion.tourProtocolVersion) {
       alert(
         "Too old protocol (without version), use new builder or old viewer"

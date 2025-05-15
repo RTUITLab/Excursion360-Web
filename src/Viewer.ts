@@ -307,9 +307,6 @@ export class Viewer {
     const groupLinks: GroupLink[] = [];
     for (const groupLink of targetPicture.groupLinks) {
       let name = groupLink.title;
-      if (!name) {
-        name = "NO TITLE";
-      }
       const position = MathStuff.GetPositionForMarker(
         groupLink.rotation,
         distanceToLinks
