@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   viewer.createScene();
   (document as any).viewer = viewer;
   try {
-    if (!configuration.sceneUrl.endsWith("/")) {
+    if (configuration.sceneUrl && !configuration.sceneUrl.endsWith("/")) {
       configuration.sceneUrl += '/';
     }
     const tourResponse = await fetch(configuration.sceneUrl + "tour.json");
