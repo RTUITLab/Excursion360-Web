@@ -3,6 +3,8 @@ export class Configuration {
     public logoUrl: string;
     public bottomImage: BottomImageConfiguration | null = null;
     public forceInputProfileWebXr: string | null;
+    public minFOV?: number;
+    public maxFOV?: number;
 }
 export class BottomImageConfiguration {
     public url: string;

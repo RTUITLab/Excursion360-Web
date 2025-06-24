@@ -38,7 +38,7 @@ import "@babylonjs/core/Culling/ray"; // нужно для работы клик
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
 import { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 import { PlayAudioHelper } from "./WorkWithAudio/PlayAudioHelper";
-import { KeyboardEventTypes } from "@babylonjs/core";
+import { KeyboardEventTypes, PointerEventTypes } from "@babylonjs/core";
 
 export class Viewer {
   private currentImage: DynamicPhotoDome | null = null;
@@ -68,7 +68,7 @@ export class Viewer {
 
   private backgroundRadius = 500;
 
-  public createScene() {
+  public createScene(minFov?: number, maxFov?: number) {
     const canvas = document.querySelector("#renderCanvas") as HTMLCanvasElement;
     this.canvas = canvas;
     const engine = new Engine(canvas, true, {
@@ -145,6 +145,7 @@ export class Viewer {
     camera.angularSensibility = -10000;
     camera.attachControl(canvas, true);
     camera.inputs.addGamepad();
+    camera.fov = 1;
     this.freeCamera = camera;
 
     if ("xr" in window.navigator) {
@@ -172,6 +173,20 @@ export class Viewer {
     engine.loadingUIBackgroundColor = "transparent";
 
     scene.actionManager = new ActionManager(scene);
+
+    scene.onPointerObservable.add(e => {
+      const event = e.event as WheelEvent;
+      let fov = this.freeCamera.fov;
+      if (event.deltaY > 0) {
+        fov += 0.1;
+      } else {
+        fov -= 0.1;
+      }
+      minFov = minFov ?? 0.8;
+      maxFov = maxFov ?? 1.8;
+      fov = Math.max(Math.min(fov, maxFov), minFov);
+      this.freeCamera.fov = fov;
+    }, PointerEventTypes.POINTERWHEEL);
 
     if (BuildConfiguration.NeedDebugLayer) {
       import("./AsyncModules/InspectorLogic").then((module) => {

@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   const configuration = (await configurationResponse.json()) as Configuration;
   const viewer = new Viewer(configuration);
-  viewer.createScene();
+  viewer.createScene(configuration.minFOV, configuration.maxFOV);
   (document as any).viewer = viewer;
   try {
     if (configuration.sceneUrl && !configuration.sceneUrl.endsWith("/")) {
