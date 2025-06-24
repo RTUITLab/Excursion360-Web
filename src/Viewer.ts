@@ -240,6 +240,14 @@ export class Viewer {
     this.freeCamera.rotation.y = yAngle;
     this.xrHelper?.rotateXrCameraFromPlainCamera(this.freeCamera);
   }
+  /**
+   * Метод используется при отладке из редактора, для нацеливания камеры на нужную позицию
+   */
+  public rotateCameraToQuaternion(rotation: any): void {
+    const targetPosition = MathStuff.GetPositionForMarker(rotation, 100);
+    const targetCamera = this.freeCamera;
+    targetCamera.setTarget(targetPosition);
+  }
 
   private async goToImage(
     id: string,
