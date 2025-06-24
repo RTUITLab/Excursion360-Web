@@ -210,7 +210,12 @@ export class Viewer {
     }
     return null;
   }
-  public async show(scene: Excursion) {
+  /**
+   * Открыть тур
+   * @param scene сцена тура, которую нужно открыть
+   * @param ignoreRotateAngle нужно ли игнорировать первоначальное вращение камеры при открытии сцены
+   */
+  public async show(scene: Excursion, ignoreRotateAngle: boolean = false) {
     this.viewScene = scene;
     for (const material of this.linkSphereMaterials) {
       material.dispose();
@@ -229,7 +234,10 @@ export class Viewer {
     await this.goToImage(
       targetId,
       (targetState) => {
-        this.rotateCamToAngle(targetState.ifFirstStateRotationAngle || 0);
+        // Проверка нужна для live preview в редакторе, где нужно отображать конкретное вращение камеры при открытии сцены
+        if (!ignoreRotateAngle) {
+          this.rotateCamToAngle(targetState.ifFirstStateRotationAngle || 0);
+        }
       },
       true
     );
