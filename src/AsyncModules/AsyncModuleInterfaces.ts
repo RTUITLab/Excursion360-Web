@@ -1,5 +1,5 @@
-import { Camera } from "@babylonjs/core/Cameras/camera";
+import type { Camera } from "@babylonjs/core/Cameras/camera";
 
 export interface WebXRInterface {
-  rotateXrCameraFromPlainCamera(camera: Camera): void;
+	rotateXrCameraFromPlainCamera(camera: Camera): void;
 }

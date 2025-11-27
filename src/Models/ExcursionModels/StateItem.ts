@@ -1,5 +1,4 @@
 export interface StateItem {
-    
-    /** Rotation quaternion */
-    rotation: any;
+	/** Rotation quaternion */
+	rotation: any;
 }
