@@ -58,7 +58,7 @@ export class FieldItem extends LinkToState {
 			material,
 			async () => {
 				await this.onTrigger();
-				await onOpen(this);
+				await this.onOpen(this);
 			},
 			null,
 			scene,
@@ -147,7 +147,16 @@ export class FieldItem extends LinkToState {
 
 		const navMenuItems = [];
 
+		/** Как временное решение - изображения включают свое звуковое сопровождение через глобальный проигрыватель аудио на интерактивном компоненте. Если он занят - просто audio на компоненте включить не поулчится */
+		const audioContentUsedByImageContent = this.fieldItemInfo.images.some(
+			(i) => !!i.audio,
+		);
+
 		if (this.fieldItemInfo.images && this.fieldItemInfo.images.length > 0) {
+			if (audioContentUsedByImageContent) {
+				// если в фотографиях есть необходимость в аудио - создаем его
+				createEmptyAudioContent();
+			}
 			const imageContent = new ImagesContent(
 				this.fieldItemInfo.images,
 				backgroundPlane,
@@ -207,8 +216,19 @@ export class FieldItem extends LinkToState {
 		}
 
 		if (this.fieldItemInfo.audios && this.fieldItemInfo.audios.length > 0) {
+			if (audioContentUsedByImageContent) {
+				console.warn(
+					`На элементе ${this.name} есть audio, хотя оно уже занято изображениями, потому пропускается`,
+				);
+			} else {
+				createEmptyAudioContent().setAudioContent(this.fieldItemInfo.audios[0]);
+			}
+		}
+		this.contentBackground = backgroundPlane;
+		this.changeContent(0);
+
+		function createEmptyAudioContent() {
 			const audioContent = new AudioContent(
-				this.fieldItemInfo.audios[0],
 				backgroundPlane,
 				FieldItem.containerSize * 1.6,
 				FieldItem.containerSize / 2,
@@ -217,13 +237,11 @@ export class FieldItem extends LinkToState {
 					this.videoContent?.pauseVideo();
 				},
 				this.gui3Dmanager,
-				this.assetsManager,
 				this.scene,
 			);
 			this.contentList.push(audioContent);
+			return audioContent;
 		}
-		this.contentBackground = backgroundPlane;
-		this.changeContent(0);
 	}
 
 	private changeContent(contentIndex: number) {

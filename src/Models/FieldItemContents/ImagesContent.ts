@@ -17,6 +17,7 @@ import type { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
 import { NavigationMenu } from "../NavigationMenu";
 import type { FieldItemContent } from "./FieldItemContent";
+import type { FieldItemImageContent } from "../ExcursionModels/FieldItemImageContent";
 
 export class ImagesContent implements FieldItemContent {
 	get type(): string {
@@ -56,7 +57,7 @@ export class ImagesContent implements FieldItemContent {
 	}
 
 	constructor(
-		private images: string[],
+		private images: FieldItemImageContent[],
 		private parent: TransformNode,
 		private contentWidth: number,
 		private contentHeight: number,
@@ -86,7 +87,7 @@ export class ImagesContent implements FieldItemContent {
 				},
 			);
 		}
-		this.resources = images.map((i) => null);
+		this.resources = images.map(() => null as any);
 		this.openPicture(this.currentImage);
 	}
 
@@ -120,7 +121,7 @@ export class ImagesContent implements FieldItemContent {
 			index = this.resources.length + index;
 		}
 		index = index % this.resources.length;
-		this.imageButtons && this.imageButtons.setCurrentIndex(index);
+		this.imageButtons?.setCurrentIndex(index);
 		for (let i = 0; i < this.resources.length; i++) {
 			const imageResource = this.resources[i];
 			if (index === i) {
@@ -131,7 +132,7 @@ export class ImagesContent implements FieldItemContent {
 						texture: null,
 						material: null,
 						plane: null,
-						task: this.loadPictureResources(index, this.images[index]),
+						task: this.loadPictureResources(index, this.images[index].imageSrc),
 					};
 				} else if (imageResource.plane) {
 					// Loaded
@@ -140,7 +141,7 @@ export class ImagesContent implements FieldItemContent {
 					// In loading, just wait
 				}
 			} else {
-				if (imageResource && imageResource.plane) {
+				if (imageResource?.plane) {
 					// Hide all loaded images
 					imageResource.plane.isVisible = false;
 				}
@@ -203,9 +204,9 @@ export class ImagesContent implements FieldItemContent {
 	}
 
 	public dispose(): void {
-		this.imageButtons && this.imageButtons.dispose();
-		this.rightButton && this.rightButton.dispose();
-		this.leftButton && this.leftButton.dispose();
+		this.imageButtons?.dispose();
+		this.rightButton?.dispose();
+		this.leftButton?.dispose();
 		for (const resource of this.resources) {
 			if (!resource) {
 				continue;

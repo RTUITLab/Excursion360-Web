@@ -390,9 +390,16 @@ export class Viewer {
 				fieldItem.vertices.map((q) =>
 					MathStuff.GetPositionForMarker(q, this.backgroundRadius * 0.99),
 				),
-				fieldItem.imageContent.map(
-					(i) => this.configuration.sceneUrl + i.imageSrc,
-				),
+				fieldItem.imageContent.map((i) => ({
+					...i,
+					imageSrc: this.configuration.sceneUrl + i.imageSrc,
+					audio: i.audio
+						? {
+								...i.audio,
+								src: this.configuration.sceneUrl + i.audio.src,
+							}
+						: null,
+				})),
 				fieldItem.videos.map((v) => this.configuration.sceneUrl + v),
 				fieldItem.text,
 				fieldItem.audios.map((a) => ({
