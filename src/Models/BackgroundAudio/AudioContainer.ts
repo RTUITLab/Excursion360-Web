@@ -1,5 +1,6 @@
 import { Sound } from "@babylonjs/core/Audio/sound";
 import type { Scene } from "@babylonjs/core/scene";
+import { concatUrlPath } from "../../Stuff/UrlHelpers";
 import { PlayAudioHelper } from "../..//WorkWithAudio/PlayAudioHelper";
 import type { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
 
@@ -25,7 +26,7 @@ export class AudioContainer {
 		sceneUrl: string,
 	) {
 		this.sounds = info.audios.map((s, i) =>
-			this.createSound(this.info.id, sceneUrl + s, i),
+			this.createSound(this.info.id, concatUrlPath(sceneUrl, s), i),
 		);
 	}
 

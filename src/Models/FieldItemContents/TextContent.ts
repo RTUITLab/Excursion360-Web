@@ -1,3 +1,4 @@
+import type { IWheelEvent, Observer } from "@babylonjs/core";
 import {
 	PointerEventTypes,
 	type PointerInfo,
@@ -5,13 +6,11 @@ import {
 import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
-import type { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
 import type { Scene } from "@babylonjs/core/scene";
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 import { Control } from "@babylonjs/gui/2D/controls/control";
 import { ScrollViewer } from "@babylonjs/gui/2D/controls/scrollViewers/scrollViewer";
 import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
-import type { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
 import type { FieldItemContent } from "./FieldItemContent";
 
 export class TextContent implements FieldItemContent {
@@ -26,31 +25,30 @@ export class TextContent implements FieldItemContent {
 
 	private scrollView: ScrollViewer;
 
-	private wheelHandler: any;
+	private wheelHandlerObserver: Observer<PointerInfo>;
 
 	constructor(
 		private text: string,
 		private parent: TransformNode,
 		private contentWidth: number,
 		private contentHeight: number,
-		private gui3Dmanager: GUI3DManager,
-		private assetsManager: AssetsManager,
 		private scene: Scene,
 	) {
 		// this.loadVideoResources(videoUrl);
 		// this.playPauseButton = this.createPlayPauseButton();
 		this.createTextPanel();
-		this.wheelHandler = (event: PointerInfo) => {
-			if (event.pickInfo.pickedMesh === this.textPlane) {
-				if (event.type === PointerEventTypes.POINTERWHEEL) {
-					let delta = (event.event as any).deltaY;
-					delta = delta > 0 ? 1 : -1;
-					this.scrollView.verticalBar.value +=
-						this.scrollView.wheelPrecision * delta;
+		this.wheelHandlerObserver = scene.onPointerObservable.add(
+			(event: PointerInfo) => {
+				if (event.pickInfo.pickedMesh === this.textPlane) {
+					if (event.type === PointerEventTypes.POINTERWHEEL) {
+						let delta = (event.event as IWheelEvent).deltaY;
+						delta = delta > 0 ? 1 : -1;
+						this.scrollView.verticalBar.value +=
+							this.scrollView.wheelPrecision * delta;
+					}
 				}
-			}
-		};
-		scene.onPointerObservable.add(this.wheelHandler);
+			},
+		);
 	}
 
 	setIsVisible(visible: boolean) {
@@ -109,6 +107,6 @@ export class TextContent implements FieldItemContent {
 		this.textPlane.dispose();
 		this.textPlane.material.dispose();
 		this.textTexture.dispose();
-		this.scene.onPointerObservable.remove(this.wheelHandler);
+		this.scene.onPointerObservable.remove(this.wheelHandlerObserver);
 	}
 }

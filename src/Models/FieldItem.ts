@@ -193,8 +193,6 @@ export class FieldItem extends LinkToState {
 				backgroundPlane,
 				FieldItem.containerSize * 1,
 				FieldItem.containerSize * 0.8,
-				this.gui3Dmanager,
-				this.assetsManager,
 				this.scene,
 			);
 			this.contentList.push(textContent);

@@ -15,9 +15,9 @@ import type { Scene } from "@babylonjs/core/scene";
 import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
 import type { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
+import type { FieldItemImageContent } from "../ExcursionModels/FieldItemImageContent";
 import { NavigationMenu } from "../NavigationMenu";
 import type { FieldItemContent } from "./FieldItemContent";
-import type { FieldItemImageContent } from "../ExcursionModels/FieldItemImageContent";
 
 export class ImagesContent implements FieldItemContent {
 	get type(): string {

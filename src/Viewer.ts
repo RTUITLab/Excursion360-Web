@@ -38,6 +38,7 @@ import "@babylonjs/core/Culling/ray"; // нужно для работы клик
 import { KeyboardEventTypes, PointerEventTypes } from "@babylonjs/core";
 import type { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
+import { concatUrlPath } from "./Stuff/UrlHelpers";
 import { PlayAudioHelper } from "./WorkWithAudio/PlayAudioHelper";
 
 export class Viewer {
@@ -463,7 +464,7 @@ export class Viewer {
 			)?.audios || [];
 		audios.forEach((a) => {
 			this.prefetchResourcesManager.addResource(
-				this.configuration.sceneUrl + a,
+				concatUrlPath(this.configuration.sceneUrl, a),
 			);
 		});
 		state.fieldItems.forEach((fi) => {
