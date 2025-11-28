@@ -64,11 +64,11 @@ export class BackgroundAudioView {
 	}
 
 	public play() {
-		this.currentAudioPack && this.currentAudioPack.play(true);
+		this.currentAudioPack?.play(true);
 	}
 
 	public pause() {
-		this.currentAudioPack && this.currentAudioPack.pause();
+		this.currentAudioPack?.pause();
 	}
 
 	public clearSound() {

@@ -294,7 +294,7 @@ export class Viewer {
 		this.prefetchAudio(targetPicture);
 		await this.drawImage(
 			targetPicture,
-			() => actionBeforeChange && actionBeforeChange(targetPicture),
+			() => actionBeforeChange?.(targetPicture),
 		);
 
 		this.fullScreenGUI.setFastReturnToFirstStateVisible(

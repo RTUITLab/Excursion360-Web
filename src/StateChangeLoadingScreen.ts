@@ -10,7 +10,7 @@ export class StateChangeLoadingScreen implements ILoadingScreen {
 
 	private textBlock: TextBlock;
 
-	constructor(private gui: AdvancedDynamicTexture) {
+	constructor(gui: AdvancedDynamicTexture) {
 		this.displayLoadingUI = () => this.displayUIInternal();
 		this.hideLoadingUI = () => this.hideLoadingUIInternal();
 

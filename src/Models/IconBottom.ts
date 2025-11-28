@@ -7,7 +7,7 @@ import type { BottomImageConfiguration } from "../Configuration/Configuration";
 
 export class IconBottom {
 	constructor(
-		private _scene: Scene,
+		_scene: Scene,
 		config: BottomImageConfiguration,
 	) {
 		const bottomPlane = MeshBuilder.CreatePlane(

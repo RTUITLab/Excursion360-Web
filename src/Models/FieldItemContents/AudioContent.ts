@@ -33,7 +33,7 @@ export class AudioContent implements FieldItemContent {
 	private audio: Sound;
 	private uiLayerPlane: Mesh;
 
-	private audioInfo: FieldItemAudioContent | null = null;
+	private audioInfo?: FieldItemAudioContent | null;
 
 	constructor(
 		private parent: TransformNode,
@@ -184,6 +184,9 @@ export class AudioContent implements FieldItemContent {
 	}
 
 	private getCurrentPositionText(): string {
+		if (!this.audioInfo) {
+			return "";
+		}
 		return `${this.durationView(this.getCurrentPosition())}/${this.durationView(
 			this.audioInfo.duration,
 		)}`;

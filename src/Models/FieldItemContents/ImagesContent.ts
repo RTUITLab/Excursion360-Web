@@ -17,6 +17,7 @@ import type { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
 import type { FieldItemImageContent } from "../ExcursionModels/FieldItemImageContent";
 import { NavigationMenu } from "../NavigationMenu";
+import type { AudioContent } from "./AudioContent";
 import type { FieldItemContent } from "./FieldItemContent";
 
 export class ImagesContent implements FieldItemContent {
@@ -64,6 +65,7 @@ export class ImagesContent implements FieldItemContent {
 		private gui3DManager: GUI3DManager,
 		private assetsManager: AssetsManager,
 		private scene: Scene,
+		private parentAudioContent: AudioContent,
 	) {
 		if (images.length > 1) {
 			this.rightButton = this.createButton(">", contentWidth / 2.5);
@@ -148,6 +150,9 @@ export class ImagesContent implements FieldItemContent {
 			}
 		}
 		this.currentImage = index;
+		if (this.images[index].audio) {
+			this.parentAudioContent.setAudioContent(this.images[index].audio);
+		}
 	}
 
 	private loadPictureResources(index: number, url: string): TextureAssetTask {
