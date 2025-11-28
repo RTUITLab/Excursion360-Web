@@ -7,7 +7,6 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
-import type { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
 import type { Scene } from "@babylonjs/core/scene";
 import { TextWrapping } from "@babylonjs/gui/2D/controls";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
@@ -32,13 +31,11 @@ export class VideoContent implements FieldItemContent {
 	private playPauseButton: CustomHolographicButton;
 	private playPauseButtonText: TextBlock;
 	constructor(
-		private videoUrl: string,
+		videoUrl: string,
 		private parent: TransformNode,
 		private contentWidth: number,
-		private contentHeight: number,
 		private onPlay: () => void,
 		private gui3Dmanager: GUI3DManager,
-		private assetsManager: AssetsManager,
 		private scene: Scene,
 	) {
 		this.loadVideoResources(videoUrl);

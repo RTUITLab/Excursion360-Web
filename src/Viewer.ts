@@ -89,6 +89,9 @@ export class Viewer {
 			scene,
 			this.configuration.sceneUrl,
 			this.fullScreenGUI,
+			() => {
+				this.links.pauseAllAudios();
+			},
 		);
 		let spacePressed = false;
 		scene.onKeyboardObservable.add((ev) => {
@@ -292,9 +295,8 @@ export class Viewer {
 		this.currentPicture = targetPicture;
 		this.cleanResources();
 		this.prefetchAudio(targetPicture);
-		await this.drawImage(
-			targetPicture,
-			() => actionBeforeChange?.(targetPicture),
+		await this.drawImage(targetPicture, () =>
+			actionBeforeChange?.(targetPicture),
 		);
 
 		this.fullScreenGUI.setFastReturnToFirstStateVisible(

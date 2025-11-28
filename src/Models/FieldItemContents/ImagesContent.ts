@@ -151,7 +151,9 @@ export class ImagesContent implements FieldItemContent {
 		}
 		this.currentImage = index;
 		if (this.images[index].audio) {
-			this.parentAudioContent.setAudioContent(this.images[index].audio);
+			this.parentAudioContent?.setAudioContent(this.images[index].audio);
+		} else {
+			this.parentAudioContent?.setIsVisible(false);
 		}
 	}
 

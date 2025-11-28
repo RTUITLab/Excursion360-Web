@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		if (configuration.sceneUrl && !configuration.sceneUrl.endsWith("/")) {
 			configuration.sceneUrl += "/";
 		}
-		const tourResponse = await fetch(configuration.sceneUrl + "tour.json");
+		const tourResponse = await fetch(`${configuration.sceneUrl}tour.json`);
 		if (tourResponse.status !== 200) {
 			console.warn("Can't get scene description");
 			return;

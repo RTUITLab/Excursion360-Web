@@ -176,13 +176,11 @@ export class FieldItem extends LinkToState {
 				this.fieldItemInfo.videos[0], // TODO: handle all videos
 				backgroundPlane,
 				FieldItem.containerSize * 1.6,
-				FieldItem.containerSize,
 				() => {
 					this.onPlayMedia();
 					this.audioContent?.pauseAudio();
 				},
 				this.gui3Dmanager,
-				this.assetsManager,
 				this.scene,
 			);
 			this.contentList.push(videoContent);

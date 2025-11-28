@@ -161,6 +161,10 @@ export class AudioContent implements FieldItemContent {
 	}
 
 	public setAudioContent(audioContent: FieldItemAudioContent) {
+		this.setIsVisible(true);
+		if (audioContent.src === this.audioInfo?.src) {
+			return;
+		}
 		this.audioInfo = audioContent;
 		const audio = new Sound(
 			"audio_content",
@@ -173,6 +177,9 @@ export class AudioContent implements FieldItemContent {
 
 				this.playPauseButtonText.text = ExcursionConstants.PlayIcon;
 				this.currentPositionTimer = setInterval(() => {
+					this.playPauseButtonText.text = this.audio?.isPlaying
+						? ExcursionConstants.PauseIcon
+						: ExcursionConstants.PlayIcon;
 					this.currentPositionText.text = this.getCurrentPositionText();
 				}, 500);
 			},

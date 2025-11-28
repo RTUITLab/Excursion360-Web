@@ -93,15 +93,15 @@ export class TempTimerLogic {
 					scene,
 					0,
 					() => {
-						imageToShow!.imagePlane.animations.push(showAnimation);
-						scene.beginAnimation(imageToShow!.imagePlane, 0, frameRate, true);
+						imageToShow.imagePlane.animations.push(showAnimation);
+						scene.beginAnimation(imageToShow.imagePlane, 0, frameRate, true);
 					},
 				);
 				await assetsManager.loadAsync();
 				onContentCreated(imageToShow);
 			},
 			async () => {
-				scene.beginAnimation(imageToShow!.imagePlane, frameRate, 0, true);
+				scene.beginAnimation(imageToShow.imagePlane, frameRate, 0, true);
 				setTimeout(() => {
 					imageToShow.dispose();
 				}, 1500);

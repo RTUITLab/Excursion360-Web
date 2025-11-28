@@ -12,7 +12,7 @@ export class BackgroundAudioView {
 	private packs: Map<string, AudioContainer> = new Map();
 	private currentAudioPack: AudioContainer | null = null;
 	private eventTrigger: IBackgroundAudioEventTrigger | null = null;
-	private triggerInterval: any;
+	private triggerInterval: NodeJS.Timeout;
 
 	private get isPlay(): boolean {
 		return this.currentAudioPack?.isPlaying() === true;
@@ -22,6 +22,7 @@ export class BackgroundAudioView {
 		private scene: Scene,
 		private sceneUrl: string,
 		private fullScreenUI: FullScreenGUI,
+		private onStartPlaying: () => void,
 	) {
 		fullScreenUI.onPlayPauseBackgroundAudioClickObservable.add(() => {
 			if (this.currentAudioPack) {
@@ -65,6 +66,7 @@ export class BackgroundAudioView {
 
 	public play() {
 		this.currentAudioPack?.play(true);
+		this.onStartPlaying();
 	}
 
 	public pause() {
