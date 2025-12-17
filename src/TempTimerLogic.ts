@@ -13,11 +13,14 @@ import type {
 } from "./Models/ExcursionModels/BackgroundAudioInfo";
 import { ImageContentItem } from "./Models/ImageContentItem";
 import type { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
+import { concatUrlFromPathes } from "./concatUrlFromPathes";
 
 /**
  * Временная обработка логики показа фотографии только на определенный момент времени воспроизводимого аудио-сопровождения
  * Не заложено в формат экскурсии, наполняется в ручном режиме
  */
+
+// biome-ignore lint/complexity/noStaticOnlyClass: Статичные классы удобны
 export class TempTimerLogic {
 	public static handleTempTimer(
 		backgroundAudio: BackgroundAudioInfo | undefined,
@@ -55,7 +58,7 @@ export class TempTimerLogic {
 		onContentCreated: (content: ImageContentItem) => void,
 	): IBackgroundAudioEventTrigger {
 		let imageToShow: ImageContentItem | null = null;
-		const imageLink = sceneUrl + tempTimer.content.image;
+		const imageLink = concatUrlFromPathes(sceneUrl, tempTimer.content.image);
 
 		// предзагружаем изображение, чтобы оно показывалось моментально
 		prefetchResourcesManager.addResource(imageLink);
