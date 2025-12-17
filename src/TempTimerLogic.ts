@@ -13,7 +13,7 @@ import type {
 } from "./Models/ExcursionModels/BackgroundAudioInfo";
 import { ImageContentItem } from "./Models/ImageContentItem";
 import type { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
-import { concatUrlFromPathes } from "./concatUrlFromPathes";
+import { concatUrlFromPathes } from "./Stuff/concatUrlFromPathes";
 
 /**
  * Временная обработка логики показа фотографии только на определенный момент времени воспроизводимого аудио-сопровождения

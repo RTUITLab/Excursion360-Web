@@ -38,9 +38,8 @@ import "@babylonjs/core/Culling/ray"; // нужно для работы клик
 import { KeyboardEventTypes, PointerEventTypes } from "@babylonjs/core";
 import type { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
-import { concatUrlPath } from "./Stuff/UrlHelpers";
 import { PlayAudioHelper } from "./WorkWithAudio/PlayAudioHelper";
-import { concatUrlFromPathes } from "./concatUrlFromPathes";
+import { concatUrlFromPathes } from "./Stuff/concatUrlFromPathes";
 
 export class Viewer {
 	private currentImage: DynamicPhotoDome | null = null;
@@ -467,7 +466,7 @@ export class Viewer {
 			)?.audios || [];
 		audios.forEach((a) => {
 			this.prefetchResourcesManager.addResource(
-				concatUrlPath(this.configuration.sceneUrl, a),
+				concatUrlFromPathes(this.configuration.sceneUrl, a),
 			);
 		});
 		state.fieldItems.forEach((fi) => {

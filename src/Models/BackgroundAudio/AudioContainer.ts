@@ -1,9 +1,8 @@
 import { Sound } from "@babylonjs/core/Audio/sound";
 import type { Scene } from "@babylonjs/core/scene";
-import { concatUrlPath } from "../../Stuff/UrlHelpers";
 import { PlayAudioHelper } from "../..//WorkWithAudio/PlayAudioHelper";
 import type { BackgroundAudioInfo } from "../ExcursionModels/BackgroundAudioInfo";
-import { concatUrlFromPathes } from "../../concatUrlFromPathes";
+import { concatUrlFromPathes } from "../../Stuff/concatUrlFromPathes";
 
 export class AudioContainer {
 	private sounds: Sound[];

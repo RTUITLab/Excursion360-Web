@@ -1,4 +1,4 @@
-import { concatUrlFromPathes } from "./concatUrlFromPathes";
+import { concatUrlFromPathes } from "./Stuff/concatUrlFromPathes";
 import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 import type { Configuration } from "./Configuration/Configuration";
 import type { Excursion } from "./Models/ExcursionModels/Excursion";

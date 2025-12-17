@@ -25,6 +25,10 @@ test("Конечный / не обрабатывается", () => {
   expect(concatUrlFromPathes("foo", "bar/")).toBe("foo/bar/")
 })
 
+test("Множественные / тоже убираются", () => {
+  expect(concatUrlFromPathes("foo///", "////bar")).toBe("foo/bar")
+})
+
 test("Много путей на всякий случай", () => {
   expect(concatUrlFromPathes("foo", "bar/" , "one", "more")).toBe("foo/bar/one/more")
 })
