@@ -32,3 +32,15 @@ test("Множественные / тоже убираются", () => {
 test("Много путей на всякий случай", () => {
   expect(concatUrlFromPathes("foo", "bar/" , "one", "more")).toBe("foo/bar/one/more")
 })
+
+test("Пустой путь в начале не добавляет /", () => {
+  expect(concatUrlFromPathes("", "tour.json")).toBe("tour.json")
+})
+
+test("Пустота в конце не добавляет /", () => {
+  expect(concatUrlFromPathes("some/base", "")).toBe("some/base")
+})
+
+test("Пустота в середине не добавляет /", () => {
+  expect(concatUrlFromPathes("some/base", "", "", "some", "end")).toBe("some/base/some/end")
+})
