@@ -1,3 +1,4 @@
+import { concatUrlFromPathes } from "./Stuff/concatUrlFromPathes";
 import { BuildConfiguration } from "./Configuration/BuildConfiguration";
 import type { Configuration } from "./Configuration/Configuration";
 import type { Excursion } from "./Models/ExcursionModels/Excursion";
@@ -19,10 +20,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 	viewer.createScene(configuration.minFOV, configuration.maxFOV);
 	(document as any).viewer = viewer;
 	try {
-		if (configuration.sceneUrl && !configuration.sceneUrl.endsWith("/")) {
-			configuration.sceneUrl += "/";
-		}
-		const tourResponse = await fetch(configuration.sceneUrl + "tour.json");
+		const tourResponse = await fetch(
+			concatUrlFromPathes(configuration.sceneUrl ?? "", "tour.json"),
+		);
 		if (tourResponse.status !== 200) {
 			console.warn("Can't get scene description");
 			return;

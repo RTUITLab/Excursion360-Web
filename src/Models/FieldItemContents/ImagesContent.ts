@@ -15,7 +15,9 @@ import type { Scene } from "@babylonjs/core/scene";
 import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
 import type { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
 import { CustomHolographicButton } from "../../Stuff/CustomHolographicButton";
+import type { FieldItemImageContent } from "../ExcursionModels/FieldItemImageContent";
 import { NavigationMenu } from "../NavigationMenu";
+import type { AudioContent } from "./AudioContent";
 import type { FieldItemContent } from "./FieldItemContent";
 
 export class ImagesContent implements FieldItemContent {
@@ -56,13 +58,14 @@ export class ImagesContent implements FieldItemContent {
 	}
 
 	constructor(
-		private images: string[],
+		private images: FieldItemImageContent[],
 		private parent: TransformNode,
 		private contentWidth: number,
 		private contentHeight: number,
 		private gui3DManager: GUI3DManager,
 		private assetsManager: AssetsManager,
 		private scene: Scene,
+		private parentAudioContent: AudioContent,
 	) {
 		if (images.length > 1) {
 			this.rightButton = this.createButton(">", contentWidth / 2.5);
@@ -86,7 +89,7 @@ export class ImagesContent implements FieldItemContent {
 				},
 			);
 		}
-		this.resources = images.map((i) => null);
+		this.resources = images.map(() => null as any);
 		this.openPicture(this.currentImage);
 	}
 
@@ -120,7 +123,7 @@ export class ImagesContent implements FieldItemContent {
 			index = this.resources.length + index;
 		}
 		index = index % this.resources.length;
-		this.imageButtons && this.imageButtons.setCurrentIndex(index);
+		this.imageButtons?.setCurrentIndex(index);
 		for (let i = 0; i < this.resources.length; i++) {
 			const imageResource = this.resources[i];
 			if (index === i) {
@@ -131,7 +134,7 @@ export class ImagesContent implements FieldItemContent {
 						texture: null,
 						material: null,
 						plane: null,
-						task: this.loadPictureResources(index, this.images[index]),
+						task: this.loadPictureResources(index, this.images[index].imageSrc),
 					};
 				} else if (imageResource.plane) {
 					// Loaded
@@ -140,13 +143,18 @@ export class ImagesContent implements FieldItemContent {
 					// In loading, just wait
 				}
 			} else {
-				if (imageResource && imageResource.plane) {
+				if (imageResource?.plane) {
 					// Hide all loaded images
 					imageResource.plane.isVisible = false;
 				}
 			}
 		}
 		this.currentImage = index;
+		if (this.images[index].audio) {
+			this.parentAudioContent?.setAudioContent(this.images[index].audio);
+		} else {
+			this.parentAudioContent?.setIsVisible(false);
+		}
 	}
 
 	private loadPictureResources(index: number, url: string): TextureAssetTask {
@@ -203,9 +211,9 @@ export class ImagesContent implements FieldItemContent {
 	}
 
 	public dispose(): void {
-		this.imageButtons && this.imageButtons.dispose();
-		this.rightButton && this.rightButton.dispose();
-		this.leftButton && this.leftButton.dispose();
+		this.imageButtons?.dispose();
+		this.rightButton?.dispose();
+		this.leftButton?.dispose();
 		for (const resource of this.resources) {
 			if (!resource) {
 				continue;

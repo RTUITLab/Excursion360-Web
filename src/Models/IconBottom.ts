@@ -6,10 +6,7 @@ import type { Scene } from "@babylonjs/core/scene";
 import type { BottomImageConfiguration } from "../Configuration/Configuration";
 
 export class IconBottom {
-	constructor(
-		private _scene: Scene,
-		config: BottomImageConfiguration,
-	) {
+	constructor(_scene: Scene, config: BottomImageConfiguration) {
 		const bottomPlane = MeshBuilder.CreatePlane(
 			`background_image_plane`,
 			{

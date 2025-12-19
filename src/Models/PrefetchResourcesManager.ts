@@ -10,9 +10,9 @@ export class PrefetchResourcesManager {
 			return;
 		}
 		const preloadLink = window.document.createElement("link");
-		preloadLink["rel"] = "prefetch";
-		preloadLink["as"] = "fetch";
-		preloadLink["href"] = link;
+		preloadLink.rel = "prefetch";
+		preloadLink.as = "fetch";
+		preloadLink.href = link;
 		this.linksContainer.appendChild(preloadLink);
 		this.addedLinks.add(link);
 	}

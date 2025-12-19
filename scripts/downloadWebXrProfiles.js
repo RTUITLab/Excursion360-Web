@@ -7,7 +7,7 @@ const inBuild = (path) => `./build/xrrepo/profiles/${path}`;
 
 (async () => {
   const response = await fetch(
-    webXRBaseRepositoryUrl + "/profiles/profilesList.json"
+    `${webXRBaseRepositoryUrl}/profiles/profilesList.json`
   );
   const jsonProfiles = await response.json();
   console.log(jsonProfiles);

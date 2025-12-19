@@ -3,18 +3,18 @@ import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
 import type { GUI3DManager } from "@babylonjs/gui/3D/gui3DManager";
 import { CustomHolographicButton } from "../Stuff/CustomHolographicButton";
-import { ObjectsStackPanelHelper } from "./ObjectsStackPanelHelper";
+import { placeAsHorizontalStack } from "./ObjectsStackPanelHelper";
 
 export class NavigationMenu {
 	private buttons: CustomHolographicButton[] = [];
 
 	constructor(
-		private labels: string[],
-		private menuWitdh: number,
+		labels: string[],
+		menuWitdh: number,
 		private positionY: number,
-		private parent: TransformNode,
+		parent: TransformNode,
 		private gui3Dmanager: GUI3DManager,
-		private buttonSizeGetter: (index: number) => {
+		buttonSizeGetter: (index: number) => {
 			width: number;
 			height: number;
 		},
@@ -26,7 +26,7 @@ export class NavigationMenu {
 			const button = this.createButton(label, parent, i, width, height);
 			this.buttons.push(button);
 		}
-		ObjectsStackPanelHelper.placeAsHorizontalStack(this.buttons, menuWitdh);
+		placeAsHorizontalStack(this.buttons, menuWitdh);
 	}
 
 	public setCurrentIndex(index: number) {

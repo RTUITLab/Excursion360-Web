@@ -39,6 +39,7 @@ import { KeyboardEventTypes, PointerEventTypes } from "@babylonjs/core";
 import type { WebXRInterface } from "./AsyncModules/AsyncModuleInterfaces";
 import { PrefetchResourcesManager } from "./Models/PrefetchResourcesManager";
 import { PlayAudioHelper } from "./WorkWithAudio/PlayAudioHelper";
+import { concatUrlFromPathes } from "./Stuff/concatUrlFromPathes";
 
 export class Viewer {
 	private currentImage: DynamicPhotoDome | null = null;
@@ -64,7 +65,7 @@ export class Viewer {
 
 	freeCamera: FreeCamera;
 
-	constructor(private configuration: Configuration) {}
+	constructor(private configuration: Configuration) { }
 
 	private backgroundRadius = 500;
 
@@ -88,6 +89,9 @@ export class Viewer {
 			scene,
 			this.configuration.sceneUrl,
 			this.fullScreenGUI,
+			() => {
+				this.links.pauseAllAudios();
+			},
 		);
 		let spacePressed = false;
 		scene.onKeyboardObservable.add((ev) => {
@@ -291,14 +295,13 @@ export class Viewer {
 		this.currentPicture = targetPicture;
 		this.cleanResources();
 		this.prefetchAudio(targetPicture);
-		await this.drawImage(
-			targetPicture,
-			() => actionBeforeChange && actionBeforeChange(targetPicture),
+		await this.drawImage(targetPicture, () =>
+			actionBeforeChange?.(targetPicture),
 		);
 
 		this.fullScreenGUI.setFastReturnToFirstStateVisible(
 			id !== this.viewScene.firstStateId &&
-				this.viewScene.fastReturnToFirstStateEnabled,
+			this.viewScene.fastReturnToFirstStateEnabled,
 		);
 
 		document.title = targetPicture.title || this.viewScene.title;
@@ -330,7 +333,7 @@ export class Viewer {
 			const material = this.linkSphereMaterials[link.colorScheme];
 
 			const linkToState = this.links.getLink(name, position, material, () => {
-				let rotateCam = () => {};
+				let rotateCam = () => { };
 				if (link.rotationAfterStepAngleOverridden) {
 					rotateCam = () => {
 						this.rotateCamToAngle(link.rotationAfterStepAngle);
@@ -369,7 +372,7 @@ export class Viewer {
 						});
 				},
 				async (selectedId) => {
-					let rotateCam = () => {};
+					let rotateCam = () => { };
 					var overridePair = groupLink.groupStateRotationOverrides.find(
 						(p) => p.stateId === selectedId,
 					);
@@ -390,14 +393,21 @@ export class Viewer {
 				fieldItem.vertices.map((q) =>
 					MathStuff.GetPositionForMarker(q, this.backgroundRadius * 0.99),
 				),
-				fieldItem.imageContent.map(
-					(i) => this.configuration.sceneUrl + i.imageSrc,
-				),
+				fieldItem.imageContent.map((i) => ({
+					...i,
+					imageSrc: concatUrlFromPathes(this.configuration.sceneUrl, i.imageSrc),
+					audio: i.audio
+						? {
+							...i.audio,
+							src: concatUrlFromPathes(this.configuration.sceneUrl, i.audio.src),
+						}
+						: null,
+				})),
 				fieldItem.videos.map((v) => this.configuration.sceneUrl + v),
 				fieldItem.text,
 				fieldItem.audios.map((a) => ({
 					...a,
-					src: this.configuration.sceneUrl + a.src,
+					src: concatUrlFromPathes(this.configuration.sceneUrl, a.src),
 				})),
 				distanceToLinks,
 			);
@@ -423,7 +433,7 @@ export class Viewer {
 			const imageContent = new ImageContentItem(
 				{
 					...contentItem,
-					image: this.configuration.sceneUrl + contentItem.image,
+					image: concatUrlFromPathes(this.configuration.sceneUrl, contentItem.image),
 				},
 				this.assetsManager,
 				this.scene,
@@ -456,13 +466,13 @@ export class Viewer {
 			)?.audios || [];
 		audios.forEach((a) => {
 			this.prefetchResourcesManager.addResource(
-				this.configuration.sceneUrl + a,
+				concatUrlFromPathes(this.configuration.sceneUrl, a),
 			);
 		});
 		state.fieldItems.forEach((fi) => {
 			fi.audios.forEach((a) => {
 				this.prefetchResourcesManager.addResource(
-					this.configuration.sceneUrl + a.src,
+					concatUrlFromPathes(this.configuration.sceneUrl, a.src),
 				);
 			});
 		});
@@ -478,7 +488,7 @@ export class Viewer {
 				this.scene,
 			);
 			this.currentImage.setCanvasSize(this.canvas.width, this.canvas.height);
-			this.scene.onAfterRenderObservable.add((scene, event) =>
+			this.scene.onAfterRenderObservable.add((scene) =>
 				this.currentImage.trackImageParts(scene),
 			);
 		}
@@ -489,21 +499,21 @@ export class Viewer {
 		let postAction: (image: HTMLImageElement) => void;
 		if (targetPicture.croppedImageUrl) {
 			const imageRoot =
-				this.configuration.sceneUrl + targetPicture.croppedImageUrl;
+				concatUrlFromPathes(this.configuration.sceneUrl, targetPicture.croppedImageUrl);
 
-			const metaInfoLocation = imageRoot + "/meta.json";
+			const metaInfoLocation = concatUrlFromPathes(imageRoot, "/meta.json");
 			const meta = (await (
 				await fetch(metaInfoLocation)
 			).json()) as CroppedImage;
 
-			imageUrl = imageRoot + "/" + meta.lowQualityImage.route;
+			imageUrl = concatUrlFromPathes(imageRoot, meta.lowQualityImage.route);
 
 			postAction = (image) => {
 				this.currentImage.setByImage(image, meta);
 				this.currentImage.setImageParts(imageRoot, meta.rectangles);
 			};
 		} else if (targetPicture.url) {
-			imageUrl = this.configuration.sceneUrl + targetPicture.url;
+			imageUrl = concatUrlFromPathes(this.configuration.sceneUrl, targetPicture.url);
 			postAction = (image) => {
 				this.currentImage.setByImage(image);
 			};

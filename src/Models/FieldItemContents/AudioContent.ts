@@ -5,7 +5,6 @@ import { Color3 } from "@babylonjs/core/Maths/math.color";
 import { CreatePlane } from "@babylonjs/core/Meshes/Builders/planeBuilder";
 import type { Mesh } from "@babylonjs/core/Meshes/mesh";
 import type { TransformNode } from "@babylonjs/core/Meshes/transformNode";
-import type { AssetsManager } from "@babylonjs/core/Misc/assetsManager";
 import type { Scene } from "@babylonjs/core/scene";
 import { AdvancedDynamicTexture } from "@babylonjs/gui/2D/advancedDynamicTexture";
 import { TextBlock, TextWrapping } from "@babylonjs/gui/2D/controls/textBlock";
@@ -26,7 +25,7 @@ export class AudioContent implements FieldItemContent {
 	private playPauseButton: CustomHolographicButton;
 	private playPauseButtonText: TextBlock;
 	private currentPositionText: TextBlock;
-	private currentPositionTimer: any;
+	private currentPositionTimer?: NodeJS.Timeout;
 
 	private static backgroundMaterial: Material;
 	private backgroundPlane: Mesh;
@@ -34,14 +33,14 @@ export class AudioContent implements FieldItemContent {
 	private audio: Sound;
 	private uiLayerPlane: Mesh;
 
+	private audioInfo?: FieldItemAudioContent | null;
+
 	constructor(
-		private audioInfo: FieldItemAudioContent,
 		private parent: TransformNode,
 		private contentWidth: number,
 		private contentHeight: number,
 		private onPlay: () => void,
 		private gui3Dmanager: GUI3DManager,
-		private assetsManager: AssetsManager,
 		private scene: Scene,
 	) {
 		if (!AudioContent.backgroundMaterial) {
@@ -55,7 +54,6 @@ export class AudioContent implements FieldItemContent {
 		}
 
 		this.createAudioContentPlane();
-		this.createSound();
 		this.createPlayPauseButton();
 	}
 
@@ -69,7 +67,7 @@ export class AudioContent implements FieldItemContent {
 		}
 	}
 
-	createAudioContentPlane() {
+	private createAudioContentPlane() {
 		var backgroundPlane = CreatePlane("audio-content-plane", {
 			width: 2,
 			height: 2,
@@ -162,15 +160,26 @@ export class AudioContent implements FieldItemContent {
 		}
 	}
 
-	private createSound() {
+	public setAudioContent(audioContent: FieldItemAudioContent) {
+		this.setIsVisible(true);
+		if (audioContent.src === this.audioInfo?.src) {
+			return;
+		}
+		this.audioInfo = audioContent;
 		const audio = new Sound(
 			"audio_content",
 			this.audioInfo.src,
 			this.scene,
 			() => {
+				clearInterval(this.currentPositionTimer);
+				this.audio?.dispose();
 				this.audio = audio;
+
 				this.playPauseButtonText.text = ExcursionConstants.PlayIcon;
 				this.currentPositionTimer = setInterval(() => {
+					this.playPauseButtonText.text = this.audio?.isPlaying
+						? ExcursionConstants.PauseIcon
+						: ExcursionConstants.PlayIcon;
 					this.currentPositionText.text = this.getCurrentPositionText();
 				}, 500);
 			},
@@ -182,6 +191,9 @@ export class AudioContent implements FieldItemContent {
 	}
 
 	private getCurrentPositionText(): string {
+		if (!this.audioInfo) {
+			return "";
+		}
 		return `${this.durationView(this.getCurrentPosition())}/${this.durationView(
 			this.audioInfo.duration,
 		)}`;
